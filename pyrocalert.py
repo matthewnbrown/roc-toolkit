@@ -42,21 +42,31 @@ def login() -> bool:
 def check_captcha(r) -> bool:
     return '[click the correct number to proceed]' in r.text
 
-def get_captcha_image(resp):
+def get_imagehash_from_resp(resp) -> str:
     index = resp.text.find('img.php?hash=')
-    imgurl = resp.text[index:resp.text.find('"', index, index+100)]
+    imghash = resp.text[index + len('img.php?hash='):resp.text.find('"', index, index+100)]
+    return imghash
 
+def get_captcha_image(hash):
+    imgurl = 'img.php?hash=' + hash
     img = go_to_page(roc_home + imgurl).content
     #with open('image_name.png', 'wb') as handler:
     #    handler.write(img)
     return img
 
-
-def send_captcha_ans(ans):
+def send_captcha_ans(hash, ans) -> bool:
     cs = ROCCaptchaSelector()
     ans_coords = cs.get_xy_static(ans)
     print(ans, ans_coords)
-    pass
+
+    payload = {
+        'captcha':hash,
+        'coordinates[x]':ans_coords[0],
+        'coordinates[y]':ans_coords[1],
+        'num':ans,
+    }
+    p = s.post(roc_recruit, payload)
+    return not check_captcha(p)
 
 if __name__== '__main__':
     if exists(cookie_filename):
@@ -86,9 +96,16 @@ if __name__== '__main__':
             continue
 
         if check_captcha(r):
-            img = get_captcha_image(r)
+            hash = get_imagehash_from_resp(r)
+            img = get_captcha_image(hash)
             ans = get_user_answer_captcha(img)
-            print("Captcha!", ans)
+            correct = send_captcha_ans(hash, ans)
+            if correct:
+                print("Correct answer")
+            else:
+                print("Incorrect answer")
+                continue
+            
         else:
             print("No captcha")
         
