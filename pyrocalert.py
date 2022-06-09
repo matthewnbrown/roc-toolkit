@@ -28,7 +28,7 @@ def is_logged_in(resp = None) -> bool:
 
 def login() -> bool:
     payload = {
-        'email':user_settings['username'],
+        'email':user_settings['email'],
         'password':user_settings['password']
     }
     p = s.post(site_settings['roc_login'], payload)
@@ -98,7 +98,6 @@ def get_waittime() -> int:
     return min + int(random.uniform(0,1) * max)
  
 if __name__== '__main__':
-
     if exists(cookie_filename):
         print("Loading saved cookies")
         cookies = load_cookies(cookie_filename)
