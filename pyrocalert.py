@@ -148,5 +148,6 @@ if __name__== '__main__':
         
         waitTime = get_waittime()
         save_cookies(s.cookies, cookie_filename)
-        print(f'Taking a nap. Talk to you in {waitTime} seconds')
-        time.sleep(waitTime);
+        endtime = datetime.datetime.now() + datetime.timedelta(0, waitTime)
+        print('Taking a nap. Waking up at {}.'.format(endtime.strftime('%H:%M:%S')))
+        time.sleep(waitTime)
