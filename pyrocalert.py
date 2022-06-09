@@ -1,26 +1,21 @@
 from cookiehelper import *
 from pyroccaptchaselector import *
 from pyrocaltertgui import get_user_answer_captcha
+import roc_auto_solve
+import settingsloader
+
+import io
+import PIL.Image
 import time
+import datetime
 import random
-from tkinter import *
 import requests # py -m pip install requests
 from os.path import exists
 
-username = "email@email.com"
-password = "password123"
-notify_soldier_amt = 60
-min_checktime_secs = 5*60
-max_checktime_secs = 10*60
-
-
-roc_home = "enter_home"
-roc_login = "enter_login"
-roc_recruit = "enter_recruit"
-
 cookie_filename = 'cookies'
-headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'}
-
+headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36'}
+user_settings = settingsloader.load_user_settings('user.settings')
+site_settings = settingsloader.load_settings('site.settings')
 s = requests.Session()
 
 def go_to_page(url) -> requests.Response:
@@ -28,15 +23,15 @@ def go_to_page(url) -> requests.Response:
 
 def is_logged_in(resp = None) -> bool:
     if resp is None:
-        resp = go_to_page(roc_home)
+        resp = go_to_page(site_settings['roc_home'])
     return r'email@address.com' not in resp.text
 
 def login() -> bool:
     payload = {
-        'email':username,
-        'password':password
+        'email':user_settings['username'],
+        'password':user_settings['password']
     }
-    p = s.post(roc_login, payload)
+    p = s.post(site_settings['roc_login'], payload)
     return r'Incorrect login' not in p.text
 
 def check_captcha(r) -> bool:
@@ -49,7 +44,7 @@ def get_imagehash_from_resp(resp) -> str:
 
 def get_captcha_image(hash):
     imgurl = 'img.php?hash=' + hash
-    img = go_to_page(roc_home + imgurl).content
+    img = go_to_page(site_settings['roc_home'] + imgurl).content
     #with open('image_name.png', 'wb') as handler:
     #    handler.write(img)
     return img
@@ -65,23 +60,59 @@ def send_captcha_ans(hash, ans) -> bool:
         'coordinates[y]':ans_coords[1],
         'num':ans,
     }
-    p = s.post(roc_recruit, payload)
+    p = s.post(site_settings['roc_recruit'], payload)
     return not check_captcha(p)
 
+def get_captcha_ans(img, hash) -> str:
+    path = save_captcha(img, hash)
+
+    if user_settings['auto_solve_captchas']:
+        return roc_auto_solve.Solve(user_settings['auto_captcha_key'], path)['code']
+    else:
+        return get_user_answer_captcha(img)
+
+def save_captcha(img_bytes, hash):
+    img = PIL.Image.open(io.BytesIO(img_bytes))
+    path = user_settings['captcha_save_path'] + hash + '.png'
+    img.save(path)
+    return path;
+
+def in_nightmode() -> bool:
+    if not user_settings['enable_nightmode']:
+        return False
+    start, end = user_settings['nightmode_begin'], user_settings['nightmode_end']
+    now = datetime.datetime.now().time()
+
+    if start <= end :
+        return start <= now <= end
+    else:
+        return start <= now or now <= end
+
+def get_waittime() -> int:
+    if not in_nightmode():
+        min = user_settings['min_checktime_secs']
+        max = user_settings['max_checktime_secs']
+    else:
+        min = user_settings['nightmode_minwait_mins'] * 60
+        max = user_settings['nightmode_maxwait_mins'] * 60
+    return min + int(random.uniform(0,1) * max)
+ 
 if __name__== '__main__':
+
     if exists(cookie_filename):
         print("Loading saved cookies")
         cookies = load_cookies(cookie_filename)
         s.cookies.update(cookies)
 
     consecutive_login_failures = 0
+    consecutive_captcha_failures = 0
 
     while True:
         if consecutive_login_failures == 2:
             print("ERROR: Multiple login failures. Exiting.")
             break
 
-        r = go_to_page(roc_recruit)
+        r = go_to_page(site_settings['roc_recruit'])
 
         if not is_logged_in(r):
             print("Session timed out. Logging back in: ", end = "")
@@ -89,6 +120,7 @@ if __name__== '__main__':
             if res:
                 consecutive_login_failures = 0
                 print("Login success")
+                save_cookies(s.cookies, cookie_filename)
             else:
                 consecutive_login_failures += 1
                 print("login failure")
@@ -96,20 +128,26 @@ if __name__== '__main__':
             continue
 
         if check_captcha(r):
+            print('Detected captcha...')
             hash = get_imagehash_from_resp(r)
             img = get_captcha_image(hash)
-            ans = get_user_answer_captcha(img)
+            ans = get_captcha_ans(img, hash)
             correct = send_captcha_ans(hash, ans)
             if correct:
                 print("Correct answer")
+                consecutive_captcha_failures = 0
             else:
                 print("Incorrect answer")
+                consecutive_captcha_failures += 1
+                if consecutive_captcha_failures > 3:
+                    print("Failed too many captchas!")
+                    break;
                 continue
             
         else:
-            print("No captcha")
+            print("No captcha needed")
         
-        waitTime = min_checktime_secs + int(random.uniform(0,1) * max_checktime_secs)
+        waitTime = get_waittime()
         save_cookies(s.cookies, cookie_filename)
         print(f'Taking a nap. Talk to you in {waitTime} seconds')
         time.sleep(waitTime);
