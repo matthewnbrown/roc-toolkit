@@ -62,7 +62,9 @@ def load_user_settings(filepath, settings_dict = None) -> dict:
     for key, val in default_bools.items():
         __check_dict_bool(settings_dict, key, val)
 
-    default_ints = {'notify_soldier_amt':60, 'min_checktime_secs':300, 'max_checktime_secs':600 }
+    default_ints = {'notify_soldier_amt':60, 'min_checktime_secs':300, 'max_checktime_secs':600,
+        'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120 }
+
     for key,val in default_ints.items():
         __check_dict_int(settings_dict, key, val)
 
