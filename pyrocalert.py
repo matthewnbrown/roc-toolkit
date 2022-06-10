@@ -123,7 +123,7 @@ if __name__== '__main__':
                 save_cookies(s.cookies, cookie_filename)
             else:
                 consecutive_login_failures += 1
-                print("login failure")
+                print("Login failure")
             time.sleep(2)
             continue
 
@@ -133,7 +133,7 @@ if __name__== '__main__':
             img = get_captcha_image(hash)
             ans = get_captcha_ans(img, hash)
             if len(ans) != 1 or ans not in validans:
-                print("Warning: received respone \'{}\' from captcha solver!".format(ans))
+                print("Warning: received response \'{}\' from captcha solver!".format(ans))
                 consecutive_answer_errors += 1
                 if consecutive_answer_errors > 2:
                     print("Too many consecutive bad answers received, exiting!")
