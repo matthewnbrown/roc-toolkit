@@ -131,15 +131,16 @@ if __name__== '__main__':
             hash = get_imagehash_from_resp(r)
             img = get_captcha_image(hash)
             ans = get_captcha_ans(img, hash)
-            if not ans.isnumeric():
+            if not ans.isnumeric() or len(ans) != 1:
                 print("Warning: received respone \'{}\' from captcha solver!".format(ans))
                 consecutive_answer_errors += 1
                 if consecutive_answer_errors > 2:
                     print("Too many consecutive bad answers received!")
-                    break;
-                else:
-                    consecutive_answer_errors = 0
+                    break
                 continue
+           
+            consecutive_answer_errors = 0
+                    
             correct = send_captcha_ans(hash, ans)
             if correct:
                 print("Correct answer")
@@ -149,7 +150,7 @@ if __name__== '__main__':
                 consecutive_captcha_failures += 1
                 if consecutive_captcha_failures > 3:
                     print("Failed too many captchas!")
-                    break;
+                    break
                 continue
             
         else:
