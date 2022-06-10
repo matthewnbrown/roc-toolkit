@@ -136,7 +136,7 @@ if __name__== '__main__':
                 print("Warning: received respone \'{}\' from captcha solver!".format(ans))
                 consecutive_answer_errors += 1
                 if consecutive_answer_errors > 2:
-                    print("Too many consecutive bad answers received!")
+                    print("Too many consecutive bad answers received, exiting!")
                     break
                 continue
            
@@ -150,7 +150,7 @@ if __name__== '__main__':
                 print("Incorrect answer")
                 consecutive_captcha_failures += 1
                 if consecutive_captcha_failures > 3:
-                    print("Failed too many captchas!")
+                    print("Failed too many captchas, exiting!")
                     break
                 continue
             
