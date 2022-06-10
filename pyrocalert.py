@@ -16,6 +16,7 @@ cookie_filename = 'cookies'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36'}
 user_settings = settingsloader.load_user_settings('user.settings')
 site_settings = settingsloader.load_settings('site.settings')
+validans = { str(i) for i in range(1,10) }
 s = requests.Session()
 
 def go_to_page(url) -> requests.Response:
@@ -131,7 +132,7 @@ if __name__== '__main__':
             hash = get_imagehash_from_resp(r)
             img = get_captcha_image(hash)
             ans = get_captcha_ans(img, hash)
-            if not ans.isnumeric() or len(ans) != 1:
+            if len(ans) != 1 or ans not in validans:
                 print("Warning: received respone \'{}\' from captcha solver!".format(ans))
                 consecutive_answer_errors += 1
                 if consecutive_answer_errors > 2:
