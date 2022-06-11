@@ -69,14 +69,12 @@ class UserSettings(Settings):
         'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120 }
 
         timeConv = lambda t : datetime.strptime(t, '%H:%M').time()
-
         default_shorttime = {'nightmode_begin': timeConv('00:00'), 'nightmode_end': timeConv('9:00') }
 
         SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
         SettingsValidator.set_defaults_ifnotset(self.settings, default_bools, lambda s : s.lower() == 'true')
         SettingsValidator.set_defaults_ifnotset(self.settings, default_ints, lambda i : int(i))
         SettingsValidator.set_defaults_ifnotset(self.settings, default_shorttime, timeConv)
-
 
 class SiteSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
@@ -102,9 +100,6 @@ class SiteSettings(Settings):
             return False
 
 class SettingsLoader:
-    def __init__(self) -> None:
-        pass
-
     def load_settings_from_path(filepath, settings: dict = None, warnings: bool = False) -> dict:
         if settings is None:
             settings = {}
@@ -125,9 +120,6 @@ class SettingsLoader:
             settings[setting_name] = value
 
 class SettingsValidator:
-    def __init__(self) -> None:
-        pass
-
     def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
         if key not in setdic:
             setdic[key] = default
