@@ -137,8 +137,20 @@ class SettingsLoader:
         return line.split('#', maxsplit=1)[0]
 
 class SettingsSaver:
+    def __make_str(key, val) -> str:
+        return '{}:{}\n'.format(key,val)
+    def __make_lines(settings: dict):
+        arr = []
+        for key, val in settings.items():
+            arr.append(SettingsSaver.__make_str(key,val))
+        return arr
     def save_settings_toPath(filepath: str, settings: dict) -> None:
-        pass
+        lines = SettingsSaver.__make_lines(settings)
+
+        with open(filepath, 'w') as f:
+            f.writelines(lines)
+        
+
 
 class SettingsValidator:
     def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
