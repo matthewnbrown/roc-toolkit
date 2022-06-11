@@ -136,6 +136,10 @@ class SettingsLoader:
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
 
+class SettingsSaver:
+    def save_settings_toPath(filepath: str, settings: dict) -> None:
+        pass
+
 class SettingsValidator:
     def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
         if key not in setdic:
