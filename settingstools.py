@@ -12,7 +12,7 @@ class Settings:
         if filepath is not None:
             SettingsLoader.load_settings_from_path(filepath, settings=self.settings, warnings=True)         
 
-    def load_settings_from_path(self, filepath):
+    def load_settings_from_path(self, filepath) -> None:
         SettingsLoader.load_settings_from_path(filepath, self.settings, warnings=True)
         SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
 
@@ -55,16 +55,28 @@ class UserSettings(Settings):
         super().__init__(name, filepath)
 
         self.mandatory = {'email', 'password'}
+
+        if(filepath is not None):
+            self.__check_valid_settings()
+
+    def load_settings_from_path(self, filepath) -> None:
+        super().load_settings_from_path(filepath)
+        self.__check_valid_settings()
+
+    def __check_valid_settings(self):
         default_bools = { 'auto_solve_captchas':False, 'enable_nightmode': False }
         default_ints = {'notify_soldier_amt':60, 'min_checktime_secs':300, 'max_checktime_secs':600,
         'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120 }
-        default_shorttime = {'nightmode_begin': '00:00', 'nightmode_end': '9:00'}
 
-        if filepath is not None:
-            SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
-            SettingsValidator.set_defaults_ifnotset(self.settings, default_bools, 'bool')
-            SettingsValidator.set_defaults_ifnotset(self.settings, default_ints, 'int')
-            SettingsValidator.set_defaults_ifnotset(self.settings, default_shorttime, 'shorttime')
+        timeConv = lambda t : datetime.strptime(t, '%H:%M').time()
+
+        default_shorttime = {'nightmode_begin': timeConv('00:00'), 'nightmode_end': timeConv('9:00') }
+
+        SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
+        SettingsValidator.set_defaults_ifnotset(self.settings, default_bools, lambda s : s.lower() == 'true')
+        SettingsValidator.set_defaults_ifnotset(self.settings, default_ints, lambda i : int(i))
+        SettingsValidator.set_defaults_ifnotset(self.settings, default_shorttime, timeConv)
+
 
 class SiteSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
@@ -79,13 +91,13 @@ class SiteSettings(Settings):
             validUrls = SettingsValidator.validate_set(self.settings, self.mandatory, SiteSettings.__url_valid)
 
             if not validUrls:
-                print("Site settings are not set correctly. Exiting");
+                print("Site settings are not set correctly. Ensure URLs are valid. Exiting");
                 quit()
         
     def __url_valid(urlstr: str) -> bool:
         try:
             result = urlparse(urlstr)
-            return True
+            return all([result.scheme, result.netloc])
         except ValueError:
             return False
 
@@ -115,47 +127,25 @@ class SettingsLoader:
 class SettingsValidator:
     def __init__(self) -> None:
         pass
-        
-    def __check_dict_int(setdic, key, default) -> None:
+
+    def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
         if key not in setdic:
             setdic[key] = default
         else:
-            setdic[key] = int(setdic[key])
-    def __check_dict_bool(setdic, key, default = False) -> None:
-        if key not in setdic:
-            setdic[key] = default
-        else:
-            setdic[key] = setdic[key].lower() == 'true'
-    def __check_dict_datetime(setdic, key, default) -> None:
-        if key not in setdic:
-            setdic[key] = datetime.strptime(default, '%H:%M').time()
-        else:
-            setdic[key] = datetime.strptime(setdic[key],'%H:%M').time()
-    
+            setdic[key] = callback(setdic[key])
+
     def validate_set(settings: dict, settings_to_validate, validationfunc: Callable) -> bool:
         for setting in settings_to_validate:
             if setting not in settings or not validationfunc(settings[setting]):
                 return False
         return True
 
-    def set_defaults_ifnotset(settings: dict, defaults: dict, deftype: str) -> None:
-        if settings is None or defaults is None:
-            return
-
-        if deftype == 'int':
-            func = SettingsValidator.__check_dict_int
-        elif deftype == 'bool':
-            func = SettingsValidator.__check_dict_bool
-        elif deftype == 'shorttime':
-            func = SettingsValidator.__check_dict_datetime
-        else:
-            func = None
-        
-        if func is None:
+    def set_defaults_ifnotset(settings: dict, defaults: dict, callback: callable) -> None:
+        if settings is None or defaults is None or callback is None:
             return
         
         for key, val in defaults.items():
-            func(settings, key, val)
+            SettingsValidator.__check_dict_generic(settings, key, val, callback)
 
     # Return true if all mandatories are set
     def check_mandatories(settings: dict, mandatories, printError: bool = True, quit_if_bad = False) -> bool:
