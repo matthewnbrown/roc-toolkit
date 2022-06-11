@@ -109,6 +109,11 @@ class SettingsLoader:
             lines = f.readlines()
 
         for line in lines:
+            line = SettingsLoader.__split_comment(line)
+
+            if ':' not in line:
+                continue
+            
             setting_name, value = line.split(':',maxsplit=1)
             setting_name = setting_name.strip()
             value = value.strip()
@@ -119,6 +124,9 @@ class SettingsLoader:
                 print("Warning: setting {} has no value".format(setting_name))
                 continue
             settings[setting_name] = value
+
+    def __split_comment(line: str) -> str:
+        return line.split('#', maxsplit=1)[0]
 
 class SettingsValidator:
     def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
