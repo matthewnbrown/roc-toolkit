@@ -115,7 +115,7 @@ class RocAlert:
 
     def __sleep(self) -> None:
         waitTime = self.__get_waittime()
-        save_cookies(self.session.cookies, self.cookie_filename)
+        save_cookies_to_path(self.session.cookies, self.cookie_filename)
         endtime = datetime.datetime.now() + datetime.timedelta(0, waitTime)
         self.__log('Taking a nap. Waking up at {}.'.format(endtime.strftime('%H:%M:%S')))
         time.sleep(waitTime)
@@ -126,7 +126,7 @@ class RocAlert:
         if res:
             self.consecutive_login_failures = 0
             self.__log("Login success")
-            save_cookies(self.session.cookies, self.cookie_filename)
+            save_cookies_to_path(self.session.cookies, self.cookie_filename)
         else:
             self.consecutive_login_failures += 1
             self.__("Login failure")
@@ -184,8 +184,11 @@ class RocAlert:
         self.__log("Main loop exited.")
 
     def load_cookies(self) -> bool:
-        if exists(self.cookie_filename):
+        if self.user_settings['load_cookies_from_browser']:
+            cookies = load_cookies_from_browser()
+            self.session.cookies.update(cookies)
+        elif exists(self.cookie_filename):
             self.__log("Loading saved cookies")
-            cookies = load_cookies(self.cookie_filename)
+            cookies = load_cookies_from_path(self.cookie_filename)
             self.session.cookies.update(cookies)
 
