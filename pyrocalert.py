@@ -2,7 +2,7 @@ from cookiehelper import *
 from pyroccaptchaselector import *
 from pyrocaltertgui import get_user_answer_captcha
 import roc_auto_solve
-from settingsloader import *
+from settingstools import *
 
 import io
 import PIL.Image
