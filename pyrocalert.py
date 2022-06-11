@@ -1,3 +1,4 @@
+from ast import While
 from cookiehelper import *
 from pyroccaptchaselector import *
 from pyrocaltertgui import get_user_answer_captcha
@@ -15,8 +16,10 @@ from os.path import exists
 cookie_filename = 'cookies'
 headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.5005.63 Safari/537.36'}
 user_settings =  UserSettings(filepath='user.settings')
-user_settings = user_settings.get_settings();
-site_settings = load_settings('site.settings')
+user_settings = user_settings.get_settings()
+site_settings = SiteSettings(filepath='site.settings')
+site_settings = site_settings.get_settings()
+
 validans = { str(i) for i in range(1,10) }
 s = requests.Session()
 
