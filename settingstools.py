@@ -66,7 +66,8 @@ class UserSettings(Settings):
     def __check_valid_settings(self):
         default_bools = { 'auto_solve_captchas':False, 'enable_nightmode': False }
         default_ints = {'notify_soldier_amt':60, 'min_checktime_secs':300, 'max_checktime_secs':600,
-        'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120 }
+        'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120,
+        'max_consecutive_login_failures':2, 'max_consecutive_captcha_attempts':3, 'max_consecutive_answer_errors':5}
 
         timeConv = lambda t : datetime.strptime(t, '%H:%M').time()
         default_shorttime = {'nightmode_begin': timeConv('00:00'), 'nightmode_end': timeConv('9:00') }

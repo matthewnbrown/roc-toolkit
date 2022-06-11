@@ -129,8 +129,29 @@ class RocAlert:
             save_cookies(self.session.cookies, self.cookie_filename)
         else:
             self.consecutive_login_failures += 1
-            print("Login failure")
+            self.__("Login failure")
             return False
+
+    def __handle_captcha(self, resp) -> bool:
+        self.__log('Detected captcha...')
+        hash = RocAlert.get_imagehash_from_resp(resp)
+        img = self.get_captcha_image(hash)
+        ans = self.get_captcha_ans(img, hash)
+        if len(ans) != 1 or ans not in self.validans:
+            self.__log("Warning: received response \'{}\' from captcha solver!".format(ans))
+            self.consecutive_answer_errors += 1
+            return False
+    
+        self.consecutive_answer_errors = 0  
+        correct = self.send_captcha_ans(hash, ans)
+        if correct:
+            print("Correct answer")
+            self.consecutive_captcha_failures = 0
+        else:
+            print("Incorrect answer")
+            self.consecutive_captcha_failures += 1
+            return False
+        return True
 
     def start(self) -> None:
         self.load_cookies()
@@ -141,53 +162,26 @@ class RocAlert:
             if self.consecutive_login_failures >= self.user_settings['max_consecutive_login_failures']:
                 self.__log("ERROR: Multiple login failures. Exiting.")
                 break
-
+            if self.consecutive_answer_errors >= self.user_settings['max_consecutive_answer_errors']:
+                self.__log("Too many consecutive bad answers received, exiting!")
+                break
+            if self.consecutive_captcha_failures >= self.user_settings['max_consecutive_captcha_attempts']:
+                print("Failed too many captchas, exiting!")
+                break
             r = self.go_to_page(self.site_settings['roc_recruit'])
 
+            # if not logged in and login attempt fails, retry after a bit
             if not self.is_logged_in(r):
-                print("Session timed out. Logging back in: ", end = "")
-                res = self.login()
-                if res:
-                    self.consecutive_login_failures = 0
-                    print("Login success")
-                    save_cookies(self.session.cookies, self.cookie_filename)
-                else:
-                    self.consecutive_login_failures += 1
-                    print("Login failure")
-                    time.sleep(2)
-                    continue
+                self.__attempt_login()
+                continue
 
             if RocAlert.resp_has_captcha(r):
-                print('Detected captcha...')
-                hash = RocAlert.get_imagehash_from_resp(r)
-                img = self.get_captcha_image(hash)
-                ans = self.get_captcha_ans(img, hash)
-                if len(ans) != 1 or ans not in self.validans:
-                    print("Warning: received response \'{}\' from captcha solver!".format(ans))
-                    self.consecutive_answer_errors += 1
-                    if self.consecutive_answer_errors >= self.user_settings['max_consecutive_answer_errors']:
-                        print("Too many consecutive bad answers received, exiting!")
-                        break
-                    continue
-            
-                self.consecutive_answer_errors = 0
-                        
-                correct = self.send_captcha_ans(hash, ans)
-                if correct:
-                    print("Correct answer")
-                    self.consecutive_captcha_failures = 0
-                else:
-                    print("Incorrect answer")
-                    self.consecutive_captcha_failures += 1
-                    if self.consecutive_captcha_failures >= self.user_settings['max_consecutive_captcha_attempts']:
-                        print("Failed too many captchas, exiting!")
-                        break
-                    continue
-                
+                self.__handle_captcha(r)   
             else:
                 print("No captcha needed")
         
             self.__sleep()
+        self.__log("Main loop exited.")
 
     def load_cookies(self) -> bool:
         if exists(self.cookie_filename):
