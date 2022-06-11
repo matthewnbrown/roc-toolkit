@@ -1,4 +1,3 @@
-from ast import While
 from cookiehelper import *
 from pyroccaptchaselector import *
 from pyrocaltertgui import get_user_answer_captcha
