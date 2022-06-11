@@ -153,21 +153,38 @@ class RocAlert:
             return False
         return True
 
+    def __init_cookie_loading(self) -> None:
+        if not self.user_settings['load_cookies_from_browser']:
+            self.__load_cookies_file()
+            return
+
+        self.__load_browser_cookies()
+        r = self.go_to_page(self.site_settings['roc_home'])
+        if not self.is_logged_in(r):
+            self.__load_cookies_file()
+
+    def __check_failure_conditions(self) -> bool:
+        error = False
+        if self.consecutive_login_failures >= self.user_settings['max_consecutive_login_failures']:
+            self.__log("ERROR: Multiple login failures. Exiting.")
+            error = True
+        if self.consecutive_answer_errors >= self.user_settings['max_consecutive_answer_errors']:
+            self.__log("Too many consecutive bad answers received, exiting!")
+            error = True
+        if self.consecutive_captcha_failures >= self.user_settings['max_consecutive_captcha_attempts']:
+            print("Failed too many captchas, exiting!")
+            error = True
+        return error
+
     def start(self) -> None:
-        self.load_cookies()
+        self.__init_cookie_loading()
         self.consecutive_login_failures = 0
         self.consecutive_captcha_failures = 0
         self.consecutive_answer_errors = 0
-        while True:
-            if self.consecutive_login_failures >= self.user_settings['max_consecutive_login_failures']:
-                self.__log("ERROR: Multiple login failures. Exiting.")
+        while True: 
+            if self.__check_failure_conditions():
                 break
-            if self.consecutive_answer_errors >= self.user_settings['max_consecutive_answer_errors']:
-                self.__log("Too many consecutive bad answers received, exiting!")
-                break
-            if self.consecutive_captcha_failures >= self.user_settings['max_consecutive_captcha_attempts']:
-                print("Failed too many captchas, exiting!")
-                break
+
             r = self.go_to_page(self.site_settings['roc_recruit'])
 
             # if not logged in and login attempt fails, retry after a bit
@@ -183,11 +200,13 @@ class RocAlert:
             self.__sleep()
         self.__log("Main loop exited.")
 
-    def load_cookies(self) -> bool:
+    def __load_browser_cookies(self) -> bool:
         if self.user_settings['load_cookies_from_browser']:
-            cookies = load_cookies_from_browser()
+            cookies = load_cookies_from_browser(self.user_settings['browser'], self.site_settings['roc_home'])
             self.session.cookies.update(cookies)
-        elif exists(self.cookie_filename):
+
+    def __load_cookies_file(self) -> bool:
+        if exists(self.cookie_filename):
             self.__log("Loading saved cookies")
             cookies = load_cookies_from_path(self.cookie_filename)
             self.session.cookies.update(cookies)

@@ -64,7 +64,7 @@ class UserSettings(Settings):
         self.__check_valid_settings()
 
     def __check_valid_settings(self):
-        default_bools = { 'auto_solve_captchas':False, 'enable_nightmode': False }
+        default_bools = { 'auto_solve_captchas':False, 'enable_nightmode': False, 'load_cookies_from_browser': False}
         default_ints = {'notify_soldier_amt':60, 'min_checktime_secs':300, 'max_checktime_secs':600,
         'nightmode_minwait_mins': 60, 'nightmode_maxwait_mins':120,
         'max_consecutive_login_failures':2, 'max_consecutive_captcha_attempts':3, 'max_consecutive_answer_errors':5}
@@ -76,6 +76,14 @@ class UserSettings(Settings):
         SettingsValidator.set_defaults_ifnotset(self.settings, default_bools, lambda s : s.lower() == 'true')
         SettingsValidator.set_defaults_ifnotset(self.settings, default_ints, lambda i : int(i))
         SettingsValidator.set_defaults_ifnotset(self.settings, default_shorttime, timeConv)
+
+        if self.get_setting('load_cookies_from_browser'):
+            validbrowsers = {'chrome', 'firefox'}
+            self.settings['browser'] = self.settings['browser'].lower()
+            if self.get_setting('browser') not in validbrowsers:
+                print('Warning! load_cookies_from_browser enabled, but browser \'{}\' is not valid'.format(self.get_setting('browser')))
+                print('Cookies will not be loaded!')
+                self.settings['load_cookies_from_browser'] = False
 
 class SiteSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
