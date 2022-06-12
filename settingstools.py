@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from typing import Callable
 from urllib.parse import urlparse
 
@@ -68,7 +68,29 @@ class UserSettings(Settings):
         'max_consecutive_answer_errors':'5',
         'captcha_save_path':r'captcha_img/',
         'load_cookies_from_browser':'True',
-        'browser':'chrome' }
+        'browser':'chrome' 
+    }
+
+    SETTINGS_TYPES = {
+        'email':str,
+        'password':str,
+        'auto_solve_captchas':bool,
+        'auto_captcha_key':str,
+        'notify_soldier_amt':int,
+        'min_checktime_secs':int,
+        'max_checktime_secs':int,
+        'enable_nightmode':bool,
+        'nightmode_minwait_mins':int,
+        'nightmode_maxwait_mins':int,
+        'nightmode_begin':datetime,
+        'nightmode_end':datetime,
+        'max_consecutive_login_failures':int,        
+        'max_consecutive_captcha_attempts':int,
+        'max_consecutive_answer_errors':int,
+        'captcha_save_path':str,
+        'load_cookies_from_browser':bool,
+        'browser':str 
+    }
 
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
@@ -110,7 +132,14 @@ class SiteSettings(Settings):
     DEFAULT_SETTINGS = {
         'roc_home':'ENTER_HOME_URL', 
         'roc_login':'ENTER_LOGIN_URL', 
-        'roc_recruit':'ENTER_RECRUIT_URL' }
+        'roc_recruit':'ENTER_RECRUIT_URL' 
+    }
+
+    SETTINGS_TYPES = {
+        'roc_home':str, 
+        'roc_login':str, 
+        'roc_recruit':str
+    }
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = 'Site Settings'
