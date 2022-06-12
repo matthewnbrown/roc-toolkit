@@ -36,7 +36,7 @@ Auto captcha solving using [2Captcha](https://2captcha.com/)
 
 **captcha_save_path:** captcha_img/  (path to save captcha images to)  
 
-#### Pull cookie from a browser you already use to login
+### Pull cookie from a browser you already use to login
 **load_cookies_from_browser:** True or False  
 **browser:** chrome or firefox
 
