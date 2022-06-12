@@ -63,9 +63,9 @@ class UserSettings(Settings):
         'nightmode_maxwait_mins':'120',
         'nightmode_begin':'20:00',
         'nightmode_end':'9:00',
-        'max_consecutive_login_failures':2,        
-        'max_consecutive_captcha_attempts':3,
-        'max_consecutive_answer_errors':5,
+        'max_consecutive_login_failures':'2',        
+        'max_consecutive_captcha_attempts':'3',
+        'max_consecutive_answer_errors':'5',
         'captcha_save_path':r'captcha_img/',
         'load_cookies_from_browser':'True',
         'browser':'chrome' }
