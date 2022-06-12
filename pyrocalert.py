@@ -193,7 +193,9 @@ class RocAlert:
                 continue
 
             if RocAlert.resp_has_captcha(r):
-                self.__handle_captcha(r)   
+                correct = self.__handle_captcha(r)
+                if not correct:
+                    continue 
             else:
                 self.__log("No captcha needed")
         
