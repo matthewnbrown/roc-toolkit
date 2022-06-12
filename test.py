@@ -77,16 +77,36 @@ class SettingsSaverTest(unittest.TestCase):
         res = self.SettingSaveLoad(settings)
         self.assertEqual(len(settings), len(res))
 
+    def test_settings_key_match(self):
+        settings = { 't1': 1, 't2': True, 't3': 'abc123'}
+        res = self.SettingSaveLoad(settings)
         
+        matches = True
+        for setting in settings:
+            if setting not in res:
+                matches = False
+        self.assertTrue(matches)
+    
+    def test_settings_values_match(self):
+        settings = { 't1': 1, 't2': True, 't3': 'abc123'}
+        res = self.SettingSaveLoad(settings)
+        
+        matches = True
+        ## TODO: Implement
+        self.assertTrue(matches)
 
 
+class SettingsLoaderTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
 
-#class UserSettingsTest(unittest.TestCase):
-#    def __init__(self, methodName: str = ...) -> None:
-#        super().__init__(methodName)
+class UserSettingsTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+class SiteSettingsTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
 
 if __name__ == "__main__":
     unittest.main()
-   # sets = { 213123:'34243234', 3:True, 323232:'FALSERFSDF'}
-
-   # SettingsSaver.save_settings_toPath('mypath.txt', sets)
