@@ -1,6 +1,8 @@
-from datetime import date, datetime
+from datetime import datetime
+from genericpath import isfile
 from typing import Callable
 from urllib.parse import urlparse
+import os
 
 class Settings:
     def __init__(self, name: str = None, filepath = None) -> None:
@@ -240,3 +242,26 @@ class SettingsValidator:
             quit()
 
         return errorcount == 0
+
+
+# creates default settings file if the user has yet to do so
+class SettingsFileMaker:
+    def needs_user_setup(usersettings_fp: str, sitesettings_fp: str) -> bool:
+        has_user_settings = os.path.isfile(usersettings_fp) 
+        has_site_settings = os.path.isfile(sitesettings_fp)
+        if has_user_settings and has_site_settings:
+            return False
+
+        print('You are missing necessary settings files, generic files will be created if needed')
+
+        if not has_user_settings:
+            settings = UserSettings.DEFAULT_SETTINGS
+            SettingsSaver.save_settings_toPath(usersettings_fp, settings)
+            print('Created user settings file {}'.format(usersettings_fp))
+        
+        if not has_site_settings:
+            settings = SiteSettings.DEFAULT_SETTINGS
+            SettingsSaver.save_settings_toPath(sitesettings_fp, settings)
+            print('Created site settings file {}'.format(sitesettings_fp))
+
+        return True
