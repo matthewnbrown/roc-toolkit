@@ -1,7 +1,7 @@
 import os
 import unittest
 from datetime import datetime
-from roc_settings.settingstools import SettingsSaver
+from rocalert.roc_settings.settingstools import SettingsSaver
 
 class SettingsSaverTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:

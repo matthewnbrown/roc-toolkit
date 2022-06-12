@@ -1,5 +1,5 @@
-from pyrocalert import RocAlert
-from roc_settings.settingstools import SettingsFileMaker, SiteSettings, UserSettings
+from rocalert.pyrocalert import RocAlert
+from rocalert.roc_settings.settingstools import SettingsFileMaker, SiteSettings, UserSettings
 
 if __name__== '__main__':
     user_settings_fp = 'user.settings'

@@ -1,8 +1,8 @@
-from cookiehelper import *
-from captcha.pyroccaptchaselector import *
-from captcha.pyrocaltertgui import get_user_answer_captcha
-import captcha.roc_auto_solve as roc_auto_solve
-from roc_settings.settingstools import UserSettings, SiteSettings
+from rocalert.cookiehelper import *
+from rocalert.captcha.pyroccaptchaselector import *
+from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
+import rocalert.captcha.roc_auto_solve as roc_auto_solve
+from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
 
 import io
 import PIL.Image
