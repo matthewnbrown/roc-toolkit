@@ -145,10 +145,10 @@ class RocAlert:
         self.consecutive_answer_errors = 0  
         correct = self.send_captcha_ans(hash, ans)
         if correct:
-            print("Correct answer")
+            self.__log("Correct answer")
             self.consecutive_captcha_failures = 0
         else:
-            print("Incorrect answer")
+            self.__log("Incorrect answer")
             self.consecutive_captcha_failures += 1
             return False
         return True
@@ -172,7 +172,7 @@ class RocAlert:
             self.__log("Too many consecutive bad answers received, exiting!")
             error = True
         if self.consecutive_captcha_failures >= self.user_settings['max_consecutive_captcha_attempts']:
-            print("Failed too many captchas, exiting!")
+            self.__log("Failed too many captchas, exiting!")
             error = True
         return error
 
@@ -195,7 +195,7 @@ class RocAlert:
             if RocAlert.resp_has_captcha(r):
                 self.__handle_captcha(r)   
             else:
-                print("No captcha needed")
+                self.__log("No captcha needed")
         
             self.__sleep()
         self.__log("Main loop exited.")
