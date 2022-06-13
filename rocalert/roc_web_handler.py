@@ -4,13 +4,23 @@ from rocalert.captcha.pyroccaptchaselector import *
 import requests # py -m pip install requests
 
 class Captcha:
-    def __init__(self, hash, img) -> None:
+    def __init__(self, hash: str, img, ans: str = '-1', correct: bool = False) -> None:
         self._hash = hash
         self._img = img
+        self._ans = ans
+        self._ans_correct = correct
     @property
     def hash(self): return self._hash
     @property
     def img(self): return self._img
+    @property
+    def ans(self): return self._ans
+    @ans.setter
+    def ans(self, value: str): self._ans = value
+    @property
+    def ans_correct(self): return self._ans_correct
+    @ans_correct.setter
+    def ans_correct(self, correct: bool): self._ans_correct = correct
 
 class RocWebHandler:
     def __init__(self, roc_site_settings) -> None:
