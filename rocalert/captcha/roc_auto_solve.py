@@ -1,3 +1,4 @@
+from time import time
 from twocaptcha import TwoCaptcha # pip install 2captcha-python
 from twocaptcha import api
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
@@ -36,11 +37,12 @@ class ROCCaptchaSolver:
             result = self.last_twocaptcha['code']
         except api.ApiException as e:
             result = e.args[0]
+            if 'NO_SLOT' in result:
+                time.sleep(5)
+            elif 'ZERO_BALANCE' in result:
+                print("ERROR: Received response \'{}\'!\nCheck your 2captcha balance!\nExiting...".format(result))
+                quit()
         except api.NetworkException as e:
-            result = e.args[0]
-        except api.TimeoutException as e:
-            result = e.args[0]
-        except api.ValidationException as e:
             result = e.args[0]
 
         return result
