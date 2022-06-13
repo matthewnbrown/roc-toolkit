@@ -19,7 +19,7 @@ class RocAlert:
         self.validans = { str(i) for i in range(1,10) }
         self.roc = RocWebHandler(sitesettings) 
         self.solver = ROCCaptchaSolver()     
-        
+
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(self.user_settings['auto_captcha_key'])
 
@@ -84,7 +84,8 @@ class RocAlert:
             self.__log('Successfully pulled cookie from {}'.format(self.user_settings['browser']))
             return True
 
-        res = self.roc.login()
+        res = self.roc.login(self.user_settings['email'], self.user_settings['password'])
+        
         if res:
             self.consecutive_login_failures = 0
             self.__log("Login success.")
@@ -173,5 +174,6 @@ class RocAlert:
         if exists(self.cookie_filename):
             self.__log("Loading saved cookies")
             cookies = load_cookies_from_path(self.cookie_filename)
-            self.roc.add_cookies(cookies)
+            if cookies is not None:
+                self.roc.add_cookies(cookies)
 
