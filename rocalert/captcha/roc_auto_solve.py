@@ -6,11 +6,11 @@ def Solve(api_key, imgpath) -> str:
         result = solver.normal(imgpath, numeric = 1, min_len = 1, max_len = 1)['code']
     except api.ApiException as e:
         result = e.args[0]
-    except NetworkException as e:
+    except api.NetworkException as e:
         result = e.args[0]
-    except TimeoutException as e:
+    except api.TimeoutException as e:
         result = e.args[0]
-    except ValidationException as e:
+    except api.ValidationException as e:
         result = e.args[0]
 
     return result
