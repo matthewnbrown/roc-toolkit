@@ -1,6 +1,5 @@
 from rocalert.cookiehelper import *
-from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
-import rocalert.captcha.roc_auto_solve as roc_auto_solve
+from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
 from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
 from rocalert.roc_web_handler import RocWebHandler
 
@@ -18,7 +17,12 @@ class RocAlert:
         self.user_settings = usersettings.get_settings()
         self.site_settings = sitesettings.get_settings()
         self.validans = { str(i) for i in range(1,10) }
-        self.roc = RocWebHandler(sitesettings)
+        self.roc = RocWebHandler(sitesettings) 
+        self.solver = ROCCaptchaSolver()     
+        
+        if self.user_settings['auto_solve_captchas']:
+            self.solver.set_twocaptcha_apikey(self.user_settings['auto_captcha_key'])
+
         self.cookie_filename = 'cookies'
 
     def __log(self, message : str, end = None) -> None:
@@ -37,9 +41,9 @@ class RocAlert:
         path = self.__save_captcha(captcha)
 
         if self.user_settings['auto_solve_captchas']:
-            return roc_auto_solve.Solve(self.user_settings['auto_captcha_key'], path)
+            return self.solver.twocaptcha_solve(path)
         else:
-            return get_user_answer_captcha(captcha.img)
+            return self.solver.gui_solve(captcha.img)
     
     def __save_captcha(self, captcha: Captcha):
         img = PIL.Image.open(io.BytesIO(captcha.img))
