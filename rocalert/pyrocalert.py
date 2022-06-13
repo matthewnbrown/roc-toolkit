@@ -27,7 +27,7 @@ class RocAlert:
         self.cookie_filename = 'cookies'
 
     def __log(self, message : str, end = None, timestamp = True) -> None:
-        if Timestamp:
+        if timestamp:
             ts = datetime.datetime.now().strftime("%H:%M:%S")
             print('{}: {}'.format(ts, message), end=end)
         else:
