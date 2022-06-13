@@ -8,8 +8,11 @@ def save_cookies_to_path(requests_cookiejar, filepath):
         pickle.dump(requests_cookiejar, f)
 
 def load_cookies_from_path(filename):
-    with open(filename, 'rb') as f:
-        return pickle.load(f)
+    try:
+        with open(filename, 'rb') as f:
+            return pickle.load(f)
+    except EOFError:
+        print("Error loading cookies file. Is it empty?")
 
 
 def load_cookies_from_browser(browser: str, websiteurl: str = None):
