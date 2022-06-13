@@ -1,3 +1,4 @@
+from sqlite3 import Timestamp
 from rocalert.cookiehelper import *
 from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
 from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
@@ -25,8 +26,12 @@ class RocAlert:
 
         self.cookie_filename = 'cookies'
 
-    def __log(self, message : str, end = None) -> None:
-        print(message, end=end)
+    def __log(self, message : str, end = None, timestamp = True) -> None:
+        if Timestamp:
+            ts = datetime.datetime.now().strftime("%H:%M:%S")
+            print('{}: {}'.format(ts, message), end=end)
+        else:
+            print(message, end=end)
 
     def __get_waittime(self) -> int:
         if not self.__in_nightmode():
@@ -81,19 +86,23 @@ class RocAlert:
     def __attempt_login(self) -> bool:
         self.__log('Session timed out. ', end = '')
         if self.__load_browser_cookies() and self.roc.is_logged_in():
-            self.__log('Successfully pulled cookie from {}'.format(self.user_settings['browser']))
+            self.__log('Successfully pulled cookie from {}'.format(self.user_settings['browser']), timestamp=False)
             return True
 
         res = self.roc.login(self.user_settings['email'], self.user_settings['password'])
-        
+
         if res:
             self.consecutive_login_failures = 0
-            self.__log("Login success.")
+            self.__log("Login success.", timestamp=False)
             save_cookies_to_path(self.roc.get_cookies(), self.cookie_filename)
         else:
             self.consecutive_login_failures += 1
-            self.__("Login failure.")
+            self.__("Login failure.", timestamp=False)
             return False
+
+    def __report_captcha(self, wascorrect):
+        if self.user_settings['auto_solve_captchas']:
+            self.solver.report_last_twocaptcha(wascorrect)
 
     def __handle_captcha(self) -> bool:
         self.__log('Detected captcha...')
@@ -104,6 +113,8 @@ class RocAlert:
         if len(ans) != 1 or ans not in self.validans:
             self.__log("Warning: received response \'{}\' from captcha solver!".format(ans))
             self.consecutive_answer_errors += 1
+            if 'ERROR' not in ans:
+                self.__report_captcha(False)
             return False
         else:
             self.__log('Received answer: \'{}\': '.format(ans), end='')
@@ -111,11 +122,13 @@ class RocAlert:
         self.consecutive_answer_errors = 0  
         correct = self.roc.submit_captcha(captcha, ans)
         if correct:
-            self.__log("Correct answer")
+            self.__log("Correct answer", timestamp=False)
             self.consecutive_captcha_failures = 0
+            self.__report_captcha(True)
         else:
-            self.__log("Incorrect answer")
+            self.__log("Incorrect answer", timestamp=False)
             self.consecutive_captcha_failures += 1
+            self.__report_captcha(False)
             return False
         return True
 
