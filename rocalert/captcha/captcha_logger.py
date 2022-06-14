@@ -1,5 +1,6 @@
 from rocalert.roc_web_handler import Captcha
 from datetime import datetime
+import os 
 
 class CaptchaLogger:
     def __init__(self, savefile: str, timestamp: bool = False, log_correctness: bool = True) -> None:
@@ -7,6 +8,10 @@ class CaptchaLogger:
         self._timestamp = timestamp
         self._add_answer_correctness = log_correctness
 
+        dirname = os.path.dirname(savefile)
+        if not os.path.exists(dirname):
+            os.makedirs(dirname)
+            
     @property
     def set_savefile(self, savefile: str): self._savefile = savefile
 
@@ -29,7 +34,8 @@ class CaptchaLogger:
 
     def log_captcha(self, captcha: Captcha) -> None:
 
-        with open(self._savefile, 'a') as f:
+
+        with open(self._savefile, 'a+') as f:
             message = self.__create_line(captcha)
             f.write(message)
         
