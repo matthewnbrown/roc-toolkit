@@ -64,7 +64,8 @@ class RocWebHandler:
         self.session.cookies.update(cookies)
 
     def get_cookies(self):
-        pass
+        return self.session.cookies
+        
     def submit_captcha(self, captcha: Captcha, ans: str) -> bool:
         cs = ROCCaptchaSelector()
         ans_coords = cs.get_xy_static(ans)
