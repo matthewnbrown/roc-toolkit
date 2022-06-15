@@ -3,6 +3,8 @@ from rocalert.cookiehelper import *
 from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
 from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
 from rocalert.roc_web_handler import RocWebHandler
+from rocalert.roc_web_handler import Captcha
+from rocalert.captcha.captcha_logger import CaptchaLogger
 
 import io
 import PIL.Image
@@ -11,16 +13,16 @@ import datetime
 import random
 from os.path import exists
 
-from rocalert.roc_web_handler import Captcha
 
 class RocAlert:
-    def __init__(self, usersettings: UserSettings = None, sitesettings: SiteSettings = None) -> None:
+    def __init__(self, usersettings: UserSettings = None, sitesettings: SiteSettings = None, correctLog: CaptchaLogger = None, generalLog: CaptchaLogger = None) -> None:
         self.user_settings = usersettings.get_settings()
         self.site_settings = sitesettings.get_settings()
         self.validans = { str(i) for i in range(1,10) }
         self.roc = RocWebHandler(sitesettings) 
         self.solver = ROCCaptchaSolver()     
-
+        self.general_log = generalLog
+        self.correct_log = correctLog
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(self.user_settings['auto_captcha_key'])
 
@@ -46,9 +48,12 @@ class RocAlert:
         path = self.__save_captcha(captcha)
 
         if self.user_settings['auto_solve_captchas']:
-            return self.solver.twocaptcha_solve(path)
+            ans = self.solver.twocaptcha_solve(path)
         else:
-            return self.solver.gui_solve(captcha.img)
+            ans = self.solver.gui_solve(captcha.img)
+
+        captcha.ans = ans
+        return ans
     
     def __save_captcha(self, captcha: Captcha):
         img = PIL.Image.open(io.BytesIO(captcha.img))
@@ -56,6 +61,14 @@ class RocAlert:
         img.save(path)
         return path;
     
+    def __log_general(self, captcha: Captcha):
+        if self.general_log is not None:
+            self.general_log.log_captcha(captcha)
+
+    def __log_correct(self, captcha: Captcha):
+        if self.correct_log is not None:
+            self.correct_log.log_captcha(captcha=captcha)
+
     def __in_nightmode(self) -> bool:
         if not self.user_settings['enable_nightmode']:
             return False
@@ -100,22 +113,28 @@ class RocAlert:
             self.__("Login failure.", timestamp=False)
             return False
 
-    def __report_captcha(self, wascorrect):
+    def __report_captcha(self, captcha: Captcha):
         if self.user_settings['auto_solve_captchas']:
-            self.solver.report_last_twocaptcha(wascorrect)
+            self.solver.report_last_twocaptcha(captcha.ans_correct)
 
-    def __handle_captcha(self) -> bool:
+    def __captcha_final(self, captcha: Captcha) -> None:
+        if 'ERROR' not in captcha.ans:
+            self.__report_captcha(captcha)
+        
+        if captcha.ans_correct:
+            self.__log_correct(captcha)
+        self.__log_general(captcha)
+
+    def __handle_captcha(self) -> Captcha:
         self.__log('Detected captcha...')
 
         captcha = self.roc.get_captcha()
         ans = self.__get_captcha_ans(captcha)
-
+        captcha.ans_correct = False
         if len(ans) != 1 or ans not in self.validans:
             self.__log("Warning: received response \'{}\' from captcha solver!".format(ans))
             self.consecutive_answer_errors += 1
-            if 'ERROR' not in ans:
-                self.__report_captcha(False)
-            return False
+            return captcha
         else:
             self.__log('Received answer: \'{}\': '.format(ans), end='')
 
@@ -124,13 +143,11 @@ class RocAlert:
         if correct:
             self.__log("Correct answer", timestamp=False)
             self.consecutive_captcha_failures = 0
-            self.__report_captcha(True)
+            captcha.ans_correct = True
         else:
             self.__log("Incorrect answer", timestamp=False)
             self.consecutive_captcha_failures += 1
-            self.__report_captcha(False)
-            return False
-        return True
+        return captcha
 
     def __init_cookie_loading(self) -> None:
         self.__load_browser_cookies()
@@ -167,8 +184,9 @@ class RocAlert:
                 continue
 
             if self.roc.recruit_has_captcha():
-                correct = self.__handle_captcha()
-                if not correct:
+                captcha = self.__handle_captcha()
+                self.__captcha_final(captcha) # Log/Report
+                if not captcha.ans_correct:
                     continue 
             else:
                 self.__log("No captcha needed")
