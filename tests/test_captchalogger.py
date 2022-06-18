@@ -14,7 +14,7 @@ class SettingsSaverTest(unittest.TestCase):
     def delete_logfile(self) -> None:
         os.remove(self.logFileName)
 
-    def test_cyrillic_(self): 
+    def test_cyrillic(self): 
         ans = u'\u0421'
         c = Captcha(self.defaultHash, None, ans, False)
         logger = CaptchaLogger(self.logFileName, timestamp=False, log_correctness=False)
