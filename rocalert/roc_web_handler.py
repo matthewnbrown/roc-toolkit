@@ -1,3 +1,4 @@
+from re import T
 from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import *
 
@@ -34,7 +35,7 @@ class RocWebHandler:
         return self.r
 
     def __page_has_captcha(self) -> bool:
-        return '[click the correct number to proceed]' in self.r.text
+        return '[click the correct number to proceed]' in self.r.text or '<h1>What is' in self.r.text
 
     def __get_imagehash(self) -> str:
         index = self.r.text.find('img.php?hash=')
@@ -65,7 +66,8 @@ class RocWebHandler:
 
     def get_cookies(self):
         return self.session.cookies
-        
+    def create_order_payload(order: dict) -> str:
+        return ''
     def submit_captcha(self, captcha: Captcha, ans: str) -> bool:
         cs = ROCCaptchaSelector()
         ans_coords = cs.get_xy_static(ans)
