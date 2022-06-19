@@ -1,6 +1,6 @@
-from sqlite3 import Timestamp
 from rocalert.cookiehelper import *
 from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
+from rocalert.remote_lookup import RemoteCaptcha
 from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
@@ -15,7 +15,7 @@ from os.path import exists
 
 
 class RocAlert:
-    def __init__(self, usersettings: UserSettings = None, sitesettings: SiteSettings = None, correctLog: CaptchaLogger = None, generalLog: CaptchaLogger = None) -> None:
+    def __init__(self, usersettings: UserSettings = None, sitesettings: SiteSettings = None, correctLog: CaptchaLogger = None, generalLog: CaptchaLogger = None, remoteCaptcha: RemoteCaptcha = None) -> None:
         self.user_settings = usersettings.get_settings()
         self.site_settings = sitesettings.get_settings()
         self.validans = { str(i) for i in range(1,10) }
@@ -27,6 +27,8 @@ class RocAlert:
             self.solver.set_twocaptcha_apikey(self.user_settings['auto_captcha_key'])
 
         self.cookie_filename = 'cookies'
+        self.__useRemoteCatcha = True
+        self.__remoteCaptcha = remoteCaptcha
 
     def __log(self, message : str, end = None, timestamp = True) -> None:
         if timestamp:
@@ -43,9 +45,18 @@ class RocAlert:
             min = self.user_settings['nightmode_minwait_mins'] * 60
             max = self.user_settings['nightmode_maxwait_mins'] * 60
         return min + int(random.uniform(0,1) * max)
-    
+
     def __get_captcha_ans(self, captcha: Captcha) -> str:
         path = self.__save_captcha(captcha)
+
+        if self.__useRemoteCatcha:
+            res = self.__remoteCaptcha.lookup_remote(captcha)
+            if res is not None and len(res) > 0:
+                self.__log(f'Received result from remote: {res}')
+                res = res.split(':',1)
+                if len(res) == 2:
+                    captcha.ans = res[1]
+                    return captcha.ans
 
         if self.user_settings['auto_solve_captchas']:
             ans = self.solver.twocaptcha_solve(path)
@@ -123,6 +134,9 @@ class RocAlert:
         
         if captcha.ans_correct:
             self.__log_correct(captcha)
+        if captcha.ans_correct and self.__useRemoteCatcha:
+            self.__remoteCaptcha.add_remote(captcha)
+
         self.__log_general(captcha)
 
     def __handle_captcha(self) -> Captcha:
