@@ -34,8 +34,12 @@ class RocWebHandler:
         self.r = self.session.get(url, headers=self.headers)
         return self.r
 
-    def __page_has_captcha(self) -> bool:
-        return '[click the correct number to proceed]' in self.r.text or '<h1>What is' in self.r.text
+    def __page_captcha_type(self) -> str:
+        if '[click the correct number to proceed]' in self.r.text:
+            return 'img'
+        if '<h1>What is' in self.r.text:
+            return 'equation'
+        return None
 
     def __get_imagehash(self) -> str:
         index = self.r.text.find('img.php?hash=')
@@ -90,6 +94,6 @@ class RocWebHandler:
         img = self.__get_captcha_image(hash)
         return Captcha(hash, img)
 
-    def recruit_has_captcha(self) -> bool:
+    def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings['roc_recruit'])
-        return self.__page_has_captcha()
+        return self.__page_captcha_type()
