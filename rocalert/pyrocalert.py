@@ -170,6 +170,9 @@ class RocAlert:
         self.__log(f'Received equation \'{c.hash}\'')
         c.ans = EquationSolver.solve_equation(c.hash)
 
+        minsleeptime = 3 if int(c.ans) % 10 == 0 else 5
+        time.sleep(minsleeptime + int(random.uniform(0,1) * minsleeptime))
+
         correct = self.roc.submit_equation(c)
 
         if correct:
