@@ -169,7 +169,6 @@ class RocAlert:
         c = self.roc.get_equation_captcha()
         self.__log(f'Received equation \'{c.hash}\'')
         c.ans = EquationSolver.solve_equation(c.hash)
-        self.__log(f"{c.hash} = {c.ans}")
 
         correct = self.roc.submit_equation(c)
 
