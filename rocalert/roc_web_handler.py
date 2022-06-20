@@ -48,6 +48,24 @@ class RocWebHandler:
         imghash = self.r.text[index + len('img.php?hash='): self.r.text.find('"', index, index+100)]
         return imghash
 
+    def get_img_captcha(self) -> Captcha:
+        hash = self.__get_imagehash()
+
+        if hash is None:
+            return None
+
+        img = self.__get_captcha_image(hash)
+        return Captcha(hash, img)
+
+    def get_equation_captcha(self) -> Captcha:
+        index = self.r.text.find('<h1>What is')
+        if index == -1:
+            return None
+        equation = self.r.text[index + len('<h1>What is'): self.r.text.find('</h1>', index, index+100)]
+        equation = equation.strip()[:-1]
+        c = Captcha(equation,None)
+        return c
+
     def __get_captcha_image(self, hash):
         imgurl = 'img.php?hash=' + hash
         img = self.__go_to_page(self.site_settings['roc_home'] + imgurl).content
@@ -72,6 +90,15 @@ class RocWebHandler:
         return self.session.cookies
     def create_order_payload(order: dict) -> str:
         return ''
+    def submit_equation(self, captcha: Captcha) -> bool:
+        payload = {
+            'flagInput':str(captcha.ans),
+            'flagSubmit':'Submit'
+        }
+        self.r = self.session.post(self.site_settings['roc_recruit'], payload)
+
+        return self.__page_captcha_type() == 'img'
+
     def submit_captcha(self, captcha: Captcha, ans: str) -> bool:
         cs = ROCCaptchaSelector()
         ans_coords = cs.get_xy_static(ans)
@@ -84,15 +111,6 @@ class RocWebHandler:
         }
         self.r = self.session.post(self.site_settings['roc_recruit'], payload)
         return not 'Wrong number' in self.r.text or 'wrong number' in self.r.text
-
-    def get_captcha(self) -> Captcha:
-        hash = self.__get_imagehash()
-
-        if hash is None:
-            return None
-
-        img = self.__get_captcha_image(hash)
-        return Captcha(hash, img)
 
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings['roc_recruit'])

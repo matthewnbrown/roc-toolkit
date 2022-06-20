@@ -1,3 +1,4 @@
+from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.cookiehelper import *
 from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
 from rocalert.remote_lookup import RemoteCaptcha
@@ -46,7 +47,7 @@ class RocAlert:
             max = self.user_settings['nightmode_maxwait_mins'] * 60
         return min + int(random.uniform(0,1) * max)
 
-    def __get_captcha_ans(self, captcha: Captcha) -> str:
+    def __get_img_captcha_ans(self, captcha: Captcha) -> str:
         path = self.__save_captcha(captcha)
 
         if self.__useRemoteCatcha:
@@ -125,10 +126,13 @@ class RocAlert:
             return False
 
     def __report_captcha(self, captcha: Captcha):
-        if self.user_settings['auto_solve_captchas']:
+        if self.user_settings['auto_solve_captchas'] and captcha.img is not None:
             self.solver.report_last_twocaptcha(captcha.ans_correct)
 
     def __captcha_final(self, captcha: Captcha) -> None:
+        if captcha.img is None:
+            return
+
         if 'ERROR' not in captcha.ans:
             self.__report_captcha(captcha)
         
@@ -139,11 +143,9 @@ class RocAlert:
 
         self.__log_general(captcha)
 
-    def __handle_captcha(self) -> Captcha:
-        self.__log('Detected captcha...')
-
-        captcha = self.roc.get_captcha()
-        ans = self.__get_captcha_ans(captcha)
+    def __handle_img_captcha(self) -> Captcha:
+        captcha = self.roc.get_img_captcha()
+        ans = self.__get_img_captcha_ans(captcha)
         captcha.ans_correct = False
         if len(ans) != 1 or ans not in self.validans:
             self.__log("Warning: received response \'{}\' from captcha solver!".format(ans))
@@ -162,6 +164,32 @@ class RocAlert:
             self.__log("Incorrect answer", timestamp=False)
             self.consecutive_captcha_failures += 1
         return captcha
+
+    def __handle_equation_captcha(self) -> Captcha:
+        c = self.roc.get_equation_captcha()
+        self.__log(f'Received equation \'{c.hash}\'')
+        c.ans = EquationSolver.solve_equation(c.hash)
+        self.__log(f"{c.hash} = {c.ans}")
+
+        correct = self.roc.submit_equation(c)
+
+        if correct:
+            self.__log(f"{c.hash} = {c.ans}")
+            self.consecutive_captcha_failures = 0
+        else:
+            self.__log(f"{c.hash} != {c.ans}... oops")
+            self.consecutive_captcha_failures += 1
+        return c
+        
+    def __handle_captcha(self, captchaType: str) -> Captcha:
+        self.__log(f'Detected {captchaType} captcha...')
+
+        if captchaType == 'img':
+            return self.__handle_img_captcha();
+        elif captchaType == 'equation':
+            return self.__handle_equation_captcha()
+        
+        return None
 
     def __init_cookie_loading(self) -> None:
         self.__load_browser_cookies()
@@ -197,8 +225,9 @@ class RocAlert:
                 self.__attempt_login()
                 continue
 
-            if self.roc.recruit_has_captcha():
-                captcha = self.__handle_captcha()
+            captchaType = self.roc.recruit_has_captcha()
+            if captchaType is not None:
+                captcha = self.__handle_captcha(captchaType)
                 self.__captcha_final(captcha) # Log/Report
                 if not captcha.ans_correct:
                     continue 
