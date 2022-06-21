@@ -1,4 +1,3 @@
-from re import T
 from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import *
 
