@@ -150,8 +150,9 @@ class RocAlert:
         if len(ans) != 1 or ans not in self.validans:
             self.__log("Warning: received response \'{}\' from captcha solver!".format(ans))
             if 'bad response: 503' in ans:
-                self.__log("Waiting 5 seconds before attempting again...")
-                time.sleep(5)
+                waittime = 5 * (1 + self.consecutive_answer_errors**2)
+                self.__log(f"Waiting {waittime} seconds before attempting again...")
+                time.sleep(waittime)
             self.consecutive_answer_errors += 1
             return captcha
         else:
