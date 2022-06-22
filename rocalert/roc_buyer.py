@@ -1,5 +1,5 @@
 
-import enum
+from enum import Enum
 from rocalert.roc_web_handler import RocWebHandler, Captcha
 from rocalert.captcha.captcha_logger import CaptchaLogger
 
@@ -15,7 +15,7 @@ for i in range(1,15):
     BASE_PAYLOAD[k] = ''
 
 class RocItem():
-    class ItemType(enum):
+    class ItemType(Enum):
         ATTACK = 1
         DEFENSE = 2
         SPY = 3
@@ -41,7 +41,7 @@ ITEM_DETAILS = {
     'dragonskin': RocItem('Dragonskin', 1000000, 12000, RocItem.ItemType.DEFENSE, 8),
     'horn': RocItem('Horn', 50000, 30, RocItem.ItemType.SENTRY, 12),
     'guard_dog': RocItem('Guard Dog', 100000, 50, RocItem.ItemType.SENTRY, 13),
-    'torch': RocItem*('Torch', 300000, 120, RocItem.ItemType.SENTRY, 14)
+    'torch': RocItem('Torch', 300000, 120, RocItem.ItemType.SENTRY, 14)
 }
 
 
@@ -55,6 +55,8 @@ class ROCBuyer():
         self._genlog = genLogger
         self.correctlog = correctLogger
 
+    def buy_if_needed():
+        pass
     def create_order_payload() -> dict:
         
         return {}
