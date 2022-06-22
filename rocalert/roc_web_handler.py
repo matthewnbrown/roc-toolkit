@@ -1,3 +1,4 @@
+from http.client import RemoteDisconnected
 from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import *
 
@@ -30,7 +31,15 @@ class RocWebHandler:
         self.r = None
 
     def __go_to_page(self,url) -> requests.Response:
-        self.r = self.session.get(url, headers=self.headers)
+        try:
+            self.r = self.session.get(url, headers=self.headers)
+        except RemoteDisconnected as e:
+            print("Error: Session disconnected! Attempting to reconnect...")
+            cookies = self.session.cookies
+            self.session = requests.Session()
+            self.session.cookies.update(cookies)
+            self.r = self.session.get(url, headers=self.headers)
+            print('Success!')
         return self.r
 
     def __page_captcha_type(self) -> str:
