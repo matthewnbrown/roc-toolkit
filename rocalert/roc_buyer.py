@@ -1,5 +1,6 @@
 
 from enum import Enum
+from rocalert.roc_settings.settingstools import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler, Captcha
 from rocalert.captcha.captcha_logger import CaptchaLogger
 
@@ -47,18 +48,48 @@ ITEM_DETAILS = {
 
 
 class ROCBuyer():
-    def __init__(self, roc_handler: RocWebHandler, correctLogger: CaptchaLogger = None, genLogger: CaptchaLogger = None) -> None:
+    def __init__(self, roc_handler: RocWebHandler, buyersettings: BuyerSettings, correctLogger: CaptchaLogger = None, genLogger: CaptchaLogger = None) -> None:
         if roc_handler is None:
             raise Exception("Parameter roc_handler must not be None")
 
         self.roc = roc_handler
+        self.buyersettings = buyersettings
         self._genlog = genLogger
         self.correctlog = correctLogger
 
-    def buy_if_needed():
+    def buy_if_needed(self):
+        if not self.buyersettings.buying_enabled():
+            return
+        gold = self.roc.current_gold()
+        order = self.__make_armory_order(gold)
+        payload = self.__create_order_payload(order)
+        self.roc.send_armory_order(payload)
+
+    def __make_soldier_order(self, gold) -> dict:
         pass
-    def create_order_payload() -> dict:
+    def __make_armory_order(self, gold) ->dict:
+        weaps = self.buyersettings.get_weapons_to_buy()
+        return self.__create_order(weaps, gold)
+
+    def __create_order(self, items, gold) -> dict:
+        total = sum(items.values())
+
+        for item, amt in items.items():
+            if amt == 0:
+                continue
+            count = (gold // total * amt) // ITEM_DETAILS[item].cost
+            gold -= count * ITEM_DETAILS[item].cost
+            total -= amt
+            items[item] = count
         
-        return {}
+        return items
+
+    def __create_order_payload(self, order: dict) -> dict:
+        payload = BASE_PAYLOAD.copy()
+
+        for item, count in order.items():
+            payload[ITEM_DETAILS[item].code] = str(count)
+
+        return payload
 
     
