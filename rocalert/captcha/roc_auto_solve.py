@@ -43,6 +43,7 @@ class ROCCaptchaSolver:
                 print("ERROR: Received response \'{}\'!\nCheck your 2captcha balance!\nExiting...".format(result))
                 quit()
         except api.NetworkException as e:
+            print("Network exception!")
             result = e.args[0]
 
         return result
