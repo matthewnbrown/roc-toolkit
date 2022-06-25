@@ -50,6 +50,81 @@ class Settings:
     def get_settings(self):
         return self.settings
 
+class BuyerSettings(Settings):
+
+    DEFAULT_SETTINGS = {
+    'buy_weapons': False,
+    'min_gold':500000000,
+    'dagger': 0,
+    'maul': 0,
+    'blade': 0,
+    'excalibur': 0,
+    'cloak': 0,
+    'hook': 0,
+    'pickaxe': 0,
+    'sai': 0,
+    'shield': 0,
+    'mithril': 0,
+    'dragonskin': 0,
+    'horn': 0,
+    'guard_dog': 0,
+    'torch': 0,
+    }
+
+    SETTINGS_TYPES = {
+    'buy_weapons': bool,
+    'min_gold': int,
+    'dagger': int,
+    'maul': int,
+    'blade': int,
+    'excalibur': int,
+    'cloak': int,
+    'hook': int,
+    'pickaxe': int,
+    'sai': int,
+    'shield': int,
+    'mithril': int,
+    'dragonskin':int,
+    'horn': int,
+    'guard_dog': int,
+    'torch': int
+    }
+
+    def __init__(self, name: str = None, filepath=None) -> None:
+        if name is None:
+            name = "Buyer Settings"
+        super().__init__(name, filepath)
+
+        self.mandatory = {'buy_weapons'}
+
+        if(filepath is not None):
+            self.__check_valid_settings()
+    
+    def load_settings_from_path(self, filepath) -> None:
+        super().load_settings_from_path(filepath)
+        self.__check_valid_settings()
+
+    def buying_enabled(self) -> bool:
+        return self.settings is not None and self.settings['buy_weapons']
+    def min_gold_to_buy(self) -> int:
+        return self.settings['min_gold']
+
+    def get_weapons_to_buy(self) -> dict:
+        d = {}
+        for setting, value in self.settings.items():
+            if setting != 'buy_weapons' and setting != 'min_gold' and value > 0:
+                d[setting] = value
+        return d
+
+    def __check_valid_settings(self):
+        SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
+        SettingsValidator.set_defaults_ifnotset(self.settings, {'buy_weapons': BuyerSettings.DEFAULT_SETTINGS['buy_weapons']}, lambda s : s.lower() == 'true')
+        default_ints = BuyerSettings.DEFAULT_SETTINGS.copy()
+        del default_ints['buy_weapons']
+        SettingsValidator.set_defaults_ifnotset(self.settings, default_ints, lambda i : int(str(i).replace(',','')))
+
+
+
 class UserSettings(Settings):
 
     DEFAULT_SETTINGS = { 
@@ -134,13 +209,15 @@ class SiteSettings(Settings):
     DEFAULT_SETTINGS = {
         'roc_home':'ENTER_HOME_URL', 
         'roc_login':'ENTER_LOGIN_URL', 
-        'roc_recruit':'ENTER_RECRUIT_URL' 
+        'roc_recruit':'ENTER_RECRUIT_URL',
+        'roc_armory':'ENTER_ARMORY_URL'
     }
 
     SETTINGS_TYPES = {
         'roc_home':str, 
         'roc_login':str, 
-        'roc_recruit':str
+        'roc_recruit':str,
+        'roc_armory':str
     }
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
@@ -246,10 +323,12 @@ class SettingsValidator:
 
 # creates default settings file if the user has yet to do so
 class SettingsFileMaker:
-    def needs_user_setup(usersettings_fp: str, sitesettings_fp: str) -> bool:
+    def needs_user_setup(usersettings_fp: str, sitesettings_fp: str, buyersettings_fp: str) -> bool:
         has_user_settings = os.path.isfile(usersettings_fp) 
         has_site_settings = os.path.isfile(sitesettings_fp)
-        if has_user_settings and has_site_settings:
+        has_buy_settings = os.path.isfile(buyersettings_fp)
+
+        if has_user_settings and has_site_settings and has_buy_settings:
             return False
 
         print('You are missing necessary settings files, generic files will be created if needed')
@@ -263,5 +342,10 @@ class SettingsFileMaker:
             settings = SiteSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(sitesettings_fp, settings)
             print('Created site settings file {}'.format(sitesettings_fp))
+
+        if not has_buy_settings:
+            settings = BuyerSettings.DEFAULT_SETTINGS
+            SettingsSaver.save_settings_toPath(buyersettings_fp, settings)
+            print('Created buyer settings file {}'.format(buyersettings_fp))
 
         return True
