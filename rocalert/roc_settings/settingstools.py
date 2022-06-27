@@ -24,7 +24,7 @@ class Settings:
         return self.settings[setting]
     
     def set_setting(self, setting, value) -> None:
-        self[setting] = value
+        self.settings[setting] = value
         
         if setting in self.mandatory:
             SettingsValidator.check_mandatories(self.settings, self.mandatory, quit_if_bad=True)
@@ -233,7 +233,7 @@ class SiteSettings(Settings):
             if not validUrls:
                 print("Site settings are not set correctly. Ensure URLs are valid. Exiting");
                 quit()
-        
+    
     def __url_valid(urlstr: str) -> bool:
         try:
             result = urlparse(urlstr)
@@ -265,7 +265,7 @@ class SettingsLoader:
                 print("Warning: setting {} has no value".format(setting_name))
                 continue
             settings[setting_name] = value
-
+    
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
 
