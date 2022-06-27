@@ -1,18 +1,21 @@
 from time import time
-from twocaptcha import TwoCaptcha # pip install 2captcha-python
+from twocaptcha import TwoCaptcha  # pip install 2captcha-python
 from twocaptcha import api
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
+
 
 def Solve(api_key, imgpath) -> str:
     solver = TwoCaptcha(api_key)
     try:
-        result = solver.normal(imgpath, numeric = 1, min_len = 1, max_len = 1)['code']
+        resp = solver.normal(imgpath, numeric=1, min_len=1, max_len=1)
+        result = resp['code']
     except api.ApiException as exception:
         result = exception.args[0]
     except api.NetworkException as exception:
         result = exception.args[0]
 
     return result
+
 
 class ROCCaptchaSolver:
     def __init__(self) -> None:
@@ -29,14 +32,17 @@ class ROCCaptchaSolver:
         if self.__is_twocaptcha_key_invalid():
             return "ERROR_TWOCAPTCHA_KEY_NOT_SET"
         try:
-            self.last_twocaptcha = self.solver.normal(img_path, hintText = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)')
+            hinttext = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)'
+            self.last_twocaptcha = \
+                self.solver.normal(img_path, hintText=hinttext)
             result = self.last_twocaptcha['code']
         except api.ApiException as exception:
             result = exception.args[0]
             if 'NO_SLOT' in result:
                 time.sleep(5)
             elif 'ZERO_BALANCE' in result:
-                print("ERROR: Received response \'{}\'!\nCheck your 2captcha balance!\nExiting...".format(result))
+                print("ERROR: Received response \'{}\'!\n\
+                    Check your 2captcha balance!\nExiting...".format(result))
                 quit()
         except api.NetworkException as exception:
             print("Network exception!")
@@ -55,4 +61,3 @@ class ROCCaptchaSolver:
 
     def gui_solve(self, img):
         return get_user_answer_captcha(img)
-    
