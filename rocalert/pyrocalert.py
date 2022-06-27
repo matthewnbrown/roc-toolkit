@@ -2,7 +2,8 @@ from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.cookiehelper import *
 from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
 from rocalert.remote_lookup import RemoteCaptcha
-from rocalert.roc_settings.settingstools import UserSettings, SiteSettings
+from rocalert.roc_buyer import ROCBuyer
+from rocalert.roc_settings.settingstools import BuyerSettings, UserSettings, SiteSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
 from rocalert.captcha.captcha_logger import CaptchaLogger
@@ -16,11 +17,13 @@ from os.path import exists
 
 
 class RocAlert:
-    def __init__(self, usersettings: UserSettings = None, sitesettings: SiteSettings = None, correctLog: CaptchaLogger = None, generalLog: CaptchaLogger = None, remoteCaptcha: RemoteCaptcha = None) -> None:
+    def __init__(self, rochandler:RocWebHandler= None, usersettings: UserSettings = None, buyer: ROCBuyer = None, correctLog: CaptchaLogger = None, generalLog: CaptchaLogger = None, remoteCaptcha: RemoteCaptcha = None) -> None:
+        if rochandler is None:
+            raise Exception("An existing ROC Handler must be passed!")
+        self.roc = rochandler
+        self.buyer = buyer
         self.user_settings = usersettings.get_settings()
-        self.site_settings = sitesettings.get_settings()
         self.validans = { str(i) for i in range(1,10) }
-        self.roc = RocWebHandler(sitesettings) 
         self.solver = ROCCaptchaSolver()     
         self.general_log = generalLog
         self.correct_log = correctLog
@@ -31,7 +34,7 @@ class RocAlert:
         self.__useRemoteCatcha = True
         self.__remoteCaptcha = remoteCaptcha
 
-    def __log(self, message : str, end = None, timestamp = True) -> None:
+    def __log(self, message: str, end=None, timestamp=True) -> None:
         if timestamp:
             ts = datetime.datetime.now().strftime("%H:%M:%S")
             print('{}: {}'.format(ts, message), end=end)
@@ -217,6 +220,10 @@ class RocAlert:
             error = True
         return error
 
+    def __check_buyer(self):
+        if self.buyer is not None:
+            self.buyer.buy_if_needed()
+
     def start(self) -> None:
         self.__init_cookie_loading()
         self.consecutive_login_failures = 0
@@ -239,13 +246,13 @@ class RocAlert:
                     continue 
             else:
                 self.__log("No captcha needed")
-        
+            self.__check_buyer()
             self.__sleep()
         self.__log("Main loop exited.")
 
     def __load_browser_cookies(self) -> bool:
         if self.user_settings['load_cookies_from_browser']:
-            cookies = load_cookies_from_browser(self.user_settings['browser'], self.site_settings['roc_home'])
+            cookies = load_cookies_from_browser(self.user_settings['browser'], self.roc.site_settings['roc_home'])
             self.roc.add_cookies(cookies)
             return True
         return False
