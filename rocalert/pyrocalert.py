@@ -48,7 +48,7 @@ class RocAlert:
         else:
             min = self.user_settings['nightmode_minwait_mins'] * 60
             max = self.user_settings['nightmode_maxwait_mins'] * 60
-        return min + int(random.uniform(0,1) * max)
+        return min + int(random.uniform(0 ,1) * max)
 
     def __get_img_captcha_ans(self, captcha: Captcha) -> str:
         path = self.__save_captcha(captcha)
@@ -94,15 +94,6 @@ class RocAlert:
             return start <= now <= end
         else:
             return start <= now or now <= end
-
-    def __get_waittime(self) -> int:
-        if not self.__in_nightmode():
-            min = self.user_settings['min_checktime_secs']
-            max = self.user_settings['max_checktime_secs']
-        else:
-            min = self.user_settings['nightmode_minwait_mins'] * 60
-            max = self.user_settings['nightmode_maxwait_mins'] * 60
-        return min + int(random.uniform(0,1) * max)  
 
     def __sleep(self) -> None:
         waitTime = self.__get_waittime()
