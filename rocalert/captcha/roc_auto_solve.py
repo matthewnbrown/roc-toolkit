@@ -7,14 +7,10 @@ def Solve(api_key, imgpath) -> str:
     solver = TwoCaptcha(api_key)
     try:
         result = solver.normal(imgpath, numeric = 1, min_len = 1, max_len = 1)['code']
-    except api.ApiException as e:
-        result = e.args[0]
-    except api.NetworkException as e:
-        result = e.args[0]
-    except api.TimeoutException as e:
-        result = e.args[0]
-    except api.ValidationException as e:
-        result = e.args[0]
+    except api.ApiException as exception:
+        result = exception.args[0]
+    except api.NetworkException as exception:
+        result = exception.args[0]
 
     return result
 
@@ -35,16 +31,16 @@ class ROCCaptchaSolver:
         try:
             self.last_twocaptcha = self.solver.normal(img_path, hintText = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)')
             result = self.last_twocaptcha['code']
-        except api.ApiException as e:
-            result = e.args[0]
+        except api.ApiException as exception:
+            result = exception.args[0]
             if 'NO_SLOT' in result:
                 time.sleep(5)
             elif 'ZERO_BALANCE' in result:
                 print("ERROR: Received response \'{}\'!\nCheck your 2captcha balance!\nExiting...".format(result))
                 quit()
-        except api.NetworkException as e:
+        except api.NetworkException as exception:
             print("Network exception!")
-            result = e.args[0]
+            result = exception.args[0]
 
         return result
 
