@@ -155,13 +155,13 @@ class RocAlert:
 
         self.__log_general(captcha)
 
-    def __handle_img_captcha(self) -> Captcha:
-        captcha = self.roc.get_img_captcha()
+    def __handle_img_captcha(self, page: str, payload: dict = None) -> Captcha:
+        captcha = self.roc.get_img_captcha(page)
         ans = self.__get_img_captcha_ans(captcha)
         captcha.ans_correct = False
         if len(ans) != 1 or ans not in self.validans:
-            self.__log("Warning: received response \'{}\'\
-                 from captcha solver!".format(ans))
+            self.__log(("Warning: received response \'{}\' "
+                        + "from captcha solver!").format(ans))
             if 'bad response: 503' in ans:
                 waittime = 5 * (1 + self.consecutive_answer_errors**2)
                 self.__log(
@@ -174,7 +174,7 @@ class RocAlert:
             self.__log('Received answer: \'{}\': '.format(ans), end='')
 
         self.consecutive_answer_errors = 0
-        correct = self.roc.submit_captcha(captcha, ans)
+        correct = self.roc.submit_captcha(captcha, ans, page, payload)
         if correct:
             self.__log("Correct answer", timestamp=False)
             self.consecutive_captcha_failures = 0
@@ -206,7 +206,7 @@ class RocAlert:
         self.__log(f'Detected {captchaType} captcha...')
 
         if captchaType == 'img':
-            return self.__handle_img_captcha()
+            return self.__handle_img_captcha('roc_recruit')
         elif captchaType == 'equation':
             return self.__handle_equation_captcha()
 
@@ -235,9 +235,35 @@ class RocAlert:
             error = True
         return error
 
-    def __check_buyer(self):
-        if self.buyer is not None:
-            self.buyer.buy_if_needed()
+    def __check_buy_needed(self) -> bool:
+        if self.buyer is None:
+            return False
+
+        return self.buyer.check_purchase_required()
+
+    def __recruitCheck(self) -> bool:
+        captchaType = self.roc.recruit_has_captcha()
+        if captchaType is not None:
+            captcha = self.__handle_captcha(captchaType)
+            self.__captcha_final(captcha)  # Log/Report
+            if not captcha.ans_correct:
+                return False
+        else:
+            self.__log("No captcha needed")
+        return True
+
+    def __armoryCheck(self) -> bool:
+        buy_needed = self.__check_buy_needed()
+
+        if not buy_needed:
+            return True
+
+        self.__log("Attempting to buy...")
+        payload = self.buyer.create_order_payload()
+        res_captcha = self.__handle_img_captcha('roc_armory', payload)
+
+        self.__captcha_final(res_captcha)
+        return res_captcha.ans_correct
 
     def start(self) -> None:
         self.__init_cookie_loading()
@@ -253,15 +279,12 @@ class RocAlert:
                 self.__attempt_login()
                 continue
 
-            captchaType = self.roc.recruit_has_captcha()
-            if captchaType is not None:
-                captcha = self.__handle_captcha(captchaType)
-                self.__captcha_final(captcha)  # Log/Report
-                if not captcha.ans_correct:
-                    continue
-            else:
-                self.__log("No captcha needed")
-            self.__check_buyer()
+            if not self.__armoryCheck():
+                continue
+
+            if not self.__recruitCheck():
+                continue
+
             self.__sleep()
         self.__log("Main loop exited.")
 
