@@ -65,7 +65,11 @@ class RocWebHandler:
         imghash = self.r.text[index + len('img.php?hash='): endIndex]
         return imghash
 
-    def get_img_captcha(self) -> Captcha:
+    def get_img_captcha(self, page: str) -> Captcha:
+        if page is None:
+            return None
+
+        self.__go_to_page(self.site_settings[page])
         hash = self.__get_imagehash()
 
         if hash is None:
@@ -124,18 +128,20 @@ class RocWebHandler:
     def submit_captcha(
             self, captcha: Captcha,
             ans: str,
-            page: str = 'roc_recruit'
+            page: str,
+            payload: dict = None
             ) -> bool:
 
         cs = ROCCaptchaSelector()
         x, y = cs.get_xy_static(ans, page)
+        if payload is None:
+            payload = {}
 
-        payload = {
-            'captcha': captcha.hash,
-            'coordinates[x]': x,
-            'coordinates[y]': y,
-            'num': ans,
-        }
+        payload['captcha'] = captcha.hash,
+        payload['coordinates[x]'] = x,
+        payload['coordinates[y]'] = y,
+        payload['num'] = ans,
+
         self.r = self.session.post(self.site_settings[page], payload)
         return 'Wrong number' not in self.r.text or \
             'wrong number' in self.r.text
