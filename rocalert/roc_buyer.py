@@ -1,19 +1,19 @@
 
 from enum import Enum
 from rocalert.roc_settings.settingstools import BuyerSettings
-from rocalert.roc_web_handler import RocWebHandler, Captcha
-from rocalert.captcha.captcha_logger import CaptchaLogger
+from rocalert.roc_web_handler import RocWebHandler
 
 BASE_PAYLOAD = {
-    'sell[7]':'',
-    'sell[8]':'',
-    'sell[11]':'',
-    'sell[13]':'',
-    'sell[14]':'',
+    'sell[7]': '',
+    'sell[8]': '',
+    'sell[11]': '',
+    'sell[13]': '',
+    'sell[14]': '',
     }
-for i in range(1,15):
+for i in range(1, 15):
     k = 'buy[{}]'.format(str(i))
     BASE_PAYLOAD[k] = ''
+
 
 class RocItem():
     class ItemType(Enum):
@@ -21,12 +21,21 @@ class RocItem():
         DEFENSE = 2
         SPY = 3
         SENTRY = 4
-    def __init__(self, name:str, cost:int, stat_val:int, stat_type: ItemType, item_code: str) -> None:
+
+    def __init__(
+            self,
+            name: str,
+            cost: int,
+            stat_val: int,
+            stat_type: ItemType,
+            item_code: str
+            ) -> None:
         self.name = name
         self.cost = cost
         self.stat_val = stat_val
         self.stat_type = stat_type
         self.code = item_code
+
 
 ITEM_DETAILS = {
     'dagger': RocItem('Dagger', 1000, 30, RocItem.ItemType.ATTACK, 1),
@@ -46,28 +55,29 @@ ITEM_DETAILS = {
 }
 
 
-
 class ROCBuyer():
-    def __init__(self, roc_handler: RocWebHandler, buyersettings: BuyerSettings, correctLogger: CaptchaLogger = None, genLogger: CaptchaLogger = None) -> None:
+    def __init__(
+            self,
+            roc_handler: RocWebHandler,
+            buyersettings: BuyerSettings
+            ) -> None:
         if roc_handler is None:
             raise Exception("Parameter roc_handler must not be None")
 
         self.roc = roc_handler
         self.buyersettings = buyersettings
-        self._genlog = genLogger
-        self.correctlog = correctLogger
 
-    def buy_if_needed(self):
+    def check_purchase_required(self) -> bool:
         if not self.buyersettings.buying_enabled():
-            return
+            return False
+
         gold = self.roc.current_gold()
-        order = self.__make_armory_order(gold)
-        payload = self.__create_order_payload(order)
-        self.roc.send_armory_order(payload)
+        return gold >= self.buyersettings.min_gold_to_buy()
 
     def __make_soldier_order(self, gold) -> dict:
         pass
-    def __make_armory_order(self, gold) ->dict:
+
+    def __make_armory_order(self, gold) -> dict:
         weaps = self.buyersettings.get_weapons_to_buy()
         return self.__create_order(weaps, gold)
 
@@ -81,15 +91,17 @@ class ROCBuyer():
             gold -= count * ITEM_DETAILS[item].cost
             total -= amt
             items[item] = count
-        
+
         return items
 
-    def __create_order_payload(self, order: dict) -> dict:
+    def create_order_payload(self) -> dict:
+
+        gold = self.roc.current_gold()   
+        order = self.__make_armory_order(gold)
+
         payload = BASE_PAYLOAD.copy()
 
         for item, count in order.items():
-            payload[ITEM_DETAILS[item].code] = str(count)
+            payload[f"buy[{ITEM_DETAILS[item].code}]"] = str(count)
 
         return payload
-
-    
