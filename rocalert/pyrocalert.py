@@ -258,11 +258,19 @@ class RocAlert:
         if not buy_needed:
             return True
 
-        self.__log("Attempting to buy...")
+        self.__log("Attempting to purchase...")
         payload = self.buyer.create_order_payload()
         res_captcha = self.__handle_img_captcha('roc_armory', payload)
 
         self.__captcha_final(res_captcha)
+
+        if not res_captcha.ans_correct:
+            return False
+        
+        for item in payload:
+            if payload[item] == 0:
+                continue
+
         return res_captcha.ans_correct
 
     def start(self) -> None:
