@@ -62,7 +62,7 @@ class RocAlert:
         if min > max:
             min, max = max, min
 
-        return min + int(random.uniform(0, 1) * max)
+        return min + int(random.uniform(0, 1) * (max - min))
 
     def __get_img_captcha_ans(self, captcha: Captcha) -> str:
         path = self.__save_captcha(captcha)
