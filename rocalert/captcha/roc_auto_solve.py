@@ -1,5 +1,6 @@
 from time import time
-from twocaptcha import TwoCaptcha  # pip install 2captcha-python
+from twocaptcha import TwoCaptcha, TimeoutException, \
+    ApiException, NetworkException  # pip install 2captcha-python
 from twocaptcha import api
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
 
@@ -9,9 +10,11 @@ def Solve(api_key, imgpath) -> str:
     try:
         resp = solver.normal(imgpath, numeric=1, min_len=1, max_len=1)
         result = resp['code']
-    except api.ApiException as exception:
+    except ApiException as exception:
         result = exception.args[0]
-    except api.NetworkException as exception:
+    except NetworkException as exception:
+        result = exception.args[0]
+    except TimeoutException as exception:
         result = exception.args[0]
 
     return result
