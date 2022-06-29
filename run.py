@@ -25,11 +25,19 @@ if __name__ == '__main__':
 
     rochandler = RocWebHandler(SiteSettings(filepath=site_settings_fp))
 
-    us = UserSettings(filepath=user_settings_fp)
+    user_settings = UserSettings(filepath=user_settings_fp)
     buyer = ROCBuyer(
         rochandler,
         BuyerSettings(filepath=buyer_settings_fp),
-        correct_log, gen_log)
-    a = RocAlert(rochandler, us, buyer, correct_log, gen_log, remoteCaptcha)
+        )
+
+    a = RocAlert(
+        rochandler,
+        user_settings,
+        buyer,
+        correct_log,
+        gen_log,
+        remoteCaptcha
+        )
 
     a.start()
