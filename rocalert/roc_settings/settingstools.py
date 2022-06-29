@@ -391,8 +391,8 @@ class SettingsFileMaker:
         if has_user_settings and has_site_settings and has_buy_settings:
             return False
 
-        print('You are missing necessary settings files,\
-             generic files will be created if needed')
+        print('You are missing necessary settings files, '
+              + 'generic files will be created if needed')
 
         if not has_user_settings:
             settings = UserSettings.DEFAULT_SETTINGS
