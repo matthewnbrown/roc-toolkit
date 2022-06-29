@@ -266,7 +266,7 @@ class RocAlert:
 
         if not res_captcha.ans_correct:
             return False
-        
+
         for item in payload:
             if payload[item] == 0:
                 continue
