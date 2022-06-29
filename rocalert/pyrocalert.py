@@ -244,9 +244,11 @@ class RocAlert:
     def __recruitCheck(self) -> bool:
         captchaType = self.roc.recruit_has_captcha()
         if captchaType is not None:
+            self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
             self.__captcha_final(captcha)  # Log/Report
             if not captcha.ans_correct:
+                self.__log('Bad captcha answer...')
                 return False
         else:
             self.__log("No captcha needed")
@@ -265,7 +267,10 @@ class RocAlert:
         self.__captcha_final(res_captcha)
 
         if not res_captcha.ans_correct:
+            self.__log('Bad captcha answer')
             return False
+        else:
+            self.__log('Purchase successful')
 
         for item in payload:
             if payload[item] == 0:
