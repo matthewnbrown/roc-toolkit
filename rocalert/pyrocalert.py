@@ -58,6 +58,10 @@ class RocAlert:
         else:
             min = self.user_settings['nightmode_minwait_mins'] * 60
             max = self.user_settings['nightmode_maxwait_mins'] * 60
+
+        if min > max:
+            min, max = max, min
+
         return min + int(random.uniform(0, 1) * max)
 
     def __get_img_captcha_ans(self, captcha: Captcha) -> str:
