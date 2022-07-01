@@ -33,7 +33,7 @@ class CaptchaLogger:
             return '{0}\n'.format(msg)
 
     def log_captcha(self, captcha: Captcha) -> None:
-        with open(self._savefile, 'a+') as f:
+        with open(self._savefile, 'a+', encoding="utf-8") as f:
             message = self.__create_line(captcha)
             f.write(message)
         
