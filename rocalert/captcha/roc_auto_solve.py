@@ -27,9 +27,13 @@ class ROCCaptchaSolver:
     def __is_twocaptcha_key_invalid(self):
         return self.twocaptcha_key is None or len(self.twocaptcha_key) == 0
 
-    def set_twocaptcha_apikey(self, key: str) -> None:
+    def set_twocaptcha_apikey(self, key: str, solver=None) -> None:
         self.twocaptcha_key = key
-        self.solver = TwoCaptcha(self.twocaptcha_key)
+
+        if solver:
+            self.solver = solver
+        else:
+            self.solver = TwoCaptcha(self.twocaptcha_key)
 
     def twocaptcha_solve(self, img_path) -> str:
         if self.__is_twocaptcha_key_invalid():
