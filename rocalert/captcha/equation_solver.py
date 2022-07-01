@@ -1,8 +1,10 @@
-from sympy import sympify, solve #py -m pip install sympy
-class EquationSolver():
-    ops = ['*', '/', '-', '+']     
+from sympy import sympify, solve  # py -m pip install sympy
 
-    def __rsolve(eq1:str,  eq2:str, op) -> int:
+
+class EquationSolver():
+    ops = ['*', '/', '-', '+']
+
+    def __rsolve(eq1: str,  eq2: str, op) -> int:
         eq1 = eq1.strip()
         if eq1 == '':
             v1 = 0
@@ -25,9 +27,9 @@ class EquationSolver():
         res = solve(sym_eq)
         return str(res[0])
 
-        #eq = eq.strip()
-        #for op in EquationSolver.ops:
-        #    if op in eq:
-        #        l, r = eq.split(op, 1)
-        #        return str(EquationSolver.__rsolve(l,r,op))
-        #return eq
+        # eq = eq.strip()
+        # for op in EquationSolver.ops:
+        #     if op in eq:
+        #         l, r = eq.split(op, 1)
+        #         return str(EquationSolver.__rsolve(l,r,op))
+        # return eq
