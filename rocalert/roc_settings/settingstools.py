@@ -159,7 +159,9 @@ class UserSettings(Settings):
         'max_consecutive_answer_errors': '5',
         'captcha_save_path': r'captcha_img/',
         'load_cookies_from_browser': 'True',
-        'browser': 'chrome'
+        'browser': 'chrome',
+        'remote_captcha_lookup': None,
+        'remote_captcha_add': None
     }
 
     SETTINGS_TYPES = {
@@ -180,7 +182,9 @@ class UserSettings(Settings):
         'max_consecutive_answer_errors': int,
         'captcha_save_path': str,
         'load_cookies_from_browser': bool,
-        'browser': str
+        'browser': str,
+        'remote_captcha_lookup': str,
+        'remote_captcha_add': str
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
@@ -234,6 +238,14 @@ class UserSettings(Settings):
                     self.get_setting('browser')))
                 print('Cookies will not be loaded!')
                 self.settings['load_cookies_from_browser'] = False
+
+        for setting in UserSettings.SETTINGS_TYPES:
+            if UserSettings.SETTINGS_TYPES[setting] == str \
+                    and UserSettings.DEFAULT_SETTINGS[setting] is None:
+                SettingsValidator.set_defaults_ifnotset(
+                    self.get_settings(),
+                    {setting: None},
+                    lambda s: None if s.lower() == 'none' else s)
 
 
 class SiteSettings(Settings):

@@ -11,9 +11,6 @@ if __name__ == '__main__':
     site_settings_fp = 'site.settings'
     buyer_settings_fp = 'buyer.settings'
 
-    remoteCaptchaLookup = None
-    remoteCaptchaAdd = None
-
     if SettingsFileMaker.needs_user_setup(
             user_settings_fp, site_settings_fp, buyer_settings_fp):
         print("Exiting. Please fill out settings files")
@@ -21,11 +18,14 @@ if __name__ == '__main__':
 
     gen_log = CaptchaLogger('logs/captcha_answers.log', timestamp=True)
     correct_log = CaptchaLogger('logs/correct_ans.log', log_correctness=False)
-    remoteCaptcha = RemoteCaptcha(remoteCaptchaAdd, remoteCaptchaLookup)
 
     rochandler = RocWebHandler(SiteSettings(filepath=site_settings_fp))
-
     user_settings = UserSettings(filepath=user_settings_fp)
+
+    remoteCaptcha = RemoteCaptcha(
+        user_settings.get_setting('remote_captcha_add'),
+        user_settings.get_setting('remote_captcha_lookup'))
+
     buyer = ROCBuyer(
         rochandler,
         BuyerSettings(filepath=buyer_settings_fp),
