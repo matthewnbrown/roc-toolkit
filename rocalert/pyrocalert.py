@@ -65,6 +65,7 @@ class RocAlert:
         return min + int(random.uniform(0, 1) * (max - min))
 
     def __get_img_captcha_ans(self, captcha: Captcha) -> str:
+
         path = self.__save_captcha(captcha)
 
         if self.__useRemoteCatcha:
@@ -161,6 +162,10 @@ class RocAlert:
 
     def __handle_img_captcha(self, page: str, payload: dict = None) -> Captcha:
         captcha = self.roc.get_img_captcha(page)
+
+        if captcha is None:
+            return None
+
         ans = self.__get_img_captcha_ans(captcha)
         captcha.ans_correct = False
         if len(ans) != 1 or ans not in self.validans:
@@ -250,8 +255,9 @@ class RocAlert:
         if captchaType is not None:
             self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
+
             self.__captcha_final(captcha)  # Log/Report
-            if not captcha.ans_correct:
+            if captcha is None or not captcha.ans_correct:
                 self.__log('Bad captcha answer...')
                 return False
         else:
@@ -267,6 +273,9 @@ class RocAlert:
         self.__log("Attempting to purchase...")
         payload = self.buyer.create_order_payload()
         res_captcha = self.__handle_img_captcha('roc_armory', payload)
+
+        if res_captcha is None:
+            return False
 
         self.__captcha_final(res_captcha)
 
