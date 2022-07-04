@@ -143,7 +143,8 @@ class RocAlert:
             return False
 
     def __report_captcha(self, captcha: Captcha):
-        if self.user_settings['auto_solve_captchas'] and captcha and captcha.img:
+        if self.user_settings['auto_solve_captchas'] \
+                and captcha and captcha.img:
             self.solver.report_last_twocaptcha(captcha.ans_correct)
 
     def __captcha_final(self, captcha: Captcha) -> None:
