@@ -1,7 +1,6 @@
 from time import time
 from twocaptcha import TwoCaptcha, TimeoutException, \
     ApiException, NetworkException  # pip install 2captcha-python
-from twocaptcha import api
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
 
 
@@ -43,16 +42,21 @@ class ROCCaptchaSolver:
             self.last_twocaptcha = \
                 self.solver.normal(img_path, hintText=hinttext)
             result = self.last_twocaptcha['code']
-        except api.ApiException as exception:
+        except ApiException as exception:
             result = exception.args[0]
             if 'NO_SLOT' in result:
+                print('No slot Twocaptcha slot available, \
+                    trying again in 5 seconds')
                 time.sleep(5)
             elif 'ZERO_BALANCE' in result:
                 print("ERROR: Received response \'{}\'!\n\
                     Check your 2captcha balance!\nExiting...".format(result))
                 quit()
-        except api.NetworkException as exception:
-            print("Network exception!")
+        except NetworkException as exception:
+            print("Twocaptcha network exception!")
+            result = exception.args[0]
+        except TimeoutException as exception:
+            print("Twocaptcha timeout exception!")
             result = exception.args[0]
 
         return result
@@ -63,7 +67,7 @@ class ROCCaptchaSolver:
 
         try:
             self.solver.report(self.last_twocaptcha['captchaId'], wascorrect)
-        except (api.NetworkException, api.ApiException) as e:
+        except (NetworkException, ApiException) as e:
             print('Error reporting captcha: {}'.format(e.args[0]))
 
     def gui_solve(self, img):
