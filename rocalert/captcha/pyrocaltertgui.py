@@ -1,6 +1,6 @@
 from functools import partial
 from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
-from PIL import Image, ImageTk  # py -m pip install pillow
+from PIL import Image, ImageTk
 import io
 
 

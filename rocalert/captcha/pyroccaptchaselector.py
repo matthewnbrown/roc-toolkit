@@ -1,4 +1,4 @@
-from numpy import random  # py -m pip install numpy
+from numpy import random
 
 
 class ROCCaptchaSelector():

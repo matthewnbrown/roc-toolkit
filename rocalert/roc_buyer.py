@@ -3,6 +3,7 @@ from enum import Enum
 from rocalert.roc_settings.settingstools import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler
 
+
 BASE_PAYLOAD = {
     'sell[7]': '',
     'sell[8]': '',
