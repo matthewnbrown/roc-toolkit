@@ -278,8 +278,8 @@ class SiteSettings(Settings):
 
             if not validUrls:
                 print(
-                    "Site settings are not set correctly.\
-                         Ensure URLs are valid. Exiting")
+                    'Site settings are not set correctly. '
+                    + 'Ensure URLs are valid. Exiting')
                 quit()
 
     def __url_valid(urlstr: str) -> bool:
