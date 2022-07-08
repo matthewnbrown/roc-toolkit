@@ -1,5 +1,5 @@
 import pickle
-import browser_cookie3  # py -m pip install browser-cookie3
+import browser_cookie3
 from urllib.parse import urlparse
 
 
