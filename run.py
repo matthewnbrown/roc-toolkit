@@ -1,3 +1,5 @@
-from rocalert.main import main
+from rocalert.__main__ import main
+
+
 if __name__ == '__main__':
     exit(main())
