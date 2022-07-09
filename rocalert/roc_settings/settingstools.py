@@ -238,7 +238,7 @@ class UserSettings(Settings):
                     lambda s: None if s.lower() == 'none' else s)
 
         savepath = self.get_setting('captcha_save_path')
-        if not os.path.exists('captcha_save_path'):
+        if not os.path.exists(savepath):
             print(f'Warning path {savepath} does not exist. Creating directories.')
             os.makedirs(savepath)
 
