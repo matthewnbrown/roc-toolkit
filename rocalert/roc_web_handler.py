@@ -1,4 +1,6 @@
 from http.client import RemoteDisconnected
+
+from urllib3 import Retry
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 import requests  # py -m pip install requests
@@ -36,6 +38,12 @@ class RocWebHandler:
                         Chrome/102.0.5005.63 Safari/537.36'}
         self.site_settings = roc_site_settings.get_settings()
         self.session = requests.Session()
+
+        retry = Retry(connect=10, backoff_factor=0.5)
+        adapter = requests.adapters.HTTPAdapter(max_retries=retry)
+        self.session.mount('http://', adapter)
+        self.session.mount('https://', adapter)
+
         self.r = None
 
     def __go_to_page(self, url) -> requests.Response:
