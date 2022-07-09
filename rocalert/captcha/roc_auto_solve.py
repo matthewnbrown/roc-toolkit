@@ -1,6 +1,6 @@
 from time import time
-from twocaptcha import TwoCaptcha, TimeoutException, \
-    ApiException, NetworkException
+from twocaptcha import TwoCaptcha, TimeoutException 
+from twocaptcha.api import ApiException, NetworkException
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
 
 
