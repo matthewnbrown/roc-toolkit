@@ -1,5 +1,5 @@
 import pickle
-import browser_cookie3
+import browser_cookie3 as bc3
 from urllib.parse import urlparse
 
 
@@ -16,6 +16,19 @@ def load_cookies_from_path(filename):
         print("Error loading cookies file. Is it empty?")
 
 
+__browser_lookup = {
+    'all': bc3.load,
+    'chrome': bc3.chrome,
+    'firefox': bc3.firefox,
+    'opera': bc3.opera,
+    'edge': bc3.edge,
+    'chromium': bc3.chromium,
+    'brave': bc3.brave,
+    'vivaldi': bc3.vivaldi,
+    'safari': bc3.safari
+}
+
+
 def load_cookies_from_browser(browser: str, websiteurl: str = None):
     browser = browser.lower()
     if websiteurl is not None:
@@ -23,11 +36,18 @@ def load_cookies_from_browser(browser: str, websiteurl: str = None):
         dom = '.'.join(dom.split('.')[-2:])
     else:
         dom = None
-    if browser == 'firefox':
-        cj = browser_cookie3.firefox(domain_name=dom)
-    elif browser == 'chrome':
-        cj = browser_cookie3.chrome()
+
+    if browser in __browser_lookup:
+        try:
+            cj = __browser_lookup[browser](domain_name=dom)
+        except bc3.BrowserCookieError as e:
+            print(f'Error: {e.args[0]}\nExiting...')
+            quit()
     else:
-        return None
+        print(f'Error: Browser {browser} not found, acceptable browsers:')
+        for browse in __browser_lookup:
+            print(f'{browse}, ', end='')
+        print('\nExiting...')
+        quit()
 
     return cj
