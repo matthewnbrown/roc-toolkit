@@ -229,16 +229,6 @@ class UserSettings(Settings):
         SettingsValidator.set_defaults_ifnotset(
             self.settings, default_shorttime, time_conv)
 
-        if self.get_setting('load_cookies_from_browser'):
-            validbrowsers = {'chrome', 'firefox'}
-            self.settings['browser'] = self.settings['browser'].lower()
-            if self.get_setting('browser') not in validbrowsers:
-                print('Warning! load_cookies_from_browser enabled,\
-                     but browser \'{}\' is not valid'.format(
-                    self.get_setting('browser')))
-                print('Cookies will not be loaded!')
-                self.settings['load_cookies_from_browser'] = False
-
         for setting in UserSettings.SETTINGS_TYPES:
             if UserSettings.SETTINGS_TYPES[setting] == str \
                     and UserSettings.DEFAULT_SETTINGS[setting] is None:
@@ -246,6 +236,12 @@ class UserSettings(Settings):
                     self.get_settings(),
                     {setting: None},
                     lambda s: None if s.lower() == 'none' else s)
+
+        savepath = self.get_setting('captcha_save_path')
+        if not os.path.exists('captcha_save_path'):
+            print(f'Warning path {savepath} does not exist. Creating directories.')
+            os.makedirs(savepath)
+
 
 
 class SiteSettings(Settings):
