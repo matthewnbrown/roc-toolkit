@@ -46,6 +46,12 @@ class RocWebHandler:
 
         self.r = None
 
+    def __check_for_bad_captcha(self):
+        if 'You have hit too many wrong numbers' in self.r.text:
+            for i in range(10):
+                print('ERROR: RECEIVED TEXT CAPTCHA')
+            quit()
+
     def __go_to_page(self, url) -> requests.Response:
         try:
             self.r = self.session.get(url, headers=self.headers)
@@ -56,6 +62,7 @@ class RocWebHandler:
             self.session.cookies.update(cookies)
             self.r = self.session.get(url, headers=self.headers)
             print('Success!')
+        self.__check_for_bad_captcha()
         return self.r
 
     def __page_captcha_type(self) -> str:
