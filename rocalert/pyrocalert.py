@@ -35,6 +35,7 @@ class RocAlert:
         self.solver = ROCCaptchaSolver()
         self.general_log = generalLog
         self.correct_log = correctLog
+        self.__in_nightmode = False
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
                 self.user_settings['auto_captcha_key']
@@ -52,7 +53,7 @@ class RocAlert:
             print(message, end=end)
 
     def __get_waittime(self) -> int:
-        if not self.__in_nightmode():
+        if not self.__check_nightmode():
             min = self.user_settings['min_checktime_secs']
             max = self.user_settings['max_checktime_secs']
         else:
@@ -99,7 +100,7 @@ class RocAlert:
         if self.correct_log is not None:
             self.correct_log.log_captcha(captcha=captcha)
 
-    def __in_nightmode(self) -> bool:
+    def __check_nightmode(self) -> bool:
         if not self.user_settings['enable_nightmode']:
             return False
         start = self.user_settings['nightmode_begin']
@@ -107,9 +108,19 @@ class RocAlert:
         now = datetime.datetime.now().time()
 
         if start <= end:
-            return start <= now <= end
+            innightmode = start <= now <= end
         else:
-            return start <= now or now <= end
+            innightmode = start <= now or now <= end
+
+        if innightmode != self.__in_nightmode:
+            self.__in_nightmode = innightmode
+
+            if innightmode:
+                self.__log('Entering nightmode.')
+            else:
+                self.__log('Exiting nightmode.')
+
+        return innightmode
 
     def __sleep(self) -> None:
         waitTime = self.__get_waittime()
