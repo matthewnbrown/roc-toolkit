@@ -43,7 +43,7 @@ class ROCCaptchaSolver:
                 self.solver.normal(img_path, hintText=hinttext)
             result = self.last_twocaptcha['code']
         except ApiException as exception:
-            result = str(exception.args[0])
+            result = f'Exception: {exception.args[0]}'
             if 'NO_SLOT' in result:
                 print('No slot Twocaptcha slot available, \
                     trying again in 5 seconds')
@@ -54,10 +54,10 @@ class ROCCaptchaSolver:
                 quit()
         except NetworkException as exception:
             print("Twocaptcha network exception!")
-            result = str(exception.args[0])
+            result = f'Exception: {exception.args[0]}'
         except TimeoutException as exception:
             print("Twocaptcha timeout exception!")
-            result = str(exception.args[0])
+            result = f'Exception: {exception.args[0]}'
 
         return result
 
