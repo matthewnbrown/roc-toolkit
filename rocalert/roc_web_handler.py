@@ -47,14 +47,18 @@ class RocWebHandler:
         self.r = None
 
     def __check_for_bad_captcha(self):
-        if 'You have hit too many wrong numbers' in self.r.text:
+        if 'cooldown' in self.r.url:
             for i in range(10):
                 print('ERROR: RECEIVED TEXT CAPTCHA')
+            print('Exiting...')
             quit()
 
     def __go_to_page(self, url) -> requests.Response:
         try:
-            self.r = self.session.get(url, headers=self.headers)
+            self.r = self.session.get(
+                url,
+                headers=self.headers,
+                allow_redirects=True)
         except RemoteDisconnected:
             print("Error: Session disconnected! Attempting to reconnect...")
             cookies = self.session.cookies
