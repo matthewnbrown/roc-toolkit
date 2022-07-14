@@ -6,6 +6,10 @@ from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 import requests  # py -m pip install requests
 
 
+def __generate_useragent():
+    pass
+
+
 class Captcha:
     def __init__(
             self, hash: str, img, ans: str = '-1',
