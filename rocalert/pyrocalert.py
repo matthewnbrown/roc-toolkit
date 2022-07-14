@@ -189,6 +189,7 @@ class RocAlert:
                     f"Waiting {waittime} seconds before attempting again..."
                     )
                 time.sleep(waittime)
+                captcha = None
             self.consecutive_answer_errors += 1
             return captcha
         else:
