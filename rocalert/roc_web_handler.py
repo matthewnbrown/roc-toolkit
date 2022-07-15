@@ -125,7 +125,8 @@ class RocWebHandler:
             'password': password
         }
         self.r = self.session.post(self.site_settings['roc_login'], payload)
-        return r'Incorrect login' not in self.r.text
+        incorrect = r'Incorrect login' in self.r.text
+        return not incorrect and r'email@address.com' not in self.r.text
 
     def add_cookies(self, cookies) -> None:
         self.session.cookies.update(cookies)
