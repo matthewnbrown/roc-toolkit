@@ -36,6 +36,7 @@ class RocAlert:
         self.general_log = generalLog
         self.correct_log = correctLog
         self.__in_nightmode = False
+        self.__last_login_time = None
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
                 self.user_settings['auto_captcha_key']
@@ -139,6 +140,16 @@ class RocAlert:
                 )
             return True
 
+        curtime = datetime.datetime.now()
+        if self.__last_login_time:
+            min_bugged_time = datetime.timedelta(0, 600)
+            if curtime - self.__last_login_time <= min_bugged_time:
+                self.consecutive_bugged_logins += 1
+                time.sleep(3 + int(random.uniform(0, 1) * 5))
+            else:
+                self.consecutive_bugged_logins = 0
+
+        self.__last_login_time = curtime
         res = self.roc.login(
             self.user_settings['email'],
             self.user_settings['password']
@@ -150,7 +161,7 @@ class RocAlert:
             save_cookies_to_path(self.roc.get_cookies(), self.cookie_filename)
         else:
             self.consecutive_login_failures += 1
-            self.__("Login failure.", timestamp=False)
+            self.__log("Login failure.", timestamp=False)
             return False
 
     def __report_captcha(self, captcha: Captcha):
@@ -246,6 +257,7 @@ class RocAlert:
         max_clf = self.user_settings['max_consecutive_login_failures']
         max_caa = self.user_settings['max_consecutive_answer_errors']
         max_ccf = self.user_settings['max_consecutive_captcha_attempts']
+        max_cbl = 4
         if self.consecutive_login_failures >= max_clf:
             self.__log("ERROR: Multiple login failures. Exiting.")
             error = True
@@ -254,6 +266,9 @@ class RocAlert:
             error = True
         if self.consecutive_captcha_failures >= max_ccf:
             self.__log("Failed too many captchas, exiting!")
+            error = True
+        if self.consecutive_bugged_logins >= max_cbl:
+            self.__log('Error: Too many logins in a very short period!')
             error = True
         return error
 
@@ -309,6 +324,7 @@ class RocAlert:
         self.consecutive_login_failures = 0
         self.consecutive_captcha_failures = 0
         self.consecutive_answer_errors = 0
+        self.consecutive_bugged_logins = 0
         while True:
             if self.__check_failure_conditions():
                 break
