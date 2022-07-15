@@ -37,6 +37,8 @@ class RocAlert:
         self.correct_log = correctLog
         self.__in_nightmode = False
         self.__last_login_time = None
+        self.__last_purchase_time = None
+        self.__purchase_error = False
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
                 self.user_settings['auto_captcha_key']
@@ -258,6 +260,7 @@ class RocAlert:
         max_caa = self.user_settings['max_consecutive_answer_errors']
         max_ccf = self.user_settings['max_consecutive_captcha_attempts']
         max_cbl = 4
+        max_fpa = 5
         if self.consecutive_login_failures >= max_clf:
             self.__log("ERROR: Multiple login failures. Exiting.")
             error = True
@@ -270,10 +273,17 @@ class RocAlert:
         if self.consecutive_bugged_logins >= max_cbl:
             self.__log('Error: Too many logins in a very short period!')
             error = True
+        if self.consecutive_purchase_attempts >= max_fpa:
+            self.__log('Error: Too many failed purchase attempts! '
+                       + 'No longer attempting to purchase.')
+            self.__purchase_error = True
         return error
 
     def __check_buy_needed(self) -> bool:
         if self.buyer is None:
+            return False
+        if self.__purchase_error:
+            self.__log('Not purchasing due to prior purchasing errors')
             return False
 
         return self.buyer.check_purchase_required()
@@ -302,6 +312,17 @@ class RocAlert:
         payload = self.buyer.create_order_payload()
         res_captcha = self.__handle_img_captcha('roc_armory', payload)
 
+        curtime = datetime.datetime.now()
+        if self.__last_purchase_time:
+            min_bugged_time = datetime.timedelta(0, 600)
+            if curtime - self.__last_purchase_time <= min_bugged_time:
+                self.consecutive_purchase_attempts += 1
+                time.sleep(3 + int(random.uniform(0, 1) * 5))
+            else:
+                self.consecutive_purchase_attempts = 0
+
+        self.__last_purchase_time = curtime
+
         if res_captcha is None:
             return False
 
@@ -325,6 +346,7 @@ class RocAlert:
         self.consecutive_captcha_failures = 0
         self.consecutive_answer_errors = 0
         self.consecutive_bugged_logins = 0
+        self.consecutive_purchase_attempts = 0
         while True:
             if self.__check_failure_conditions():
                 break
