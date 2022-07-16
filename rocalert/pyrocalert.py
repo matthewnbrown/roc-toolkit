@@ -1,5 +1,5 @@
 from rocalert.captcha.equation_solver import EquationSolver
-from rocalert.captcha.roc_auto_solve import ROCCaptchaSolver
+from rocalert.captcha.roc_auto_solve import ROCAutoSolver
 from rocalert.remote_lookup import RemoteCaptcha
 from rocalert.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import UserSettings
@@ -32,7 +32,7 @@ class RocAlert:
         self.buyer = buyer
         self.user_settings = usersettings.get_settings()
         self.validans = {str(i) for i in range(1, 10)}
-        self.solver = ROCCaptchaSolver()
+        self.solver = ROCAutoSolver()
         self.general_log = generalLog
         self.correct_log = correctLog
         self.__in_nightmode = False
