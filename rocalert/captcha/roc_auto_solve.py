@@ -4,22 +4,7 @@ from twocaptcha.api import ApiException, NetworkException
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
 
 
-def Solve(api_key, imgpath) -> str:
-    solver = TwoCaptcha(api_key)
-    try:
-        resp = solver.normal(imgpath, numeric=1, min_len=1, max_len=1)
-        result = resp['code']
-    except ApiException as exception:
-        result = exception.args[0]
-    except NetworkException as exception:
-        result = exception.args[0]
-    except TimeoutException as exception:
-        result = exception.args[0]
-
-    return result
-
-
-class ROCCaptchaSolver:
+class ROCAutoSolver:
     def __init__(self) -> None:
         self.twocaptcha_key = None
 
