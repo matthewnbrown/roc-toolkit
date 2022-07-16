@@ -4,7 +4,7 @@ from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
 
 
-class ROCService():
+class RocService():
     """Generic class for a ROC service"""
 
     """Runs the service"""
