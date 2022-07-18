@@ -9,7 +9,7 @@ import io
 
 class AutoCaptchaService(RocService):
     """Service that uses 2Captcha for captcha solving"""
-    def __is_twocpatch_key_invalid(self, twocaptcha_key):
+    def __is_twocaptcha_key_invalid(self, twocaptcha_key):
         return twocaptcha_key is None or len(twocaptcha_key) == 0
 
     def __create_solver(self, key: str) -> TwoCaptcha:
