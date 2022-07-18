@@ -20,7 +20,7 @@ class AutoCaptchaService(RocService):
         response = None
         if self.__is_twocaptcha_key_invalid():
             return {
-                'ans': ans, 
+                'ans': ans,
                 'error': 'ERROR_TWOCAPTCHA_KEY_NOT_SET',
                 'response': response}
 
@@ -48,4 +48,17 @@ class AutoCaptchaService(RocService):
             settings: UserSettings = None,
             custom_settings: dict = None
             ) -> bool:
-        pass
+        if 'captcha' not in custom_settings:
+            return {'error': 'captcha not in custom settings'}
+        captcha = custom_settings['captcha']
+        if captcha is None:
+            return {'error': 'No captcha supplied in request'}
+        elif captcha.img is None:
+            return {'error': 'Captcha.img not supplied in request'}
+
+        if 'api_key' not in custom_settings:
+            return {'error': 'No api_key supplied in request'}
+
+        api_key = custom_settings['api_key']
+        # TODO: SAVE IMAGE
+        return self.__twocaptcha_solve(api_key, captcha.img)
