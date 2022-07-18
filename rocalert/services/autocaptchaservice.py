@@ -2,8 +2,9 @@ from twocaptcha import TwoCaptcha, TimeoutException
 from twocaptcha.api import ApiException, NetworkException
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
-from rocalert.roc_web_handler import Captcha
 from rocalert.services.rocservice import RocService
+import PIL.Image
+import io
 
 
 class AutoCaptchaService(RocService):
@@ -48,6 +49,8 @@ class AutoCaptchaService(RocService):
             settings: UserSettings = None,
             custom_settings: dict = None
             ) -> bool:
+        if settings is None:
+            return {'error': 'No user settings supplied in request'}
         if 'captcha' not in custom_settings:
             return {'error': 'captcha not in custom settings'}
         captcha = custom_settings['captcha']
@@ -60,5 +63,7 @@ class AutoCaptchaService(RocService):
             return {'error': 'No api_key supplied in request'}
 
         api_key = custom_settings['api_key']
-        # TODO: SAVE IMAGE
+        img = PIL.Image.open(io.BytesIO(captcha.img))
+        path = settings['captcha_save_path'] + captcha.hash + '.png'
+        img.save(path)
         return self.__twocaptcha_solve(api_key, captcha.img)
