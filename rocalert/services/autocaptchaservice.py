@@ -66,3 +66,26 @@ class AutoCaptchaService(RocService):
         path = settings['captcha_save_path'] + captcha.hash + '.png'
         img.save(path)
         return self.__twocaptcha_solve(api_key, captcha.img)
+
+    def report_captcha(
+            self,
+            settings: UserSettings,
+            response: dict,
+            wascorrect: bool
+            ) -> str:
+        if settings is None:
+            return {'error': 'No user settings supplied in request'}
+        api_key = settings.get_setting('auto_captcha_key')
+        if api_key is None or len(api_key) == 0:
+            {'error': 'Bad captcha api key.'}
+
+        if response is None:
+            return {'error': 'No captcha service response supplied'}
+
+        result = 'success'
+        try:
+            solver = self.__create_solver(key=api_key)
+            solver.report(response['captchaId'], wascorrect)
+        except (NetworkException, ApiException) as e:
+            result = 'Error reporting captcha: {}'.format(e.args[0])
+        return result
