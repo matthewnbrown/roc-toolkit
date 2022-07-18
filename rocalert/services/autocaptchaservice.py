@@ -21,7 +21,7 @@ class AutoCaptchaService(RocService):
         response = None
         if self.__is_twocaptcha_key_invalid():
             return {
-                'ans': ans,
+                'answer': ans,
                 'error': 'ERROR_TWOCAPTCHA_KEY_NOT_SET',
                 'response': response}
 
@@ -40,9 +40,21 @@ class AutoCaptchaService(RocService):
         except TimeoutException as exception:
             error = f'Exception: {exception.args[0]}'
 
-        return {'ans': ans, 'response': response, 'error': error}
+        return {'answer': ans, 'response': response, 'error': error}
 
-    """Runs the service"""
+        """_summary_
+        Uses 2captcha to solve a given captcha
+
+        requires:
+            settings: Must contain 'auto_captcha_key' which contains an api key
+            custom_settings: Must contain 'captcha' which contains an img
+
+        returns:
+            dictionary that potentially contains:
+                'error': Describes any error that occurred
+                'answer': Any answer received from service
+                'response': The entire response from 2captcha
+        """
     def run_service(
             self,
             roc: RocWebHandler = None,
@@ -67,6 +79,17 @@ class AutoCaptchaService(RocService):
         img.save(path)
         return self.__twocaptcha_solve(api_key, captcha.img)
 
+        """_summary_
+        Reports a captcha answer as correct/incorrect to 2captcha service
+
+        requires:
+            settings:
+                Must contain 'auto_captcha_key' which contains an api key
+            response:
+                Received after calling run_service
+            wascorrect:
+                Validity of the answer to the captcha
+        """
     def report_captcha(
             self,
             settings: UserSettings,
