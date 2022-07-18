@@ -51,6 +51,9 @@ class AutoCaptchaService(RocService):
             ) -> bool:
         if settings is None:
             return {'error': 'No user settings supplied in request'}
+        api_key = settings.get_setting('auto_captcha_key')
+        if api_key is None or len(api_key) == 0:
+            {'error': 'Bad captcha api key.'}
         if 'captcha' not in custom_settings:
             return {'error': 'captcha not in custom settings'}
         captcha = custom_settings['captcha']
@@ -59,10 +62,6 @@ class AutoCaptchaService(RocService):
         elif captcha.img is None:
             return {'error': 'Captcha.img not supplied in request'}
 
-        if 'api_key' not in custom_settings:
-            return {'error': 'No api_key supplied in request'}
-
-        api_key = custom_settings['api_key']
         img = PIL.Image.open(io.BytesIO(captcha.img))
         path = settings['captcha_save_path'] + captcha.hash + '.png'
         img.save(path)
