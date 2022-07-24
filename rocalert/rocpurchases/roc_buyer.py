@@ -1,8 +1,7 @@
 
-from enum import Enum
 from rocalert.roc_settings.settingstools import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler
-
+from rocalert.rocpurchases.rocpurchtools import RocItem
 
 BASE_PAYLOAD = {
     'sell[7]': '',
@@ -14,29 +13,6 @@ BASE_PAYLOAD = {
 for i in range(1, 15):
     k = 'buy[{}]'.format(str(i))
     BASE_PAYLOAD[k] = ''
-
-
-class RocItem():
-    class ItemType(Enum):
-        ATTACK = 1
-        DEFENSE = 2
-        SPY = 3
-        SENTRY = 4
-
-    def __init__(
-            self,
-            name: str,
-            cost: int,
-            stat_val: int,
-            stat_type: ItemType,
-            item_code: str
-            ) -> None:
-        self.name = name
-        self.cost = cost
-        self.stat_val = stat_val
-        self.stat_type = stat_type
-        self.code = item_code
-
 
 ITEM_DETAILS = {
     'dagger': RocItem('Dagger', 1000, 30, RocItem.ItemType.ATTACK, 1),
