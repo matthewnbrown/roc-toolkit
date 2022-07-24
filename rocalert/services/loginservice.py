@@ -24,6 +24,8 @@ class LoginService(RocService):
                 Defaults to None.
 
         Returns:
-            bool: Returns dictionary with 'result' or 'error item
+            bool: Returns dictionary with:
+                'result': 'success' or 'failure'
+                'error': None if success, else general explanation of failure
         """
         pass
