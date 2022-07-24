@@ -1,6 +1,6 @@
 from rocalert.pyrocalert import RocAlert
 from rocalert.remote_lookup import RemoteCaptcha
-from rocalert.roc_buyer import ROCBuyer
+from rocalert.rocpurchases.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import BuyerSettings,\
         SettingsFileMaker, SiteSettings, UserSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
