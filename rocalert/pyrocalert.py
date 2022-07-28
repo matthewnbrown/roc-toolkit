@@ -1,6 +1,6 @@
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.captcha.roc_auto_solve import ROCAutoSolver
-from rocalert.remote_lookup import RemoteCaptcha
+from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler

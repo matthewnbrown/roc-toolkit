@@ -1,5 +1,5 @@
 from rocalert.pyrocalert import RocAlert
-from rocalert.remote_lookup import RemoteCaptcha
+from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import BuyerSettings,\
         SettingsFileMaker, SiteSettings, UserSettings
