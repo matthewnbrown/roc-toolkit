@@ -2,6 +2,7 @@
 from rocalert.roc_settings.settingstools import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools import RocItem
+from abc import abstractclassmethod
 
 BASE_PAYLOAD = {
     'sell[7]': '',
@@ -32,6 +33,30 @@ ITEM_DETAILS = {
     'guard_dog': RocItem('Guard Dog', 100000, 50, RocItem.ItemType.SENTRY, 13),
     'torch': RocItem('Torch', 300000, 120, RocItem.ItemType.SENTRY, 14)
 }
+
+
+class ROCPurchaser():
+    """Generic class for a ROC purchasing tool"""
+
+    """Checks if purchase condition is met"""
+    @abstractclassmethod
+    def check_purchase_required(
+            self,
+            roc: RocWebHandler = None,
+            settings: BuyerSettings = None,
+            custom_settings: dict = None
+            ) -> bool:
+        raise NotImplementedError
+
+    """Creates purchase order dictionary"""
+    @abstractclassmethod
+    def __create_order(self, items, gold) -> dict:
+        raise NotImplementedError
+
+    """Creates payload for purchase request"""
+    @abstractclassmethod
+    def create_order_payload(self) -> dict:
+        raise NotImplementedError
 
 
 class ROCBuyer():
