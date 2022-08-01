@@ -83,3 +83,16 @@ class ROCBuyer():
             payload[f"buy[{ITEM_DETAILS[item].code}]"] = str(count)
 
         return payload
+
+
+class ROCTrainer():
+    def __init__(
+            self,
+            roc_handler: RocWebHandler,
+            buyersettings: BuyerSettings
+            ) -> None:
+        if roc_handler is None:
+            raise Exception("Parameter roc_handler must not be None")
+
+        self.roc = roc_handler
+        self.buyersettings = buyersettings
