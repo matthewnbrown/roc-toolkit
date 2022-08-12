@@ -161,7 +161,8 @@ class UserSettings(Settings):
         'load_cookies_from_browser': 'True',
         'browser': 'chrome',
         'remote_captcha_lookup': None,
-        'remote_captcha_add': None
+        'remote_captcha_add': None,
+        'captcha_failure_timeout': '0'
     }
 
     SETTINGS_TYPES = {
@@ -184,7 +185,8 @@ class UserSettings(Settings):
         'load_cookies_from_browser': bool,
         'browser': str,
         'remote_captcha_lookup': str,
-        'remote_captcha_add': str
+        'remote_captcha_add': str,
+        'captcha_failure_timeout': int
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
