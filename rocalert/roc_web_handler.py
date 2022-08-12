@@ -51,11 +51,7 @@ class RocWebHandler:
         self.r = None
 
     def __check_for_bad_captcha(self):
-        if 'cooldown' in self.r.url:
-            for i in range(10):
-                print('ERROR: RECEIVED TEXT CAPTCHA')
-            print('Exiting...')
-            quit()
+        return 'cooldown' in self.r.url
 
     def __go_to_page(self, url) -> requests.Response:
         try:
@@ -70,10 +66,13 @@ class RocWebHandler:
             self.session.cookies.update(cookies)
             self.r = self.session.get(url, headers=self.headers)
             print('Success!')
-        self.__check_for_bad_captcha()
+        cooldown = self.__check_for_bad_captcha()
+        self.r.cooldown = cooldown
         return self.r
 
     def __page_captcha_type(self) -> str:
+        if self.__check_for_bad_captcha():
+            return 'cooldown'
         if '[click the correct number to proceed]' in self.r.text:
             return 'img'
         if '<h1>What is' in self.r.text:
