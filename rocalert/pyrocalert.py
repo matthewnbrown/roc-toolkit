@@ -39,6 +39,7 @@ class RocAlert:
         self.__last_login_time = None
         self.__last_purchase_time = None
         self.__purchase_error = False
+        self.__failure_timeout = False
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
                 self.user_settings['auto_captcha_key']
@@ -266,11 +267,17 @@ class RocAlert:
             self.__log("ERROR: Multiple login failures. Exiting.")
             error = True
         if self.consecutive_answer_errors >= max_caa:
-            self.__log("Too many consecutive bad answers received, exiting!")
-            error = True
+            self.__log("Too many consecutive bad answers received!")
+            if self.user_settings['captcha_failure_timeout'] > 0:
+                self.__failure_timeout = True
+            else:
+                error = True
         if self.consecutive_captcha_failures >= max_ccf:
-            self.__log("Failed too many captchas, exiting!")
-            error = True
+            self.__log("Failed too many captchas!")
+            if self.user_settings['captcha_failure_timeout'] > 0:
+                self.__failure_timeout = True
+            else:
+                error = True
         if self.consecutive_bugged_logins >= max_cbl:
             self.__log('Error: Too many logins in a very short period!')
             error = True
@@ -350,7 +357,14 @@ class RocAlert:
         self.consecutive_purchase_attempts = 0
         while True:
             if self.__check_failure_conditions():
+                self.__log('Failure condition met. Breaking loop.')
                 break
+            if self.__failure_timeout:
+                timeout_len = self.user_settings['captcha_failure_timeout']
+                timeout_len = timeout_len*60 + random.uniform(0, 5*60)
+                self.__log(f'Sleeping for {timeout_len} seconds')
+                time.sleep(timeout_len)
+                self.__failure_timeout = False
 
             # if not logged in and login attempt fails, retry after a bit
             if not self.roc.is_logged_in():
