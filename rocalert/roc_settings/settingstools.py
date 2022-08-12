@@ -215,7 +215,8 @@ class UserSettings(Settings):
                         'nightmode_maxwait_mins': 120,
                         'max_consecutive_login_failures': 2,
                         'max_consecutive_captcha_attempts': 3,
-                        'max_consecutive_answer_errors': 5}
+                        'max_consecutive_answer_errors': 5,
+                        'captcha_failure_timeout': 0}
 
         def time_conv(t): return datetime.strptime(t, '%H:%M').time() if len(
             t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
