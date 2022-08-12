@@ -13,13 +13,14 @@ def __generate_useragent():
 class Captcha:
     def __init__(
             self, hash: str, img, ans: str = '-1',
-            correct: bool = False
+            correct: bool = False, captype: str = None
             ) -> None:
 
         self._hash = hash
         self._img = img
         self._ans = ans
         self._ans_correct = correct
+        self._type = captype
 
     @property
     def hash(self): return self._hash
@@ -33,6 +34,8 @@ class Captcha:
     def ans_correct(self): return self._ans_correct
     @ans_correct.setter
     def ans_correct(self, correct: bool): self._ans_correct = correct
+    @property
+    def type(self): return self._type
 
 
 class RocWebHandler:
@@ -72,7 +75,7 @@ class RocWebHandler:
 
     def __page_captcha_type(self) -> str:
         if self.__check_for_bad_captcha():
-            return 'cooldown'
+            return 'text'
         if '[click the correct number to proceed]' in self.r.text:
             return 'img'
         if '<h1>What is' in self.r.text:
@@ -92,13 +95,15 @@ class RocWebHandler:
             return None
 
         self.__go_to_page(self.site_settings[page])
+        cap_type = self.__page_captcha_type()
         hash = self.__get_imagehash()
 
         if hash is None:
             return None
 
         img = self.__get_captcha_image(hash)
-        return Captcha(hash, img)
+
+        return Captcha(hash, img, captype=cap_type)
 
     def get_equation_captcha(self) -> Captcha:
         index = self.r.text.find('<h1>What is')
@@ -107,7 +112,7 @@ class RocWebHandler:
         endIndex = self.r.text.find('</h1>', index, index+100)
         equation = self.r.text[index + len('<h1>What is'):  endIndex]
         equation = equation.strip()[:-1]
-        return Captcha(equation, None)
+        return Captcha(equation, None, captype='equation')
 
     def __get_captcha_image(self, hash):
         imgurl = self.site_settings['roc_home'] + 'img.php?hash=' + hash
@@ -126,7 +131,7 @@ class RocWebHandler:
         self.r = self.session.post(self.site_settings['roc_login'], payload)
         incorrect = r'Incorrect login' in self.r.text
         return not incorrect and r'email@address.com' not in self.r.text
-    
+
     def detailed_login(self, email: str, password: str) -> bool:
         payload = {
             'email': email,
