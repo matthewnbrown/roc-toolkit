@@ -23,7 +23,7 @@ class ROCAutoSolver:
         if self.__is_twocaptcha_key_invalid():
             return "ERROR_TWOCAPTCHA_KEY_NOT_SET"
         try:
-            hinttext = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)'
+            hinttext = 'NUMBER BETWEEN 1 TO 9'
             self.last_twocaptcha = \
                 self.solver.normal(img_path, hintText=hinttext)
             result = self.last_twocaptcha['code']
