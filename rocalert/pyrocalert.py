@@ -191,6 +191,9 @@ class RocAlert:
 
         if captcha is None:
             return None
+        if captcha.type and captcha.type == 'text':
+            captcha.ans_correct = False
+            return captcha
 
         ans = self.__get_img_captcha_ans(captcha)
         captcha.ans_correct = False
@@ -296,8 +299,23 @@ class RocAlert:
 
         return self.buyer.check_purchase_required()
 
+    def handlecooldown(self) -> None:
+        timeout_len = self.user_settings['captcha_failure_timeout']
+
+        if timeout_len <= 0:
+            self.__log('Failure timeout disabled. Exiting..')
+
+        timeout_len = timeout_len*60 + random.uniform(0, 5*60)
+        self.__log(f'Sleeping for {timeout_len} seconds')
+        time.sleep(timeout_len)
+        self.__failure_timeout = False
+
     def __recruitCheck(self) -> bool:
         captchaType = self.roc.recruit_has_captcha()
+        if captchaType == 'text':
+            self.__log('Detected text captcha')
+            self.__failure_timeout = True
+            return True
         if captchaType is not None:
             self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
@@ -334,6 +352,10 @@ class RocAlert:
         if res_captcha is None:
             return False
 
+        if res_captcha.type and res_captcha.type == 'text':
+            self.__failure_timeout = True
+            return False
+        
         self.__captcha_final(res_captcha)
 
         if not res_captcha.ans_correct:
@@ -360,11 +382,7 @@ class RocAlert:
                 self.__log('Failure condition met. Breaking loop.')
                 break
             if self.__failure_timeout:
-                timeout_len = self.user_settings['captcha_failure_timeout']
-                timeout_len = timeout_len*60 + random.uniform(0, 5*60)
-                self.__log(f'Sleeping for {timeout_len} seconds')
-                time.sleep(timeout_len)
-                self.__failure_timeout = False
+                self.handlecooldown()
 
             # if not logged in and login attempt fails, retry after a bit
             if not self.roc.is_logged_in():
