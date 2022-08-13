@@ -285,6 +285,7 @@ class RocAlert:
             self.__log('Error: Too many logins in a very short period!')
             error = True
         if self.consecutive_purchase_attempts >= max_fpa:
+            self.consecutive_purchase_attempts = 0
             self.__log('Error: Too many failed purchase attempts! '
                        + 'No longer attempting to purchase.')
             self.__purchase_error = True
