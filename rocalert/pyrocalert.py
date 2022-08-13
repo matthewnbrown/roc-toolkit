@@ -272,12 +272,14 @@ class RocAlert:
         if self.consecutive_answer_errors >= max_caa:
             self.__log("Too many consecutive bad answers received!")
             if self.user_settings['captcha_failure_timeout'] > 0:
+                self.consecutive_answer_errors = 0
                 self.__failure_timeout = True
             else:
                 error = True
         if self.consecutive_captcha_failures >= max_ccf:
             self.__log("Failed too many captchas!")
             if self.user_settings['captcha_failure_timeout'] > 0:
+                self.consecutive_captcha_failures = 0
                 self.__failure_timeout = True
             else:
                 error = True
