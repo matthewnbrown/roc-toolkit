@@ -315,7 +315,7 @@ class RocAlert:
         if captchaType == 'text':
             self.__log('Detected text captcha')
             self.__failure_timeout = True
-            return True
+            return False
         if captchaType is not None:
             self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
@@ -354,8 +354,9 @@ class RocAlert:
 
         if res_captcha.type and res_captcha.type == 'text':
             self.__failure_timeout = True
+            self.__log('Detect text captcha')
             return False
-        
+
         self.__captcha_final(res_captcha)
 
         if not res_captcha.ans_correct:
