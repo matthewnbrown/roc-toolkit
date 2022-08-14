@@ -357,7 +357,7 @@ class RocAlert:
 
         if res_captcha.type and res_captcha.type == 'text':
             self.__failure_timeout = True
-            self.__log('Detect text captcha')
+            self.__log('Detected text captcha in armory')
             return False
 
         self.__captcha_final(res_captcha)
