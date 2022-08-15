@@ -344,10 +344,11 @@ class RocAlert:
         curtime = datetime.datetime.now()
         if self.__last_purchase_time:
             min_bugged_time = datetime.timedelta(0, 600)
-            if curtime - self.__last_purchase_time <= min_bugged_time:
+            if (not res_captcha or res_captcha.ans in self.validans) \
+                    and curtime - self.__last_purchase_time <= min_bugged_time:
                 self.consecutive_purchase_attempts += 1
                 time.sleep(3 + int(random.uniform(0, 1) * 5))
-            else:
+            elif res_captcha:
                 self.consecutive_purchase_attempts = 0
 
         self.__last_purchase_time = curtime
