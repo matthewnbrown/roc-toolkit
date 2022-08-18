@@ -197,5 +197,9 @@ class RocWebHandler:
         goldstr = self.r.text[index + len(searchitem): endIndex]
         return int(goldstr.strip().replace(',', ''))
 
+    def reset_cooldown(self) -> None:
+        addition = r'/cooldown.php?delete=strike'
+        self.__go_to_page(self.site_settings['roc_home'] + addition)
+
     def send_armory_order(self, payload: dict):
         pass
