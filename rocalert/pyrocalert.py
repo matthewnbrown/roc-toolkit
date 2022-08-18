@@ -40,6 +40,8 @@ class RocAlert:
         self.__last_purchase_time = None
         self.__purchase_error = False
         self.__failure_timeout = False
+        self.__cooldown = False
+
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
                 self.user_settings['auto_captcha_key']
@@ -191,7 +193,7 @@ class RocAlert:
 
         if captcha is None:
             return None
-        if captcha.type and captcha.type == 'text':
+        if captcha.type and captcha.type == self.roc.CaptchaType.TEXT:
             captcha.ans_correct = False
             return captcha
 
@@ -245,9 +247,9 @@ class RocAlert:
     def __handle_captcha(self, captchaType: str) -> Captcha:
         self.__log(f'Detected {captchaType} captcha...')
 
-        if captchaType == 'img':
+        if captchaType == self.roc.CaptchaType.IMAGE:
             return self.__handle_img_captcha('roc_recruit')
-        elif captchaType == 'equation':
+        elif captchaType == self.roc.CaptchaType.EQUATION:
             return self.__handle_equation_captcha()
 
         return None
@@ -302,7 +304,7 @@ class RocAlert:
 
         return self.buyer.check_purchase_required()
 
-    def handlecooldown(self) -> None:
+    def failuretimeout(self) -> None:
         timeout_len = self.user_settings['captcha_failure_timeout']
 
         if timeout_len <= 0:
@@ -313,10 +315,22 @@ class RocAlert:
         time.sleep(timeout_len)
         self.__failure_timeout = False
 
+    def on_cooldown(self) -> bool:
+        return self.__cooldown or self.roc.on_cooldown()
+
+    def handlecooldown(self) -> bool:
+        if not self.on_cooldown():
+            self.consecutive_cooldowns = 0
+            return False
+
+        self.roc.reset_cooldown()
+        self.consecutive_cooldowns += 1
+        return True
+
     def __recruitCheck(self) -> bool:
         captchaType = self.roc.recruit_has_captcha()
-        if captchaType == 'text':
-            self.__log('Detected text captcha')
+        if captchaType == self.roc.CaptchaType.TEXT:
+            self.__log('Detected text captcha in recruit')
             self.__failure_timeout = True
             return False
         if captchaType is not None:
@@ -356,8 +370,8 @@ class RocAlert:
         if res_captcha is None:
             return False
 
-        if res_captcha.type and res_captcha.type == 'text':
-            self.__failure_timeout = True
+        if res_captcha.type and res_captcha.type == self.roc.CaptchaType.TEXT:
+            self.__cooldown = True
             self.__log('Detected text captcha in armory')
             return False
 
@@ -382,13 +396,17 @@ class RocAlert:
         self.consecutive_answer_errors = 0
         self.consecutive_bugged_logins = 0
         self.consecutive_purchase_attempts = 0
+        self.consecutive_cooldowns = 0
         while True:
             if self.__check_failure_conditions():
                 self.__log('Failure condition met. Breaking loop.')
                 break
             if self.__failure_timeout:
-                self.handlecooldown()
+                self.failuretimeout()
 
+            if self.handlecooldown():
+                continue
+            
             # if not logged in and login attempt fails, retry after a bit
             if not self.roc.is_logged_in():
                 self.__attempt_login()
