@@ -268,6 +268,7 @@ class RocAlert:
         max_ccf = self.user_settings['max_consecutive_captcha_attempts']
         max_cbl = 4
         max_fpa = 5
+        max_cdclears = 2
         if self.consecutive_login_failures >= max_clf:
             self.__log("ERROR: Multiple login failures. Exiting.")
             error = True
@@ -293,6 +294,10 @@ class RocAlert:
             self.__log('Error: Too many failed purchase attempts! '
                        + 'No longer attempting to purchase.')
             self.__purchase_error = True
+        if self.consecutive_cooldowns >= max_cdclears:
+            self.consecutive_cooldowns = 0
+            self.__log('Text captcha failed to clear too many times.')
+            self.__failure_timeout = True
         return error
 
     def __check_buy_needed(self) -> bool:
@@ -307,13 +312,11 @@ class RocAlert:
     def failuretimeout(self) -> None:
         timeout_len = self.user_settings['captcha_failure_timeout']
 
-        if timeout_len <= 0:
-            self.__log('Failure timeout disabled. Exiting..')
-
         timeout_len = timeout_len*60 + random.uniform(0, 5*60)
         self.__log(f'Sleeping for {timeout_len} seconds')
         time.sleep(timeout_len)
         self.__failure_timeout = False
+        return True
 
     def on_cooldown(self) -> bool:
         return self.__cooldown or self.roc.on_cooldown()
@@ -333,6 +336,7 @@ class RocAlert:
             self.__log('Detected text captcha in recruit')
             self.__failure_timeout = True
             return False
+
         if captchaType is not None:
             self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
@@ -402,11 +406,14 @@ class RocAlert:
                 self.__log('Failure condition met. Breaking loop.')
                 break
             if self.__failure_timeout:
+                if self.user_settings['captcha_failure_timeout'] <= 0:
+                    self.__log('Failure timeout disabled. Exiting..')
+                    break
                 self.failuretimeout()
 
             if self.handlecooldown():
                 continue
-            
+
             # if not logged in and login attempt fails, retry after a bit
             if not self.roc.is_logged_in():
                 self.__attempt_login()
