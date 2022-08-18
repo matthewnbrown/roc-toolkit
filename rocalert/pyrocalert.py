@@ -316,7 +316,6 @@ class RocAlert:
         self.__log(f'Sleeping for {timeout_len} seconds')
         time.sleep(timeout_len)
         self.__failure_timeout = False
-        return True
 
     def on_cooldown(self) -> bool:
         return self.__cooldown or self.roc.on_cooldown()
