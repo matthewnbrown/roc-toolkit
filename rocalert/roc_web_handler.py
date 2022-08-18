@@ -201,6 +201,10 @@ class RocWebHandler:
         self.__go_to_page(self.site_settings['roc_home'] + addition)
 
     def check_for_cooldown(self) -> bool:
-        
+        pass
+
+    def go_to_armory(self) -> None:
+        self.__go_to_page(self.site_settings['roc_armory'])
+
     def send_armory_order(self, payload: dict):
         pass
