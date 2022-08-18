@@ -69,8 +69,7 @@ class RocWebHandler:
             self.session.cookies.update(cookies)
             self.r = self.session.get(url, headers=self.headers)
             print('Success!')
-        cooldown = self.__check_for_bad_captcha()
-        self.r.cooldown = cooldown
+
         return self.r
 
     def __page_captcha_type(self) -> str:
@@ -201,5 +200,7 @@ class RocWebHandler:
         addition = r'/cooldown.php?delete=strike'
         self.__go_to_page(self.site_settings['roc_home'] + addition)
 
+    def check_for_cooldown(self) -> bool:
+        
     def send_armory_order(self, payload: dict):
         pass
