@@ -1,7 +1,29 @@
 from datetime import datetime
-from typing import Callable
+from typing import Callable, List
 from urllib.parse import urlparse
 import os
+
+
+class Setting:
+    def __init__(self,
+                 prettyname: str,
+                 name: str,
+                 default_value,
+                 valtype: type = None,
+                 description: str = None,
+                 value=None,
+                 valid_values: List = None) -> None:
+        self.pname = prettyname
+        self.name = name
+        self.defaultval = default_value
+        self.value = value if value else default_value
+        self.valtype = valtype
+        self.desc = description
+
+        if type(valtype) != type:
+            print(f'Warning: {name} setting valtype is not a valid type.')
+        elif type(value) != valtype:
+            print(f'Warning: {name} setting type does not match value type.')
 
 
 class Settings:
@@ -137,6 +159,39 @@ class BuyerSettings(Settings):
             default_ints,
             lambda i: int(str(i).replace(',', ''))
             )
+
+
+class TrainerSettings(Settings):
+    setting_map = {
+        'train_soldiers': Setting(
+            'Train Soldiers',
+            'train_soldiers',
+            False, bool,
+            'Enable or disable all soldier training/buying'),
+        'soldier_weapon_match': Setting(
+            'Match weapons to soldiers',
+            'soldier_weapon_match',
+            False, bool,
+            'Match amount of soldiers to amount of weapons '
+            + 'in each weapons program'),
+        'soldier_dump_type': Setting(
+            'Soldier dump type',
+            'soldier_dump_type',
+            'none', str,
+            'Dump all excess soldiers into this program.',
+            valid_values=['attack', 'defense', 'spy', 'sentry', 'none']
+        )
+    }
+
+    def __init__(self, name: str = None, filepath=None) -> None:
+        if name is None:
+            name = "Buyer Settings"
+        super().__init__(name, filepath)
+
+        self.mandatory = {'train_soldiers'}
+
+        if(filepath is not None):
+            self.__check_valid_settings()
 
 
 class UserSettings(Settings):
