@@ -3,6 +3,7 @@ cookies
 site.settings
 user.settings
 buyer.settings
+trainer.settings
 logs
 
 # Byte-compiled / optimized / DLL files
