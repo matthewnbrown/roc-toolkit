@@ -1,5 +1,5 @@
 
-from rocalert.roc_settings.settingstools import BuyerSettings
+from rocalert.roc_settings.settingstools import BuyerSettings, TrainerSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools import RocItem
 from abc import abstractclassmethod
@@ -114,10 +114,10 @@ class ROCTrainer():
     def __init__(
             self,
             roc_handler: RocWebHandler,
-            buyersettings: BuyerSettings
+            trainersettings: TrainerSettings
             ) -> None:
         if roc_handler is None:
             raise Exception("Parameter roc_handler must not be None")
 
         self.roc = roc_handler
-        self.buyersettings = buyersettings
+        self.trainersettings = trainersettings
