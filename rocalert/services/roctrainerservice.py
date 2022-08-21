@@ -1,5 +1,6 @@
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
+from ..rocpurchases.roc_buyer import ROCTrainer
 
 
 class RocService():
@@ -19,10 +20,6 @@ class RocService():
             return {r: 'failure', e: 'User settings not passed in request'}
         if custom_settings is None:
             return {r: 'failure', e: 'No custom settings passed in request'}
-        if 'site_settings' not in custom_settings:
-            return {r: 'failure', e: '\'site_settings\' not passed in request'}
-        if custom_settings['site_settings'] is None:
-            return {r: 'failure', e: '\'site_settings\' is none'}
         if 'trainer_settings' not in custom_settings:
             return {r: 'failure',
                     e: '\'trainer_settings\' not passed in request'}
