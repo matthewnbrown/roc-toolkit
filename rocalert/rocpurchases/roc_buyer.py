@@ -4,7 +4,7 @@ from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools import RocItem
 from abc import abstractclassmethod
 
-BASE_PAYLOAD = {
+BASE_ARMORY_PAYLOAD = {
     'sell[7]': '',
     'sell[8]': '',
     'sell[11]': '',
@@ -13,7 +13,21 @@ BASE_PAYLOAD = {
     }
 for i in range(1, 15):
     k = 'buy[{}]'.format(str(i))
-    BASE_PAYLOAD[k] = ''
+    BASE_ARMORY_PAYLOAD[k] = ''
+
+
+def gen_basetrainpayload():
+    soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
+    merctypes = ['attack_mercs', 'defense_mercs', 'untrained_mercs']
+    
+    res = {f'train[{stype}]': '' for stype in soldtypes}
+    for merctype in merctypes:
+        res[f'buy[{merctype}]'] = ''
+    
+    for stype in soldtypes+merctypes:
+        res[f'untrain[{stype}]'] = ''
+    
+BASE_TRAIN_PAYLOAD = gen_basetrainpayload()
 
 ITEM_DETAILS = {
     'dagger': RocItem('Dagger', 1000, 30, RocItem.ItemType.ATTACK, 1),
@@ -102,7 +116,7 @@ class ROCBuyer():
         gold = self.roc.current_gold()
         order = self.__make_armory_order(gold)
 
-        payload = BASE_PAYLOAD.copy()
+        payload = BASE_ARMORY_PAYLOAD.copy()
 
         for item, count in order.items():
             payload[f"buy[{ITEM_DETAILS[item].code}]"] = str(count)
@@ -110,7 +124,7 @@ class ROCBuyer():
         return payload
 
 
-class ROCTrainer():
+class ROCTrainer:
     def __init__(
             self,
             roc_handler: RocWebHandler,
