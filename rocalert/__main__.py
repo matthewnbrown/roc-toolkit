@@ -11,9 +11,11 @@ def run():
     user_settings_fp = 'user.settings'
     site_settings_fp = 'site.settings'
     buyer_settings_fp = 'buyer.settings'
+    trainer_settings_fp = 'trainer.settings'
 
     if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp, buyer_settings_fp):
+            user_settings_fp, site_settings_fp,
+            buyer_settings_fp, trainer_settings_fp):
         print("Exiting. Please fill out settings files")
         quit()
 
