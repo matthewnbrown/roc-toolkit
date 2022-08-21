@@ -193,6 +193,15 @@ class TrainerSettings(Settings):
         if(filepath is not None):
             self.__check_valid_settings()
 
+    def training_enabled(self):
+        return self.set_setting['train_soldiers'].value
+
+    def match_soldiers_to_weapons(self):
+        return self.get_setting['soldier_weapon_match'].value
+
+    def soldier_dump_type(self):
+        return self.get_setting['soldier_dump_type'].value
+
 
 class UserSettings(Settings):
 
