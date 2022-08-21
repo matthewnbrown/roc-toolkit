@@ -448,13 +448,16 @@ class SettingsValidator:
 class SettingsFileMaker:
     def needs_user_setup(usersettings_fp: str,
                          sitesettings_fp: str,
-                         buyersettings_fp: str
+                         buyersettings_fp: str,
+                         trainsettings_fp: str
                          ) -> bool:
         has_user_settings = os.path.isfile(usersettings_fp)
         has_site_settings = os.path.isfile(sitesettings_fp)
         has_buy_settings = os.path.isfile(buyersettings_fp)
+        has_train_settings = os.path.isfile(trainsettings_fp)
 
-        if has_user_settings and has_site_settings and has_buy_settings:
+        if has_user_settings and has_site_settings \
+                and has_buy_settings and has_train_settings:
             return False
 
         print('You are missing necessary settings files, '
@@ -474,5 +477,11 @@ class SettingsFileMaker:
             settings = BuyerSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(buyersettings_fp, settings)
             print('Created buyer settings file {}'.format(buyersettings_fp))
+
+        if not has_train_settings:
+            smap = TrainerSettings.setting_map
+            settings = {id: setting.defaultval for id, setting in smap.items()}
+            SettingsSaver.save_settings_toPath(trainsettings_fp, settings)
+            print(f'Created trainer settings file {trainsettings_fp}')
 
         return True
