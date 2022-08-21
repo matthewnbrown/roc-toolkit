@@ -184,6 +184,7 @@ class RocWebHandler:
         payload['captcha'] = captcha.hash,
         payload['coordinates[x]'] = x,
         payload['coordinates[y]'] = y,
+        payload['manual_captcha'] = '',
         payload['num'] = ans,
 
         self.r = self.session.post(self.site_settings[page], payload)
