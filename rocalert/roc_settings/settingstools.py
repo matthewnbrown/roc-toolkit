@@ -117,6 +117,34 @@ class BuyerSettings(Settings):
         'torch': int
     }
 
+    setting_map = {
+        'buy_weapons': Setting('Toggle Buying', 'buy_weapons', False, bool,
+                               'Enable weapon buying'),
+        'min_gold': Setting('Minimum Gold', 'min_gold', 500000000, int,
+                            'Minimum gold to purchase with'),
+        'dagger': Setting('Dagger', 'dagger', 0, int,
+                          'Amount of daggers to buy'),
+        'maul': Setting('Maul', 'maul', 0, int, 'Amount of Mauls to buy'),
+        'blade': Setting('Blade', 'blade', 0, int, 'Amount of blades to buy'),
+        'excalibur': Setting('Excalibur', 'excalibur', 0, int,
+                             'Amount of excalibur to buy'),
+        'cloak': Setting('Cloak', 'cloak', 0, int, 'Amount of cloaks to buy'),
+        'hook': Setting('Hook', 'hook', 0, int, 'Amount of hooks to buy'),
+        'pickaxe': Setting('Pickaxe', 'pickaxe', 0, int,
+                           'Amount of pickaxes to buy'),
+        'sai': Setting('Sai', 'sai', 0, int, 'Amount of sai to buy'),
+        'shield': Setting('Shield', 'shield', 0, int,
+                          'Amount of shields to buy'),
+        'mithril': Setting('Mithril', 'mithril', 0, int,
+                           'Amount of mithril to buy'),
+        'dragonskin': Setting('Dragonskin', 'dragonskin', 0, int,
+                              'Amount of dragonskins to buy'),
+        'horn': Setting('Horn', 'horn', 0, int, 'Amount of horns to buy'),
+        'guard_dog': Setting('Guard Dog', 'guard_dog', 0, int,
+                             'Amount of guard dogs to buy'),
+        'torch': Setting('Torch', 'torch', 0, int, 'Amount of torches to buy')
+    }
+
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = "Buyer Settings"
