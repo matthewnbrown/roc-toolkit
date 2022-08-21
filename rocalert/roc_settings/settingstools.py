@@ -27,6 +27,7 @@ class Setting:
 
 
 class Settings:
+    setting_map = {}
     def __init__(self, name: str = None, filepath=None) -> None:
         self.settings = {}
         if name is None:
@@ -265,6 +266,42 @@ class UserSettings(Settings):
         'notify_soldier_amt': int,
         'min_checktime_secs': int,
         'max_checktime_secs': int,
+        'enable_nightmode': bool,
+        'nightmode_minwait_mins': int,
+        'nightmode_maxwait_mins': int,
+        'nightmode_begin': datetime,
+        'nightmode_end': datetime,
+        'max_consecutive_login_failures': int,
+        'max_consecutive_captcha_attempts': int,
+        'max_consecutive_answer_errors': int,
+        'captcha_save_path': str,
+        'load_cookies_from_browser': bool,
+        'browser': str,
+        'remote_captcha_lookup': str,
+        'remote_captcha_add': str,
+        'captcha_failure_timeout': int
+    }
+    setting_map = {
+        'email': Setting('Email Address', 'email', 'email@address.com', str,
+                         'ROC login email'),
+        'password': Setting('Password', 'password', 'password', str,
+                            'ROC login password'),
+        'auto_solve_captchas':
+            Setting('Auto Solve Captchas',
+                    'auto_solve_captchas', False, bool,
+                    'Automatically solve captchas using a service'),
+        'auto_captcha_key': Setting('Autosolve Captcha API Key',
+                                    'auto_captcha_key', None, str,
+                                    'API key for captcha solving service'),
+        'notify_soldier_amt': Setting('Notify soldier amount',
+                                      'notify_soldier_amt',
+                                      None, int, 'Unused'),
+        'min_checktime_secs':
+            Setting('Minimum check time', 'min_checktime_secs', 1000, int,
+                    'Minimum seconds to wait before an account status check'),
+        'max_checktime_secs':
+            Setting('Maximum check time', 'max_checktime_secs', 2000, int,
+                    'Maximum seconds to wait before an account status check'),
         'enable_nightmode': bool,
         'nightmode_minwait_mins': int,
         'nightmode_maxwait_mins': int,
