@@ -281,6 +281,10 @@ class UserSettings(Settings):
         'remote_captcha_add': str,
         'captcha_failure_timeout': int
     }
+
+    def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
+            t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
+
     setting_map = {
         'email': Setting('Email Address', 'email', 'email@address.com', str,
                          'ROC login email'),
@@ -302,20 +306,57 @@ class UserSettings(Settings):
         'max_checktime_secs':
             Setting('Maximum check time', 'max_checktime_secs', 2000, int,
                     'Maximum seconds to wait before an account status check'),
-        'enable_nightmode': bool,
-        'nightmode_minwait_mins': int,
-        'nightmode_maxwait_mins': int,
-        'nightmode_begin': datetime,
-        'nightmode_end': datetime,
-        'max_consecutive_login_failures': int,
-        'max_consecutive_captcha_attempts': int,
-        'max_consecutive_answer_errors': int,
-        'captcha_save_path': str,
-        'load_cookies_from_browser': bool,
-        'browser': str,
-        'remote_captcha_lookup': str,
-        'remote_captcha_add': str,
-        'captcha_failure_timeout': int
+        'enable_nightmode':
+            Setting('Enable nightmode', 'enable_nightmode', False, bool,
+                    'Enable longer wait times during certain time period'),
+        'nightmode_minwait_mins':
+            Setting('Nightmode minimum wait time', 'nightmode_minwait_mins',
+                    100, int, 'Minimum MINUTES to wait during nightmode'),
+        'nightmode_maxwait_mins':
+            Setting('Nightmode maxmimum wait time', 'nightmode_maxwait_mins',
+                    200, int, 'Maximum MINUTE to wait during nightmode'),
+        'nightmode_begin':
+            Setting('Nightmode start time', 'nightmode_begin',
+                    time_conv('20:00'), datetime,
+                    'Start time of nightmode format HH:MM:SS'),
+        'nightmode_end':
+            Setting('Nightmode end time', 'nightmode_end',
+                    time_conv('08:00'), datetime,
+                    'End time of nightmode, formatted HH:MM:SS'),
+        'max_consecutive_login_failures':
+            Setting('Max repeated login attempts',
+                    'max_consecutive_login_failures', 2, int,
+                    'Max login attempt before terminating program'),
+        'max_consecutive_captcha_attempts':
+            Setting('Max repeated captcha attempts',
+                    'max_consecutive_captcha_attempts', 5, int,
+                    'Max attempts of a captcha before timing out or exiting'),
+        'max_consecutive_answer_errors':
+            Setting('Max repeated bad captcha answers'
+                    'max_consecutive_answer_errors', 5, int,
+                    'Maximum bad answers to receive before giving up'
+                    + '(Not Attempts)'),
+        'captcha_save_path':
+            Setting('Captcha save path', 'captcha_save_path', r'captcha_img/',
+                    str, 'Path to save captcha images to'),
+        'load_cookies_from_browser':
+            Setting('Load cookies from browser', 'load_cookies_from_browser',
+                    False, bool, 'Attempt to retrieve cookies from browser'),
+        'browser':
+            Setting('Browser choice', 'browser', 'all', str,
+                    'Browser to load cookies from',
+                    valid_values=['all', 'chrome', 'firefox', 'opera', 'edge'
+                                  'chromium', 'brave', 'vivaldi', 'safari']),
+        'remote_captcha_lookup':
+            Setting('Remote captcha lookup API address', 'remote_captcha_lookup',
+                    None, str, 'URL to API for captcha answer lookup'),
+        'remote_captcha_add':
+            Setting('Remote captcha add API address', 'remote_captcha_add',
+                    None, str, 'URL to API to add captcha answer'),
+        'captcha_failure_timeout':
+            Setting('Captcha failure timeout length', 'captcha_failure_timeout',
+                    0, int, 'Amount of time to wait after captcha error limit'
+                    + ' reached. 0 to exit instead of timeout')
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
