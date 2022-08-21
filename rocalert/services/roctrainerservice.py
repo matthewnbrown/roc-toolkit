@@ -23,6 +23,11 @@ class RocService():
             return {r: 'failure', e: '\'site_settings\' not passed in request'}
         if custom_settings['site_settings'] is None:
             return {r: 'failure', e: '\'site_settings\' is none'}
+        if 'trainer_settings' not in custom_settings:
+            return {r: 'failure',
+                    e: '\'trainer_settings\' not passed in request'}
+        if custom_settings['trainer_settings'] is None:
+            return {r: 'failure', e: '\'trainer_settings\' is none'}
         if not roc.is_logged_in():
             return {r: 'failure', e: 'ROC session not logged in'}
 
