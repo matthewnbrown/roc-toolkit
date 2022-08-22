@@ -77,37 +77,53 @@ class Settings:
             print('{} : {}'.format(settingid, setting))
 
     def get_settings_old(self):
-        return {id: self.settings[id]}
+        return {id: setting.value for id, setting in self.settings.items()}
 
 
 class BuyerSettings(Settings):
+    def __positive__(x): return x >= 0
 
     DEFAULT_SETTINGS = {
         'buy_weapons': Setting('Toggle Buying', 'buy_weapons', False, bool,
                                'Enable weapon buying'),
         'min_gold': Setting('Minimum Gold', 'min_gold', 500000000, int,
-                            'Minimum gold to purchase with'),
+                            'Minimum gold to purchase with',
+                            None, __positive__),
         'dagger': Setting('Dagger', 'dagger', 0, int,
-                          'Amount of daggers to buy'),
-        'maul': Setting('Maul', 'maul', 0, int, 'Amount of Mauls to buy'),
-        'blade': Setting('Blade', 'blade', 0, int, 'Amount of blades to buy'),
+                          'Amount of daggers to buy',
+                          None, __positive__),
+        'maul': Setting('Maul', 'maul', 0, int, 'Amount of Mauls to buy',
+                        None, __positive__),
+        'blade': Setting('Blade', 'blade', 0, int, 'Amount of blades to buy',
+                         None, __positive__),
         'excalibur': Setting('Excalibur', 'excalibur', 0, int,
-                             'Amount of excalibur to buy'),
-        'cloak': Setting('Cloak', 'cloak', 0, int, 'Amount of cloaks to buy'),
-        'hook': Setting('Hook', 'hook', 0, int, 'Amount of hooks to buy'),
+                             'Amount of excalibur to buy',
+                             None, __positive__),
+        'cloak': Setting('Cloak', 'cloak', 0, int, 'Amount of cloaks to buy',
+                         None, __positive__),
+        'hook': Setting('Hook', 'hook', 0, int, 'Amount of hooks to buy',
+                        None, __positive__),
         'pickaxe': Setting('Pickaxe', 'pickaxe', 0, int,
-                           'Amount of pickaxes to buy'),
-        'sai': Setting('Sai', 'sai', 0, int, 'Amount of sai to buy'),
+                           'Amount of pickaxes to buy',
+                           None, __positive__),
+        'sai': Setting('Sai', 'sai', 0, int, 'Amount of sai to buy',
+                       None, __positive__),
         'shield': Setting('Shield', 'shield', 0, int,
-                          'Amount of shields to buy'),
+                          'Amount of shields to buy',
+                          None, __positive__),
         'mithril': Setting('Mithril', 'mithril', 0, int,
-                           'Amount of mithril to buy'),
+                           'Amount of mithril to buy',
+                           None, __positive__),
         'dragonskin': Setting('Dragonskin', 'dragonskin', 0, int,
-                              'Amount of dragonskins to buy'),
-        'horn': Setting('Horn', 'horn', 0, int, 'Amount of horns to buy'),
+                              'Amount of dragonskins to buy',
+                              None, __positive__),
+        'horn': Setting('Horn', 'horn', 0, int, 'Amount of horns to buy',
+                        None, __positive__),
         'guard_dog': Setting('Guard Dog', 'guard_dog', 0, int,
-                             'Amount of guard dogs to buy'),
-        'torch': Setting('Torch', 'torch', 0, int, 'Amount of torches to buy')
+                             'Amount of guard dogs to buy',
+                             None, __positive__),
+        'torch': Setting('Torch', 'torch', 0, int, 'Amount of torches to buy',
+                         None, __positive__)
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
@@ -144,8 +160,7 @@ class BuyerSettings(Settings):
     def __check_valid_settings(self):
         SettingsValidator.check_mandatories(
             self.settings, self.mandatory, quit_if_bad=True)
-        SettingsValidator.set_defaults_ifnotset(
-            self.settings)
+        SettingsValidator.check_settings_in_range(self.settings, True)
 
 
 class TrainerSettings(Settings):
@@ -239,7 +254,7 @@ class UserSettings(Settings):
                     'max_consecutive_captcha_attempts', 5, int,
                     'Max attempts of a captcha before timing out or exiting'),
         'max_consecutive_answer_errors':
-            Setting('Max repeated bad captcha answers'
+            Setting('Max repeated bad captcha answers',
                     'max_consecutive_answer_errors', 5, int,
                     'Maximum bad answers to receive before giving up'
                     + '(Not Attempts)'),
@@ -389,7 +404,7 @@ class SettingsConverter:
         return value
 
     def __toint__(value: str) -> int:
-        return int(value)
+        return int(value.replace(',', '').replace(' ', ''))
 
     def __totime__(value: str) -> time:
         return time_conv(value)
