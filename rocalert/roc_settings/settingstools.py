@@ -22,7 +22,6 @@ class Setting:
         self.value = value if value else default_value
         self.valtype = valtype
         self.desc = description
-        self.valid_values = valid_values
         self.validation_func = validation_func
 
         if type(valtype) != type:
@@ -288,41 +287,8 @@ class UserSettings(Settings):
         self.__check_valid_settings()
 
     def __check_valid_settings(self):
-        default_bools = {'auto_solve_captchas': False,
-                         'enable_nightmode': False,
-                         'load_cookies_from_browser': False}
-
-        default_ints = {'notify_soldier_amt': 60,
-                        'min_checktime_secs': 300,
-                        'max_checktime_secs': 600,
-                        'nightmode_minwait_mins': 60,
-                        'nightmode_maxwait_mins': 120,
-                        'max_consecutive_login_failures': 2,
-                        'max_consecutive_captcha_attempts': 3,
-                        'max_consecutive_answer_errors': 5,
-                        'captcha_failure_timeout': 0}
-
-        def time_conv(t): return datetime.strptime(t, '%H:%M').time() if len(
-            t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
-        default_shorttime = {'nightmode_begin': time_conv(
-            '00:00'), 'nightmode_end': time_conv('9:00')}
-
         SettingsValidator.check_mandatories(
             self.settings, self.mandatory, quit_if_bad=True)
-        SettingsValidator.set_defaults_ifnotset(
-            self.settings, default_bools, lambda s: s.lower() == 'true')
-        SettingsValidator.set_defaults_ifnotset(
-            self.settings, default_ints, lambda i: int(i))
-        SettingsValidator.set_defaults_ifnotset(
-            self.settings, default_shorttime, time_conv)
-
-        for setting in UserSettings.SETTINGS_TYPES:
-            if UserSettings.SETTINGS_TYPES[setting] == str \
-                    and UserSettings.DEFAULT_SETTINGS[setting] is None:
-                SettingsValidator.set_defaults_ifnotset(
-                    self.get_settings(),
-                    {setting: None},
-                    lambda s: None if s.lower() == 'none' else s)
 
         savepath = self.get_value('captcha_save_path')
         if not os.path.exists(savepath):
@@ -347,7 +313,7 @@ class SiteSettings(Settings):
                     str, 'Armory page of ROC')
     }
 
-    def __init__(self, name: str = None, filepath=None) -> None:
+    def __init__(self, name: str = None, filepath: str = None) -> None:
         if name is None:
             name = 'Site Settings'
         if self.settings is None:
@@ -379,7 +345,7 @@ class SiteSettings(Settings):
 
 class SettingsLoader:
     def load_settings_from_path(filepath,
-                                settings: dict = None,
+                                settings: dict[str, Setting] = None,
                                 warnings: bool = False
                                 ) -> dict:
         if settings is None:
@@ -437,7 +403,7 @@ class SettingsSaver:
 
 class SettingsValidator:
     # Return true if all mandatories are set
-    def check_mandatories(settings: dict,
+    def check_mandatories(settings: dict[str, Setting],
                           mandatories,
                           printError: bool = True,
                           quit_if_bad=False
@@ -458,10 +424,12 @@ class SettingsValidator:
 
         return errorcount == 0
 
-    def check_settings_in_range(settings: dict) -> bool:
+    def check_settings_in_range(settings: dict[str, Setting]) -> bool:
         valid = True
-        for setting in settings:
-            pass
+        for settingid, setting in settings.items():
+            valid &= type(setting.value) == setting.valtype
+            if setting.validation_func:
+                valid &= setting.validation_func()
 
         return valid
 
