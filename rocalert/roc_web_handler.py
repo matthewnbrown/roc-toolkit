@@ -99,7 +99,7 @@ class RocWebHandler:
         if page is None:
             return None
 
-        self.__go_to_page(self.site_settings.getpage(page))
+        self.__go_to_page(self.site_settings.get_page(page))
         cap_type = self.__page_captcha_type()
         hash = self.__get_imagehash()
 
