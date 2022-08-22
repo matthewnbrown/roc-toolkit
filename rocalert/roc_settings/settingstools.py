@@ -289,6 +289,12 @@ class UserSettings(Settings):
     def __check_valid_settings(self):
         SettingsValidator.check_mandatories(
             self.settings, self.mandatory, quit_if_bad=True)
+        inrange = SettingsValidator.check_settings_in_range(
+            self.settings, warnings=True)
+
+        if not inrange:
+            print("ERROR: User settings are invalid!")
+            quit()
 
         savepath = self.get_value('captcha_save_path')
         if not os.path.exists(savepath):
@@ -297,27 +303,39 @@ class UserSettings(Settings):
             os.makedirs(savepath)
 
 
+def __validurl__(urlstr: str) -> bool:
+    try:
+        result = urlparse(urlstr)
+        return all([result.scheme, result.netloc])
+    except ValueError:
+        return False
+
+
 class SiteSettings(Settings):
-    setting_map = {
+    DEFAULT_SETTINGS = {
         'roc_home':
             Setting('ROC Index Page', 'roc_home', 'ENTER_HOME_URL',
-                    str, 'Index page of ROC.'),
+                    str, 'Index page of ROC.',
+                    validation_func=__validurl__),
         'roc_login':
             Setting('ROC Login Page', 'roc_login', 'ENTER_LOGIN_URL',
-                    str, 'Login page likely homepage + /login.php'),
+                    str, 'Login page likely homepage + /login.php',
+                    validation_func=__validurl__),
         'roc_recruit':
             Setting('ROC Recruit Page', 'roc_recruit', 'ENTER_RECRUIT_URL',
-                    str, 'Recruit captcha page'),
+                    str, 'Recruit captcha page',
+                    validation_func=__validurl__),
         'roc_armory':
             Setting('ROC Armory Page', 'roc_armory', 'ENTER_ARMORY_URL',
-                    str, 'Armory page of ROC')
+                    str, 'Armory page of ROC',
+                    validation_func=__validurl__)
     }
 
     def __init__(self, name: str = None, filepath: str = None) -> None:
         if name is None:
             name = 'Site Settings'
         if self.settings is None:
-            self.settings = BuyerSettings.DEFAULT_SETTINGS.copy()
+            self.settings = SiteSettings.DEFAULT_SETTINGS.copy()
 
         super().__init__(name, filepath)
 
@@ -334,13 +352,6 @@ class SiteSettings(Settings):
                     'Site settings are not set correctly. '
                     + 'Ensure URLs are valid. Exiting')
                 quit()
-
-    def __url_valid(urlstr: str) -> bool:
-        try:
-            result = urlparse(urlstr)
-            return all([result.scheme, result.netloc])
-        except ValueError:
-            return False
 
 
 class SettingsLoader:
@@ -424,13 +435,21 @@ class SettingsValidator:
 
         return errorcount == 0
 
-    def check_settings_in_range(settings: dict[str, Setting]) -> bool:
+    def check_settings_in_range(
+            settings: dict[str, Setting],
+            warnings: bool = False) -> bool:
+
         valid = True
         for settingid, setting in settings.items():
-            valid &= type(setting.value) == setting.valtype
+            curvalid = True
+            curvalid = type(setting.value) == setting.valtype
             if setting.validation_func:
-                valid &= setting.validation_func()
+                curvalid &= setting.validation_func()
 
+            if warnings and not curvalid:
+                print(f'Warning: Settings {settingid} value is invalid')
+
+            valid &= curvalid
         return valid
 
 
