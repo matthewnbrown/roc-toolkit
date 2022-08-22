@@ -186,6 +186,13 @@ class TrainerSettings(Settings):
         )
     }
 
+    class SoldierTypes:
+        ATTACK = 'attack'
+        DEFENSE = 'defense'
+        SPY = 'spy'
+        SENTRY = 'sentry'
+        NONE = 'none'
+ 
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = "Buyer Settings"
