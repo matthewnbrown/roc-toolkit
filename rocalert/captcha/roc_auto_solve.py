@@ -1,4 +1,3 @@
-from time import time
 from twocaptcha import TwoCaptcha, TimeoutException
 from twocaptcha.api import ApiException, NetworkException
 from rocalert.captcha.pyrocaltertgui import get_user_answer_captcha
@@ -30,9 +29,7 @@ class ROCAutoSolver:
         except ApiException as exception:
             result = f'Exception: {exception.args[0]}'
             if 'NO_SLOT' in result:
-                print('No slot Twocaptcha slot available, \
-                    trying again in 5 seconds')
-                time.sleep(5)
+                result = 'Exception: No slot available'
             elif 'ZERO_BALANCE' in result:
                 print("ERROR: Received response \'{}\'!\n\
                     Check your 2captcha balance!\nExiting...".format(result))
