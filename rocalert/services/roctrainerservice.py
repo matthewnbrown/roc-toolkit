@@ -28,4 +28,9 @@ class RocService():
         if not roc.is_logged_in():
             return {r: 'failure', e: 'ROC session not logged in'}
 
+        trainer = ROCTrainer(roc, custom_settings['trainer_settings'])
+
+        if not trainer.purchase_required():
+            return {r: 'success', 'note': 'purchase not required'}
+
         return {r: 'failure', e: 'Not implemented'}
