@@ -27,10 +27,11 @@ class Setting:
 
 
 class Settings:
-    setting_map = {}
+    DEFAULT_SETTINGS = {}
 
     def __init__(self, name: str = None, filepath=None) -> None:
-        self.settings = {}
+        if not self.settings:
+            self.settings = Settings.DEFAULT_SETTINGS.copy()
         if name is None:
             name = 'Settings'
         self.name = name
@@ -45,7 +46,7 @@ class Settings:
         SettingsValidator.check_mandatories(
             self.settings, self.mandatory, quit_if_bad=True)
 
-    def get_setting(self, setting) -> None:
+    def get_setting(self, setting) -> Setting:
         if setting not in self.settings:
             return None
         return self.settings[setting]
@@ -57,23 +58,17 @@ class Settings:
             SettingsValidator.check_mandatories(
                 self.settings, self.mandatory, quit_if_bad=True)
 
+    def get_value(self, settingname: str):
+        return self.settings[settingname].value
+
     def print_settings_and_values(self, enumerate: bool = False) -> None:
         print(self.name)
         i = 0
-        for setting, value in self.settings.items():
+        for settingid, setting in self.settings.items():
             if enumerate:
                 print('{}. '.format(i), end='')
 
-            print('{} : {}'.format(setting, value))
-
-    def print_settings(self, enumerate: bool = False) -> None:
-        print(self.name)
-        i = 0
-        for setting, value in self.settings.items():
-            if enumerate:
-                print('{}. '.format(i), end='')
-
-            print('{} : {}'.format(setting, value))
+            print('{} : {}'.format(settingid, setting))
 
     def get_settings(self):
         return self.settings
