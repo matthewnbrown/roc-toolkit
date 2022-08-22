@@ -3,7 +3,6 @@ from typing import Callable, List
 from urllib.parse import urlparse
 import os
 
-from ..rocpurchases.roc_buyer import ROCBuyer
 
 def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
             t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
@@ -79,7 +78,6 @@ class Settings:
 
     def get_settings_old(self):
         return {id: setting.value for id, setting in self.settings.items()}
-
 
 
 class BuyerSettings(Settings):
@@ -193,7 +191,7 @@ class TrainerSettings(Settings):
         return self.get_setting['soldier_dump_type'].value
 
 
-class UserSettings(Settings):    
+class UserSettings(Settings):
     DEFAULT_SETTINGS = {
         'email': Setting('Email Address', 'email', 'email@address.com', str,
                          'ROC login email'),

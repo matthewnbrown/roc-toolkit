@@ -19,14 +19,15 @@ for i in range(1, 15):
 def gen_basetrainpayload():
     soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
     merctypes = ['attack_mercs', 'defense_mercs', 'untrained_mercs']
-    
+
     res = {f'train[{stype}]': '' for stype in soldtypes}
     for merctype in merctypes:
         res[f'buy[{merctype}]'] = ''
-    
+
     for stype in soldtypes+merctypes:
         res[f'untrain[{stype}]'] = ''
-    
+
+
 BASE_TRAIN_PAYLOAD = gen_basetrainpayload()
 
 ITEM_DETAILS = {
@@ -132,6 +133,12 @@ class ROCTrainer:
             ) -> None:
         if roc_handler is None:
             raise Exception("Parameter roc_handler must not be None")
+        elif trainersettings is None:
+            raise Exception('Parameter trainersettings must not be None')
 
         self.roc = roc_handler
         self.trainersettings = trainersettings
+
+    def purchase_required(self, current_gold):
+        # if self.trainersettings.
+        pass
