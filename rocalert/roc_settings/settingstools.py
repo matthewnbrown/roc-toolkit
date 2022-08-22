@@ -1,11 +1,12 @@
-from datetime import datetime
-from typing import Callable, List
+import copy
+from datetime import datetime as dt, time
+from typing import Callable
 from urllib.parse import urlparse
 import os
 
 
-def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
-            t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
+def time_conv(t: str): return dt.strptime(t, '%H:%M').time() if len(
+            t) <= 5 else dt.strptime(t, '%H:%M:%S').time()
 
 
 class Setting:
@@ -16,7 +17,6 @@ class Setting:
                  valtype: type = None,
                  description: str = None,
                  value=None,
-                 valid_values: List = None,
                  validation_func: Callable = None) -> None:
         self.pname = prettyname
         self.name = name
@@ -28,7 +28,7 @@ class Setting:
 
         if type(valtype) != type:
             print(f'Warning: {name} setting valtype is not a valid type.')
-        elif type(self.value) != valtype:
+        elif self.value and type(self.value) != valtype:
             print(f'Warning: {name} setting type does not match value type.')
 
 
@@ -36,8 +36,8 @@ class Settings:
     DEFAULT_SETTINGS = {}
 
     def __init__(self, name: str = None, filepath=None) -> None:
-        if not self.settings:
-            self.settings = Settings.DEFAULT_SETTINGS.copy()
+        if not hasattr(self, 'settings'):
+            self.settings = copy.deepcopy(Settings.DEFAULT_SETTINGS)
         if name is None:
             name = 'Settings'
         self.name = name
@@ -114,8 +114,7 @@ class BuyerSettings(Settings):
         if name is None:
             name = "Buyer Settings"
 
-        if self.settings is None:
-            self.settings = BuyerSettings.DEFAULT_SETTINGS
+        self.settings = BuyerSettings.DEFAULT_SETTINGS
 
         super().__init__(name, filepath)
 
@@ -167,7 +166,8 @@ class TrainerSettings(Settings):
             'soldier_dump_type',
             'none', str,
             'Dump all excess soldiers into this program.',
-            valid_values=['attack', 'defense', 'spy', 'sentry', 'none']
+            None,
+            lambda x: x in ['attack', 'defense', 'spy', 'sentry', 'none']
         )
     }
 
@@ -224,11 +224,11 @@ class UserSettings(Settings):
                     200, int, 'Maximum MINUTE to wait during nightmode'),
         'nightmode_begin':
             Setting('Nightmode start time', 'nightmode_begin',
-                    time_conv('20:00'), datetime,
+                    time_conv('20:00'), time,
                     'Start time of nightmode format HH:MM:SS'),
         'nightmode_end':
             Setting('Nightmode end time', 'nightmode_end',
-                    time_conv('08:00'), datetime,
+                    time_conv('08:00'), time,
                     'End time of nightmode, formatted HH:MM:SS'),
         'max_consecutive_login_failures':
             Setting('Max repeated login attempts',
@@ -252,8 +252,9 @@ class UserSettings(Settings):
         'browser':
             Setting('Browser choice', 'browser', 'all', str,
                     'Browser to load cookies from',
-                    valid_values=['all', 'chrome', 'firefox', 'opera', 'edge'
-                                  'chromium', 'brave', 'vivaldi', 'safari']),
+                    None,
+                    lambda x: x in ['all', 'chrome', 'firefox', 'opera', 'edge'
+                                    'chromium', 'brave', 'vivaldi', 'safari']),
         'remote_captcha_lookup':
             Setting('Remote captcha lookup API address',
                     'remote_captcha_lookup', None, str,
@@ -271,8 +272,8 @@ class UserSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = 'User Settings'
-        if self.settings is None:
-            self.settings = UserSettings.DEFAULT_SETTINGS.copy()
+
+        self.settings = copy.deepcopy(UserSettings.DEFAULT_SETTINGS)
 
         super().__init__(name, filepath)
 
@@ -333,8 +334,8 @@ class SiteSettings(Settings):
     def __init__(self, name: str = None, filepath: str = None) -> None:
         if name is None:
             name = 'Site Settings'
-        if self.settings is None:
-            self.settings = SiteSettings.DEFAULT_SETTINGS.copy()
+
+        self.settings = copy.deepcopy(SiteSettings.DEFAULT_SETTINGS)
 
         super().__init__(name, filepath)
 
@@ -390,7 +391,7 @@ class SettingsConverter:
     def __toint__(value: str) -> int:
         return int(value)
 
-    def __todatetime__(value: str) -> datetime:
+    def __totime__(value: str) -> time:
         return time_conv(value)
 
     def __tobool__(value: str) -> bool:
@@ -401,7 +402,7 @@ class SettingsConverter:
     __convmap__ = {
         str: __tostr__,
         int: __toint__,
-        datetime: __todatetime__,
+        time: __totime__,
         bool: __tobool__
         }
 
@@ -442,7 +443,7 @@ class SettingsLoader:
                           + "that is not in defaults")
 
             setting = settings[setting_name]
-            setting = SettingsConverter.convert(value, setting.valtype)
+            setting.value = SettingsConverter.convert(value, setting.valtype)
 
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
@@ -497,7 +498,7 @@ class SettingsValidator:
             curvalid = True
             curvalid = type(setting.value) == setting.valtype
             if setting.validation_func:
-                curvalid &= setting.validation_func()
+                curvalid &= setting.validation_func(setting.value)
 
             if warnings and not curvalid:
                 print(f'Warning: Settings {settingid} value is invalid')
