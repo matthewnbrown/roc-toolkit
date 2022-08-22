@@ -317,6 +317,12 @@ class UserSettings(Settings):
                   + 'Creating directories.')
             os.makedirs(savepath)
 
+    def auto_solve_captchas(self) -> bool:
+        return self.get_value('auto_solve_captchas')
+
+    def auto_solve_api_key(self) -> str:
+        return self.get_value('auto_captcha_key')
+
 
 def __validurl__(urlstr: str) -> bool:
     try:
