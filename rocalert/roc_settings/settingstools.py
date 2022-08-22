@@ -28,7 +28,7 @@ class Setting:
 
         if type(valtype) != type:
             print(f'Warning: {name} setting valtype is not a valid type.')
-        elif type(value) != valtype:
+        elif type(self.value) != valtype:
             print(f'Warning: {name} setting type does not match value type.')
 
 
@@ -77,7 +77,7 @@ class Settings:
             print('{} : {}'.format(settingid, setting))
 
     def get_settings_old(self):
-        return {id: setting.value for id, setting in self.settings.items()}
+        return {id: self.settings[id]}
 
 
 class BuyerSettings(Settings):
@@ -361,6 +361,21 @@ class SiteSettings(Settings):
                     'Site settings are not set correctly. '
                     + 'Ensure URLs are valid. Exiting')
                 quit()
+
+    def get_page(self, page: str) -> str:
+        return self.get_value(page)
+
+    def get_home(self) -> str:
+        return self.get_page('roc_home')
+
+    def get_recruit(self) -> str:
+        return self.get_page('roc_recruit')
+
+    def get_armory(self) -> str:
+        return self.get_page('roc_armory')
+
+    def get_login_url(self) -> str:
+        return self.get_page('roc_login')
 
 
 class SettingsConverter:
