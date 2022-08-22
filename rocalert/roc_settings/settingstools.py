@@ -1,9 +1,14 @@
+from calendar import c
 from datetime import datetime
+from re import S
 from typing import Callable, List
 from urllib.parse import urlparse
 import os
 
 from ..rocpurchases.roc_buyer import ROCBuyer
+
+def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
+            t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
 
 
 class Setting:
@@ -189,10 +194,7 @@ class TrainerSettings(Settings):
         return self.get_setting['soldier_dump_type'].value
 
 
-class UserSettings(Settings):
-    def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
-            t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
-
+class UserSettings(Settings):    
     DEFAULT_SETTINGS = {
         'email': Setting('Email Address', 'email', 'email@address.com', str,
                          'ROC login email'),
@@ -279,7 +281,7 @@ class UserSettings(Settings):
 
         self.mandatory = {'email', 'password'}
 
-        if(filepath is not None):
+        if filepath is not None:
             self.__check_valid_settings()
 
     def load_settings_from_path(self, filepath) -> None:
@@ -344,14 +346,52 @@ class SiteSettings(Settings):
         if filepath is not None:
             SettingsValidator.check_mandatories(
                 self.settings, self.mandatory, quit_if_bad=True)
-            validUrls = SettingsValidator.validate_set(
-                self.settings, self.mandatory, SiteSettings.__url_valid)
+            validUrls = True
+
+            for id, setting in self.settings.items():
+                if id not in SiteSettings.DEFAULT_SETTINGS:
+                    continue
+                url = setting.value
+
+                validurl = setting.validation_func(url)
+                if not validurl:
+                    print(f'{setting.pname} is invalid')
+
+                validUrls &= validurl
 
             if not validUrls:
                 print(
                     'Site settings are not set correctly. '
                     + 'Ensure URLs are valid. Exiting')
                 quit()
+
+
+class SettingsConverter:
+    def convert(value: str, valtype: type):
+        if valtype in SettingsConverter.__convmap__:
+            return SettingsConverter.__convmap__[valtype](value.strip())
+        return None
+
+    def __tostr__(value: str) -> str:
+        return value
+
+    def __toint__(value: str) -> int:
+        return int(value)
+
+    def __todatetime__(value: str) -> datetime:
+        return time_conv(value)
+
+    def __tobool__(value: str) -> bool:
+        value = value.lower()
+        validans = ['yes', 'y', 'true', 'enable', 'enabled']
+        return value in validans
+
+    __convmap__ = {
+        str: __tostr__,
+        int: __toint__,
+        datetime: __todatetime__,
+        bool: __tobool__
+        }
 
 
 class SettingsLoader:
@@ -384,12 +424,13 @@ class SettingsLoader:
                 continue
             if setting_name not in settings:
                 settings[setting_name] = Setting(
-                    setting_name, setting_name, value=value)
+                    setting_name, setting_name)
                 if warnings:
                     print(f"Warning: Setting {setting_name} found "
                           + "that is not in defaults")
-            else:
-                settings[setting_name].value = value
+
+            setting = settings[setting_name]
+            setting = SettingsConverter.convert(value, setting.valtype)
 
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
