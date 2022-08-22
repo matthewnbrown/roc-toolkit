@@ -1,4 +1,3 @@
-from datetime import datetime
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.services.rocservice import RocService
 from rocalert.roc_settings.settingstools import UserSettings
