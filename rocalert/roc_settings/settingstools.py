@@ -28,6 +28,7 @@ class Setting:
 
 class Settings:
     setting_map = {}
+
     def __init__(self, name: str = None, filepath=None) -> None:
         self.settings = {}
         if name is None:
@@ -348,14 +349,16 @@ class UserSettings(Settings):
                     valid_values=['all', 'chrome', 'firefox', 'opera', 'edge'
                                   'chromium', 'brave', 'vivaldi', 'safari']),
         'remote_captcha_lookup':
-            Setting('Remote captcha lookup API address', 'remote_captcha_lookup',
-                    None, str, 'URL to API for captcha answer lookup'),
+            Setting('Remote captcha lookup API address',
+                    'remote_captcha_lookup', None, str,
+                    'URL to API for captcha answer lookup'),
         'remote_captcha_add':
             Setting('Remote captcha add API address', 'remote_captcha_add',
                     None, str, 'URL to API to add captcha answer'),
         'captcha_failure_timeout':
-            Setting('Captcha failure timeout length', 'captcha_failure_timeout',
-                    0, int, 'Amount of time to wait after captcha error limit'
+            Setting('Captcha failure timeout length',
+                    'captcha_failure_timeout', 0, int,
+                    'Amount of time to wait after captcha error limit'
                     + ' reached. 0 to exit instead of timeout')
     }
 
@@ -430,6 +433,21 @@ class SiteSettings(Settings):
         'roc_login': str,
         'roc_recruit': str,
         'roc_armory': str
+    }
+
+    setting_map = {
+        'roc_home':
+            Setting('ROC Index Page', 'roc_home', 'ENTER_HOME_URL',
+                    str, 'Index page of ROC.'),
+        'roc_login':
+            Setting('ROC Login Page', 'roc_login', 'ENTER_LOGIN_URL',
+                    str, 'Login page likely homepage + /login.php'),
+        'roc_recruit':
+            Setting('ROC Recruit Page', 'roc_recruit', 'ENTER_RECRUIT_URL',
+                    str, 'Recruit captcha page'),
+        'roc_armory':
+            Setting('ROC Armory Page', 'roc_armory', 'ENTER_ARMORY_URL',
+                    str, 'Armory page of ROC')
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
