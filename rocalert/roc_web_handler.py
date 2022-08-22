@@ -120,8 +120,8 @@ class RocWebHandler:
         return Captcha(equation, None, captype=self.CaptchaType.EQUATION)
 
     def __get_captcha_image(self, hash):
-        imgurl = self.site_settings.get_home()
-        + 'img.php?hash=' + hash
+        imgurl = (self.site_settings.get_home()
+                  + 'img.php?hash=' + hash)
 
         img = self.__go_to_page(imgurl).content
         return img
