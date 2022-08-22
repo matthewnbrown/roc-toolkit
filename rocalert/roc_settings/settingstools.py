@@ -82,44 +82,6 @@ class Settings:
 class BuyerSettings(Settings):
 
     DEFAULT_SETTINGS = {
-        'buy_weapons': False,
-        'min_gold': 500000000,
-        'dagger': 0,
-        'maul': 0,
-        'blade': 0,
-        'excalibur': 0,
-        'cloak': 0,
-        'hook': 0,
-        'pickaxe': 0,
-        'sai': 0,
-        'shield': 0,
-        'mithril': 0,
-        'dragonskin': 0,
-        'horn': 0,
-        'guard_dog': 0,
-        'torch': 0,
-    }
-
-    SETTINGS_TYPES = {
-        'buy_weapons': bool,
-        'min_gold': int,
-        'dagger': int,
-        'maul': int,
-        'blade': int,
-        'excalibur': int,
-        'cloak': int,
-        'hook': int,
-        'pickaxe': int,
-        'sai': int,
-        'shield': int,
-        'mithril': int,
-        'dragonskin': int,
-        'horn': int,
-        'guard_dog': int,
-        'torch': int
-    }
-
-    DEFAULT_SETTINGS = {
         'buy_weapons': Setting('Toggle Buying', 'buy_weapons', False, bool,
                                'Enable weapon buying'),
         'min_gold': Setting('Minimum Gold', 'min_gold', 500000000, int,
@@ -229,55 +191,6 @@ class TrainerSettings(Settings):
 
 
 class UserSettings(Settings):
-
-    DEFAULT_SETTINGS = {
-        'email': 'email@email.com',
-        'password': 'password123',
-        'auto_solve_captchas': 'False',
-        'auto_captcha_key': '',
-        'notify_soldier_amt': '60',
-        'min_checktime_secs': '300',
-        'max_checktime_secs': '600',
-        'enable_nightmode': 'False',
-        'nightmode_minwait_mins': '60',
-        'nightmode_maxwait_mins': '120',
-        'nightmode_begin': '20:00',
-        'nightmode_end': '9:00',
-        'max_consecutive_login_failures': '2',
-        'max_consecutive_captcha_attempts': '3',
-        'max_consecutive_answer_errors': '5',
-        'captcha_save_path': r'captcha_img/',
-        'load_cookies_from_browser': 'True',
-        'browser': 'chrome',
-        'remote_captcha_lookup': None,
-        'remote_captcha_add': None,
-        'captcha_failure_timeout': '0'
-    }
-
-    SETTINGS_TYPES = {
-        'email': str,
-        'password': str,
-        'auto_solve_captchas': bool,
-        'auto_captcha_key': str,
-        'notify_soldier_amt': int,
-        'min_checktime_secs': int,
-        'max_checktime_secs': int,
-        'enable_nightmode': bool,
-        'nightmode_minwait_mins': int,
-        'nightmode_maxwait_mins': int,
-        'nightmode_begin': datetime,
-        'nightmode_end': datetime,
-        'max_consecutive_login_failures': int,
-        'max_consecutive_captcha_attempts': int,
-        'max_consecutive_answer_errors': int,
-        'captcha_save_path': str,
-        'load_cookies_from_browser': bool,
-        'browser': str,
-        'remote_captcha_lookup': str,
-        'remote_captcha_add': str,
-        'captcha_failure_timeout': int
-    }
-
     def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
             t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
 
@@ -419,20 +332,6 @@ class UserSettings(Settings):
 
 
 class SiteSettings(Settings):
-    DEFAULT_SETTINGS = {
-        'roc_home': 'ENTER_HOME_URL',
-        'roc_login': 'ENTER_LOGIN_URL',
-        'roc_recruit': 'ENTER_RECRUIT_URL',
-        'roc_armory': 'ENTER_ARMORY_URL'
-    }
-
-    SETTINGS_TYPES = {
-        'roc_home': str,
-        'roc_login': str,
-        'roc_recruit': str,
-        'roc_armory': str
-    }
-
     setting_map = {
         'roc_home':
             Setting('ROC Index Page', 'roc_home', 'ENTER_HOME_URL',
