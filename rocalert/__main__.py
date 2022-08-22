@@ -26,8 +26,8 @@ def run():
     user_settings = UserSettings(filepath=user_settings_fp)
 
     remoteCaptcha = RemoteCaptcha(
-        user_settings.get_setting('remote_captcha_add'),
-        user_settings.get_setting('remote_captcha_lookup'))
+        user_settings.get_value('remote_captcha_add'),
+        user_settings.get_value('remote_captcha_lookup'))
 
     buyer = ROCBuyer(
         rochandler,

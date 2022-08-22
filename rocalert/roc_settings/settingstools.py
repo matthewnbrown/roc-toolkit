@@ -1,6 +1,4 @@
-from calendar import c
 from datetime import datetime
-from re import S
 from typing import Callable, List
 from urllib.parse import urlparse
 import os
@@ -79,8 +77,9 @@ class Settings:
 
             print('{} : {}'.format(settingid, setting))
 
-    def get_settings(self):
-        return self.settings
+    def get_settings_old(self):
+        return {id: setting.value for id, setting in self.settings.items()}
+
 
 
 class BuyerSettings(Settings):

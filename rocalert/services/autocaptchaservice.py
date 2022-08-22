@@ -63,7 +63,7 @@ class AutoCaptchaService(RocService):
             ) -> bool:
         if settings is None:
             return {'error': 'No user settings supplied in request'}
-        api_key = settings.get_setting('auto_captcha_key')
+        api_key = settings.get_value('auto_captcha_key')
         if api_key is None or len(api_key) == 0:
             {'error': 'Bad captcha api key.'}
         if 'captcha' not in custom_settings:
@@ -98,7 +98,7 @@ class AutoCaptchaService(RocService):
             ) -> str:
         if settings is None:
             return {'error': 'No user settings supplied in request'}
-        api_key = settings.get_setting('auto_captcha_key')
+        api_key = settings.get_value('auto_captcha_key')
         if api_key is None or len(api_key) == 0:
             {'error': 'Bad captcha api key.'}
 

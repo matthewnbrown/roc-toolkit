@@ -30,7 +30,7 @@ class RocAlert:
             raise Exception("An existing ROC Handler must be passed!")
         self.roc = rochandler
         self.buyer = buyer
-        self.user_settings = usersettings.get_settings()
+        self.user_settings = usersettings.get_settings_old()
         self.validans = {str(i) for i in range(1, 10)}
         self.solver = ROCAutoSolver()
         self.general_log = generalLog

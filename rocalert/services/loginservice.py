@@ -47,8 +47,8 @@ class LoginService(RocService):
 
         while repeated_failures < 3:
             res = roc.detailed_login(
-                settings.get_setting('email'),
-                settings.get_setting('password'))
+                settings.get_value('email'),
+                settings.get_value('password'))
 
             if 'success' in res:
                 return {r: 'success', e: None}
