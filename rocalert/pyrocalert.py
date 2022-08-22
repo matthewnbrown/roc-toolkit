@@ -431,7 +431,7 @@ class RocAlert:
         if self.user_settings['load_cookies_from_browser']:
             cookies = load_cookies_from_browser(
                 self.user_settings['browser'],
-                self.roc.site_settings['roc_home']
+                self.roc.site_settings.get_home()
                 )
             self.roc.add_cookies(cookies)
             return True
