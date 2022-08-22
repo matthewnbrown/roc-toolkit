@@ -3,6 +3,8 @@ from typing import Callable, List
 from urllib.parse import urlparse
 import os
 
+from ..rocpurchases.roc_buyer import ROCBuyer
+
 
 class Setting:
     def __init__(self,
@@ -12,13 +14,16 @@ class Setting:
                  valtype: type = None,
                  description: str = None,
                  value=None,
-                 valid_values: List = None) -> None:
+                 valid_values: List = None,
+                 validation_func: Callable = None) -> None:
         self.pname = prettyname
         self.name = name
         self.defaultval = default_value
         self.value = value if value else default_value
         self.valtype = valtype
         self.desc = description
+        self.valid_values = valid_values
+        self.validation_func = validation_func
 
         if type(valtype) != type:
             print(f'Warning: {name} setting valtype is not a valid type.')
@@ -114,7 +119,7 @@ class BuyerSettings(Settings):
         'torch': int
     }
 
-    setting_map = {
+    DEFAULT_SETTINGS = {
         'buy_weapons': Setting('Toggle Buying', 'buy_weapons', False, bool,
                                'Enable weapon buying'),
         'min_gold': Setting('Minimum Gold', 'min_gold', 500000000, int,
@@ -145,6 +150,10 @@ class BuyerSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = "Buyer Settings"
+
+        if self.settings is None:
+            self.settings = BuyerSettings.DEFAULT_SETTINGS
+
         super().__init__(name, filepath)
 
         self.mandatory = {'buy_weapons'}
@@ -157,33 +166,24 @@ class BuyerSettings(Settings):
         self.__check_valid_settings()
 
     def buying_enabled(self) -> bool:
-        return self.settings is not None and self.settings['buy_weapons']
+        return self.settings is not None and self.settings['buy_weapons'].value
 
     def min_gold_to_buy(self) -> int:
-        return self.settings['min_gold']
+        return self.settings['min_gold'].value
 
     def get_weapons_to_buy(self) -> dict:
         d = {}
-        for setting, val in self.settings.items():
-            if setting != 'buy_weapons' and setting != 'min_gold' and val > 0:
-                d[setting] = val
+        for settingid, setting in self.settings.items():
+            if settingid != 'buy_weapons' and settingid != 'min_gold' \
+                    and setting.value > 0:
+                d[settingid] = setting.value
         return d
 
     def __check_valid_settings(self):
         SettingsValidator.check_mandatories(
             self.settings, self.mandatory, quit_if_bad=True)
         SettingsValidator.set_defaults_ifnotset(
-            self.settings,
-            {'buy_weapons': BuyerSettings.DEFAULT_SETTINGS['buy_weapons']},
-            lambda s: s.lower() == 'true'
-            )
-        default_ints = BuyerSettings.DEFAULT_SETTINGS.copy()
-        del default_ints['buy_weapons']
-        SettingsValidator.set_defaults_ifnotset(
-            self.settings,
-            default_ints,
-            lambda i: int(str(i).replace(',', ''))
-            )
+            self.settings)
 
 
 class TrainerSettings(Settings):
@@ -281,7 +281,7 @@ class UserSettings(Settings):
     def time_conv(t: str): return datetime.strptime(t, '%H:%M').time() if len(
             t) <= 5 else datetime.strptime(t, '%H:%M:%S').time()
 
-    setting_map = {
+    DEFAULT_SETTINGS = {
         'email': Setting('Email Address', 'email', 'email@address.com', str,
                          'ROC login email'),
         'password': Setting('Password', 'password', 'password', str,
@@ -360,6 +360,9 @@ class UserSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = 'User Settings'
+        if self.settings is None:
+            self.settings = UserSettings.DEFAULT_SETTINGS.copy()
+
         super().__init__(name, filepath)
 
         self.mandatory = {'email', 'password'}
@@ -408,7 +411,7 @@ class UserSettings(Settings):
                     {setting: None},
                     lambda s: None if s.lower() == 'none' else s)
 
-        savepath = self.get_setting('captcha_save_path')
+        savepath = self.get_value('captcha_save_path')
         if not os.path.exists(savepath):
             print(f'Warning path {savepath} does not exist.'
                   + 'Creating directories.')
@@ -448,9 +451,12 @@ class SiteSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = 'Site Settings'
+        if self.settings is None:
+            self.settings = BuyerSettings.DEFAULT_SETTINGS.copy()
+
         super().__init__(name, filepath)
 
-        self.mandatory = {'roc_home', 'roc_home', 'roc_home'}
+        self.mandatory = {'roc_home', 'roc_recruit'}
 
         if filepath is not None:
             SettingsValidator.check_mandatories(
@@ -478,6 +484,8 @@ class SettingsLoader:
                                 warnings: bool = False
                                 ) -> dict:
         if settings is None:
+            if warnings:
+                print('Warning. Empty settings file passed to loader')
             settings = {}
 
         with open(filepath) as f:
@@ -493,12 +501,19 @@ class SettingsLoader:
             setting_name = setting_name.strip()
             value = value.strip()
             if warnings and setting_name == '':
-                print("Warning: A setting existed with no value")
+                print("Warning: A setting existed with no name")
                 continue
             if warnings and len(value) == 0:
                 print("Warning: setting {} has no value".format(setting_name))
                 continue
-            settings[setting_name] = value
+            if setting_name not in settings:
+                settings[setting_name] = Setting(
+                    setting_name, setting_name, value=value)
+                if warnings:
+                    print(f"Warning: Setting {setting_name} found "
+                          + "that is not in defaults")
+            else:
+                settings[setting_name].value = value
 
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
@@ -511,7 +526,7 @@ class SettingsSaver:
     def __make_lines(settings: dict):
         arr = []
         for key, val in settings.items():
-            arr.append(SettingsSaver.__make_str(key, val))
+            arr.append(SettingsSaver.__make_str(key, val.value))
         return arr
 
     def save_settings_toPath(filepath: str, settings: dict) -> None:
@@ -522,32 +537,6 @@ class SettingsSaver:
 
 
 class SettingsValidator:
-    def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
-        if key not in setdic:
-            setdic[key] = default
-        else:
-            setdic[key] = callback(setdic[key])
-
-    def validate_set(settings: dict,
-                     settings_to_validate,
-                     validationfunc: Callable
-                     ) -> bool:
-        for item in settings_to_validate:
-            if item not in settings or not validationfunc(settings[item]):
-                return False
-        return True
-
-    def set_defaults_ifnotset(settings: dict,
-                              defaults: dict,
-                              callback: callable
-                              ) -> None:
-        if settings is None or defaults is None or callback is None:
-            return
-
-        for key, val in defaults.items():
-            SettingsValidator.__check_dict_generic(
-                settings, key, val, callback)
-
     # Return true if all mandatories are set
     def check_mandatories(settings: dict,
                           mandatories,
@@ -560,8 +549,7 @@ class SettingsValidator:
         errorcount = 0
         for setting in mandatories:
             if setting not in settings\
-                    or settings[setting] is None\
-                    or len(settings[setting]) == 0:
+                    or settings[setting] is None:
                 if printError:
                     print("ERROR: {} setting not set!".format(setting))
                 errorcount += 1
@@ -570,6 +558,13 @@ class SettingsValidator:
             quit()
 
         return errorcount == 0
+
+    def check_settings_in_range(settings: dict) -> bool:
+        valid = True
+        for setting in settings:
+            pass
+
+        return valid
 
 
 # creates default settings file if the user has yet to do so
