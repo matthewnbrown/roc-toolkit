@@ -1,10 +1,11 @@
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
-from ..rocpurchases.roc_buyer import ROCTrainer
+from rocalert.services.rocservice import RocService
+from rocalert.rocpurchases.roc_buyer import ROCTrainer
 
 
-class RocService():
-    """Generic class for a ROC service"""
+class RocTrainerService(RocService):
+    """Service to generate soldier training payload"""
 
     """Runs the service"""
     def run_service(
@@ -29,8 +30,10 @@ class RocService():
             return {r: 'failure', e: 'ROC session not logged in'}
 
         trainer = ROCTrainer(roc, custom_settings['trainer_settings'])
+        gold = roc.current_gold()
+        if not trainer.purchase_required(gold):
+            return {r: 'failure', e: 'Purchase not required'}
 
-        if not trainer.purchase_required():
-            return {r: 'success', 'note': 'purchase not required'}
+        payload = trainer.create_order_payload(gold)
 
-        return {r: 'failure', e: 'Not implemented'}
+        return {r: payload}
