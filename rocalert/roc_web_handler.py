@@ -1,6 +1,7 @@
 from http.client import RemoteDisconnected
 
 from urllib3 import Retry
+from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 import requests  # py -m pip install requests
@@ -43,12 +44,12 @@ class RocWebHandler:
         TEXT = 'text'
         IMAGE = 'img'
         EQUATION = 'equation'
-    
-    def __init__(self, roc_site_settings) -> None:
+
+    def __init__(self, roc_site_settings: SiteSettings) -> None:
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
                         + 'Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                         + 'Chrome/102.0.5005.63 Safari/537.36'}
-        self.site_settings = roc_site_settings.get_settings()
+        self.site_settings = roc_site_settings
         self.session = requests.Session()
 
         retry = Retry(connect=10, backoff_factor=0.5)
@@ -98,7 +99,7 @@ class RocWebHandler:
         if page is None:
             return None
 
-        self.__go_to_page(self.site_settings[page])
+        self.__go_to_page(self.site_settings.getpage(page))
         cap_type = self.__page_captcha_type()
         hash = self.__get_imagehash()
 
@@ -119,12 +120,14 @@ class RocWebHandler:
         return Captcha(equation, None, captype=self.CaptchaType.EQUATION)
 
     def __get_captcha_image(self, hash):
-        imgurl = self.site_settings['roc_home'] + 'img.php?hash=' + hash
+        imgurl = self.site_settings.get_home()
+        + 'img.php?hash=' + hash
+
         img = self.__go_to_page(imgurl).content
         return img
 
     def is_logged_in(self) -> bool:
-        self.__go_to_page(self.site_settings['roc_home'])
+        self.__go_to_page(self.site_settings.get_home())
         return r'email@address.com' not in self.r.text
 
     def login(self, email: str, password: str) -> bool:
@@ -132,7 +135,7 @@ class RocWebHandler:
             'email': email,
             'password': password
         }
-        self.r = self.session.post(self.site_settings['roc_login'], payload)
+        self.r = self.session.post(self.site_settings.get_login_url(), payload)
         incorrect = r'Incorrect login' in self.r.text
         return not incorrect and r'email@address.com' not in self.r.text
 
@@ -141,7 +144,7 @@ class RocWebHandler:
             'email': email,
             'password': password
         }
-        self.r = self.session.post(self.site_settings['roc_login'], payload)
+        self.r = self.session.post(self.site_settings.get_login_url(), payload)
         if r'Incorrect login' in self.r.text:
             return 'incorrect_login'
         if r'email@address.com' in self.r.text:
@@ -165,7 +168,7 @@ class RocWebHandler:
             'flagInput': str(captcha.ans),
             'flagSubmit': 'Submit'
         }
-        self.r = self.session.post(self.site_settings[page], payload)
+        self.r = self.session.post(self.site_settings.get_page(page), payload)
 
         return self.__page_captcha_type() == RocWebHandler.CaptchaType.IMAGE
 
@@ -186,12 +189,12 @@ class RocWebHandler:
         payload['coordinates[y]'] = y,
         payload['num'] = ans,
 
-        self.r = self.session.post(self.site_settings[page], payload)
+        self.r = self.session.post(self.site_settings.get_page(page), payload)
         return 'Wrong number' not in self.r.text or \
             'wrong number' in self.r.text
 
     def recruit_has_captcha(self) -> str:
-        self.__go_to_page(self.site_settings['roc_recruit'])
+        self.__go_to_page(self.site_settings.get_recruit())
         return self.__page_captcha_type()
 
     def current_gold(self) -> int:
@@ -203,14 +206,14 @@ class RocWebHandler:
 
     def reset_cooldown(self) -> None:
         addition = r'/cooldown.php?delete=strike'
-        self.__go_to_page(self.site_settings['roc_home'] + addition)
+        self.__go_to_page(self.site_settings.get_home() + addition)
 
     def on_cooldown(self) -> bool:
         self.go_to_armory()
         return self.__page_captcha_type() == RocWebHandler.CaptchaType.TEXT
 
     def go_to_armory(self) -> None:
-        self.__go_to_page(self.site_settings['roc_armory'])
+        self.__go_to_page(self.site_settings.get_armory())
 
     def send_armory_order(self, payload: dict):
         pass
