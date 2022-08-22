@@ -139,6 +139,20 @@ class ROCTrainer:
         self.roc = roc_handler
         self.trainersettings = trainersettings
 
-    def purchase_required(self, current_gold):
-        # if self.trainersettings.
+    def __make_order(gold) -> dict[str, int]:
         pass
+
+    def purchase_required(self, current_gold: int, account_details):
+        ts = self.trainersettings
+        if (not ts.training_enabled
+                or ts.soldier_dump_type != ts.SoldierTypes.NONE):
+            return False
+
+        return ts.soldier_dump
+
+    def create_order_payload(self, gold):
+        order = self.__make_order__(gold)
+        payload = BASE_TRAIN_PAYLOAD.copy()
+
+        for item, count in order.items():
+            payload[item] = str(count)
