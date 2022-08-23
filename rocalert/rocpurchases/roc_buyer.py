@@ -2,7 +2,7 @@
 from rocalert.roc_settings.settingstools import BuyerSettings, TrainerSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools \
-    import RocItem, ALL_ITEM_DETAILS as ITEM_DETAILS
+    import ALL_ITEM_DETAILS as ITEM_DETAILS
 from abc import abstractclassmethod
 
 BASE_ARMORY_PAYLOAD = {
