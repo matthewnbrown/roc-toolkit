@@ -1,3 +1,25 @@
+class ROCStats:
+    STAT_IDS = {'keyfound', 'lastactive', 'rank', 'highestrank',
+                'armysize', 'tbg', 'sa', 'da', 'spy', 'sentry'}
+
+    def __init__(self, stats) -> None:
+        self._stats = {id: None for id in ROCStats.STAT_IDS}
+        if stats is not None:
+            for id in ROCStats.STAT_IDS:
+                if id in stats:
+                    self._stats[id] = stats[id]
+
+    @property
+    def armysize(self) -> int:
+        return self._stats['armysize']
+
+    @armysize.setter
+    def armysize(self, newarmysize: int) -> None:
+        if newarmysize < 0:
+            raise Exception('Invalid army size')
+
+        self._stats['armysize'] = newarmysize
+
 
 class ROCTraining:
     def __init__(self) -> None:
