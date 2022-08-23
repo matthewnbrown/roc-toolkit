@@ -33,3 +33,86 @@ class RocItem():
         self.stat_val = stat_val
         self.stat_type = stat_type
         self.code = item_code
+
+
+# Soldier / Mercenaries
+class Soldier:
+    def __init__(self, count) -> None:
+        self._count = count
+        self._id = 'none'
+        self._cost = 0
+
+    @property
+    def count(self) -> int:
+        return self._count
+
+    @count.setter
+    def count(self, newcount: int) -> None:
+        if type(newcount) != int or newcount < 0:
+            raise Exception('Invalid soldier count')
+
+        self._count = newcount
+
+    @property
+    def soldier_id(self) -> str:
+        return self._id
+
+    @property
+    def cost(self) -> int:
+        return self._cost
+
+    @cost.setter
+    def cost(self, newcost: int) -> None:
+        if type(newcost) != int or newcost < 0:
+            raise Exception('Invalid cost')
+
+        self._cost = newcost
+
+
+class AttackSoldier(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self._cost = 1000
+        self._id = 'attack_soldiers'
+
+
+class DefenseSoldier(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self._cost = 1000
+        self._id = 'defense_soldiers'
+
+
+class Spy(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self._cost = 2000
+        self._id = 'spies'
+
+
+class Sentry(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self._cost = 2000
+        self._id = 'sentries'
+
+
+class AttackMerc(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self._cost = 2500
+        self._id = 'attack_mercs'
+
+
+class DefenseMerc(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self.cost = 2500
+        self._id = 'defense_mercs'
+
+
+class UntrainedMerc(Soldier):
+    def __init__(self, count) -> None:
+        super().__init__(count)
+        self.cost = 2000
+        self._id = 'untrained_mercs'
