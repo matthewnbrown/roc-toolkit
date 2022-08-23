@@ -1,6 +1,7 @@
 from rocalert.rocpurchases.rocpurchtools \
-    import AttackSoldier, DefenseSoldier, Spy, \
-    Sentry, AttackMerc, DefenseMerc, UntrainedMerc
+    import AttackSoldier, DefenseSoldier, RocItem, Spy, \
+    Sentry, AttackMerc, DefenseMerc, UntrainedMerc, \
+    ALL_ITEM_DETAILS
 
 
 class ROCStats:
@@ -92,9 +93,35 @@ class ROCTraining:
         self._untmerc = um
 
 
+ITEM_BY_CODE = {item.code: item for _, item in ALL_ITEM_DETAILS}
+
+
 class ROCArmory:
-    def __init__(self) -> None:
-        pass
+    def __init__(self, itemcount: dict[str, int] = None) -> None:
+        self._counts = {name: 0 for name in ALL_ITEM_DETAILS}
+        if itemcount:
+            for name, count in itemcount.items():
+                if name in ALL_ITEM_DETAILS:
+                    self._counts[name] = count
+
+    def _get_all_itemtype(self, itemtype: RocItem.ItemType) -> dict[str, int]:
+        res = {}
+        for name, item in ALL_ITEM_DETAILS.items():
+            if item.stat_type == itemtype:
+                res[name] = self._counts[name]
+        return res
+
+    def get_attack_items(self) -> dict[str, int]:
+        return self._get_all_itemtype(RocItem.ItemType.ATTACK)
+
+    def get_defense_items(self) -> dict[str, int]:
+        return self._get_all_itemtype(RocItem.ItemType.DEFENSE)
+
+    def get_spy_items(self) -> dict[str, int]:
+        return self._get_all_itemtype(RocItem.ItemType.SPY)
+
+    def get_sentry_items(self) -> dict[str, int]:
+        return self._get_all_itemtype(RocItem.ItemType.SENTRY)
 
 
 class ROCAccount:
