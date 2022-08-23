@@ -1,3 +1,6 @@
+from rocalert.rocpurchases.rocpurchtools \
+    import AttackSoldier, DefenseSoldier, Spy, \
+    Sentry, AttackMerc, DefenseMerc, UntrainedMerc
 
 
 class ROCStats:
@@ -71,8 +74,22 @@ class ROCStats:
 
 
 class ROCTraining:
-    def __init__(self) -> None:
-        pass
+    def __init__(self,
+                 att: AttackSoldier = None,
+                 ds: DefenseSoldier = None,
+                 spy: Spy = None,
+                 sent: Sentry = None,
+                 am: AttackMerc = None,
+                 dm: DefenseMerc = None,
+                 um: UntrainedMerc = None) -> None:
+
+        self._att = att
+        self._def = ds
+        self._spy = spy
+        self._sentry = sent
+        self._attmerc = am
+        self._defmerc = dm
+        self._untmerc = um
 
 
 class ROCArmory:
