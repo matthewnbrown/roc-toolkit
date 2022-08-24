@@ -7,16 +7,16 @@ from rocalert.rocpurchases.roc_buyer import ROCTrainer
 class RocTrainerService(RocService):
     """Service to generate soldier training payload"""
 
-    """Runs the service"""
+    @classmethod
     def run_service(
-            self,
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
         r, e = 'response', 'error'
 
-        missingparams = self.__check_params(roc, settings, custom_settings)
+        missingparams = cls.__check_params(roc, settings, custom_settings)
         if missingparams:
             return missingparams
 
