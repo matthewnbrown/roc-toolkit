@@ -7,40 +7,64 @@ from rocalert.services.rocservice import RocService
 class GetGold(RocService):
     @classmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
+
+        bad_params_resp = cls.__check_params(roc, settings, custom_settings)
+        if bad_params_resp:
+            return bad_params_resp
+
         raise NotImplementedError
 
 
 class GetTraining(RocService):
     @classmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
+
+        bad_params_resp = cls.__check_params(roc, settings, custom_settings)
+        if bad_params_resp:
+            return bad_params_resp
+
         raise NotImplementedError
 
 
 class GetArmory(RocService):
     @classmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
+
+        bad_params_resp = cls.__check_params(roc, settings, custom_settings)
+        if bad_params_resp:
+            return bad_params_resp
+
         raise NotImplementedError
 
 
 class GetStats(RocService):
     @classmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
+
+        bad_params_resp = cls.__check_params(roc, settings, custom_settings)
+        if bad_params_resp:
+            return bad_params_resp
+
         raise NotImplementedError
 
 
@@ -49,10 +73,16 @@ class GetAccount(RocService):
 
     @classmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
+
+        bad_params_resp = cls.__check_params(roc, settings, custom_settings)
+        if bad_params_resp:
+            return bad_params_resp
+
         r, e = 'result', 'error'
         try:
             gold_res = GetGold.run_service(roc, settings, custom_settings)
