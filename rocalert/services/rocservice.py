@@ -10,6 +10,7 @@ class RocService():
     @classmethod
     @abstractmethod
     def run_service(
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
