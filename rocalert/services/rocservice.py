@@ -1,4 +1,4 @@
-from abc import abstractclassmethod
+from abc import abstractmethod
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
@@ -8,9 +8,9 @@ class RocService():
     """Generic class for a ROC service"""
 
     """Runs the service"""
-    @abstractclassmethod
+    @classmethod
+    @abstractmethod
     def run_service(
-            self,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
