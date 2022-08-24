@@ -14,13 +14,12 @@ class RocTrainerService(RocService):
             settings: UserSettings = None,
             custom_settings: dict = None
             ) -> bool:
-        r, e = 'result', 'error'
-        if roc is None:
-            return {r: 'failure', e: 'roc session not passed in request'}
-        if settings is None:
-            return {r: 'failure', e: 'User settings not passed in request'}
-        if custom_settings is None:
-            return {r: 'failure', e: 'No custom settings passed in request'}
+        r, e = 'response', 'error'
+
+        missingparams = self.__check_params(roc, settings, custom_settings)
+        if missingparams:
+            return missingparams
+
         if 'trainer_settings' not in custom_settings:
             return {r: 'failure',
                     e: '\'trainer_settings\' not passed in request'}
@@ -36,4 +35,4 @@ class RocTrainerService(RocService):
 
         payload = trainer.create_order_payload(gold)
 
-        return {r: payload}
+        return {r: 'success', 'result': payload}
