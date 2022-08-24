@@ -92,6 +92,46 @@ class ROCTraining:
         self._defmerc = dm
         self._untmerc = um
 
+    @staticmethod
+    def __nonnegative(num, name):
+        if num < 0:
+            raise Exception(f'Invalid {name}')
+
+    @property
+    def attacksoldiers(self) -> int:
+        return self._att
+
+    @attacksoldiers.setter
+    def attacksolders(self, newatt: int) -> None:
+        self.__nonnegative(newatt, 'attack soldier count')
+        self._att = newatt
+
+    @property
+    def defensesoldiers(self) -> int:
+        return self._def
+
+    @defensesoldiers.setter
+    def defensesoldiers(self, newdef: int) -> None:
+        self.__nonnegative(newdef, 'defense soldier count')
+        self._def = newdef
+
+    @property
+    def spies(self) -> int:
+        return self._spy
+
+    @spies.setter
+    def spies(self, newspy: int) -> None:
+        self.__nonnegative(newspy, 'spy count')
+
+    @property
+    def sentries(self) -> int:
+        return self._sentry
+
+    @sentries.setter
+    def sentires(self, newsentry: int) -> None:
+        self.__nonnegative(newsentry, 'sentry count')
+        self._sentry = newsentry
+
 
 ITEM_BY_CODE = {item.code: item for _, item in ALL_ITEM_DETAILS}
 
