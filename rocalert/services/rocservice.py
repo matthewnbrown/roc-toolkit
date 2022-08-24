@@ -14,7 +14,7 @@ class RocService():
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
-            ) -> bool:
+            ) -> dict:
         raise NotImplementedError
 
     """Solves a captcha, storing answer within the captcha"""
