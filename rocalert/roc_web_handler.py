@@ -215,5 +215,8 @@ class RocWebHandler:
     def go_to_armory(self) -> None:
         self.__go_to_page(self.site_settings.get_armory())
 
+    def get_response(self) -> requests.Response:
+        return self.r
+
     def send_armory_order(self, payload: dict):
         pass
