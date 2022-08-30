@@ -1,7 +1,9 @@
+from urllib import request
 from rocalert.rocaccount import ROCTraining, RocItem, ROCAccount, ROCArmory, ROCStats
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.services.rocservice import RocService
+from bs4 import BeautifulSoup
 
 
 class GetGold(RocService):
@@ -17,7 +19,25 @@ class GetGold(RocService):
         if bad_params_resp:
             return bad_params_resp
 
-        raise NotImplementedError
+        if not roc.is_logged_in():
+            return { 'response': 'failure', 'error': 'ROC is not logged in'}
+
+        roc.go_to_armory()
+        resp = roc.get_response()
+
+        if resp.status_code != 200:
+            return {'response': 'failure', 'error':
+                    'Received status code:{resp.status_code}'}
+
+        soup = BeautifulSoup(resp.text, 'html.parser')
+        gold = soup.find('s_gold').replace(',', '').strip()
+        gold = int(gold)
+
+        if gold >= 0:
+            return {'response': 'success', 'result': gold}
+        else:
+            return {'response': 'failure', 'error':
+                    f'Invalid gold amount: {gold}'}
 
 
 class GetTraining(RocService):
