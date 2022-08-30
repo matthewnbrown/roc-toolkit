@@ -1,6 +1,7 @@
 from rocalert.rocaccount import ROCTraining, RocItem, ROCAccount, ROCArmory, ROCStats
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
+from rocalert.rocpurchases.rocpurchtools import ALL_ITEM_DETAILS
 from rocalert.services.rocservice import RocService
 from bs4 import BeautifulSoup
 
@@ -121,7 +122,29 @@ class GetArmory(RocService):
         if bad_params_resp:
             return bad_params_resp
 
-        raise NotImplementedError
+        if not roc.is_logged_in():
+            return {'response': 'failure', 'error': 'ROC is not logged in'}
+
+        roc.go_to_armory()
+        resp = roc.get_response()
+
+        if resp.status_code != 200:
+            return {'response': 'failure', 'error':
+                    'Received status code:{resp.status_code}'}
+
+        counts = {}
+        soup = BeautifulSoup(resp, 'html.parser')
+        for key, weapon in ALL_ITEM_DETAILS.items():
+            code = weapon.code
+            wepsoup = soup.find(id=f'weapon{code}')
+            amount = int(wepsoup.find('span',
+                                      {'class': 'amount'}).replace(',', ''))
+
+            counts[key] = amount
+
+        arm = ROCArmory(counts)
+
+        return {'response': 'success', 'result': arm}
 
 
 class GetStats(RocService):
