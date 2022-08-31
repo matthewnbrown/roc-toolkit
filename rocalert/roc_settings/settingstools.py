@@ -192,7 +192,7 @@ class TrainerSettings(Settings):
         SPY = 'spy'
         SENTRY = 'sentry'
         NONE = 'none'
- 
+
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = "Buyer Settings"
@@ -356,6 +356,10 @@ class SiteSettings(Settings):
         'roc_armory':
             Setting('ROC Armory Page', 'roc_armory', 'ENTER_ARMORY_URL',
                     str, 'Armory page of ROC',
+                    validation_func=__validurl__),
+        'roc_training':
+            Setting('ROC Training Page', 'roc_training', 'ENTER_TRAINING_URL',
+                    str, 'Soldier training page',
                     validation_func=__validurl__)
     }
 
@@ -402,6 +406,9 @@ class SiteSettings(Settings):
 
     def get_armory(self) -> str:
         return self.get_page('roc_armory')
+
+    def get_training(self) -> str:
+        return self.get_page('roc_training')
 
     def get_login_url(self) -> str:
         return self.get_page('roc_login')
