@@ -215,6 +215,9 @@ class RocWebHandler:
     def go_to_armory(self) -> None:
         self.__go_to_page(self.site_settings.get_armory())
 
+    def go_to_training(self) -> None:
+        self.__go_to_page(self.site_settings.get_training())
+
     def get_response(self) -> requests.Response:
         return self.r
 
