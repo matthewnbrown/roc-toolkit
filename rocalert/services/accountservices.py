@@ -1,9 +1,12 @@
-from urllib import request
 from rocalert.rocaccount import ROCTraining, RocItem, ROCAccount, ROCArmory, ROCStats
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.services.rocservice import RocService
 from bs4 import BeautifulSoup
+
+
+def __get_amount(number: str) -> int:
+    return int(number.strip().replace(',', ''))
 
 
 class GetGold(RocService):
@@ -20,7 +23,7 @@ class GetGold(RocService):
             return bad_params_resp
 
         if not roc.is_logged_in():
-            return { 'response': 'failure', 'error': 'ROC is not logged in'}
+            return {'response': 'failure', 'error': 'ROC is not logged in'}
 
         roc.go_to_armory()
         resp = roc.get_response()
@@ -30,14 +33,25 @@ class GetGold(RocService):
                     'Received status code:{resp.status_code}'}
 
         soup = BeautifulSoup(resp.text, 'html.parser')
-        gold = soup.find('s_gold').replace(',', '').strip()
-        gold = int(gold)
+        gold = soup.find('s_gold')
+        gold = __get_amount(gold)
 
         if gold >= 0:
             return {'response': 'success', 'result': gold}
         else:
             return {'response': 'failure', 'error':
                     f'Invalid gold amount: {gold}'}
+
+
+_training_ids = {
+    'attack_solders': 'cell_untrain_attack_soldiers',
+    'defense_soldiers': 'cell_untrain_defense_soldiers',
+    'spies': 'cell_untrain_spies',
+    'sentries': 'cell_untrain_sentries',
+    'attack_mercs': 'cell_fire_attack_mercs',
+    'defense_mercs': 'cell_fire_defense_mercs',
+    'untrained_mercs': 'cell_fire_untrained_mercs'
+}
 
 
 class GetTraining(RocService):
@@ -53,7 +67,30 @@ class GetTraining(RocService):
         if bad_params_resp:
             return bad_params_resp
 
-        raise NotImplementedError
+        if not roc.is_logged_in():
+            return {'response': 'failure', 'error': 'ROC is not logged in'}
+
+        roc.go_to_training()
+        resp = roc.get_response()
+
+        if resp.status_code != 200:
+            return {'response': 'failure', 'error':
+                    'Received status code:{resp.status_code}'}
+
+        soup = BeautifulSoup(resp, 'html.parser')
+
+        counts = {}
+
+        for name, id in _training_ids.items():
+            item = soup.find(id=id)
+            count = item.find('span', {'class': 'amount'})
+            count = __get_amount(count)
+
+            counts[name] = count
+
+        result = ROCTraining(counts)
+
+        return {'response': 'success', 'result': result}
 
 
 class GetArmory(RocService):
