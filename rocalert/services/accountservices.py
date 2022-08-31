@@ -62,7 +62,22 @@ class GetTraining(RocService):
             settings: UserSettings = None,
             custom_settings: dict = None
             ) -> dict:
+        """_summary_
 
+        Args:
+            roc (RocWebHandler, optional): _description_. Defaults to None.
+            settings (UserSettings, optional): _description_. Not Required
+            custom_settings (dict, optional): _description_. Not required
+
+        Returns:
+            dict: _description_
+                Contains 'response' and either 'result' or 'error'
+                'response': 'success' or 'failure'
+                'error': Exists if response == 'failure', contains a
+                    description of the error
+                'result': Exists if response != 'failure', contains the
+                    resulting ROCTraining object
+        """
         bad_params_resp = cls.__check_params(roc, settings, custom_settings)
         if bad_params_resp:
             return bad_params_resp
