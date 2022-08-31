@@ -57,10 +57,10 @@ ALL_ITEM_DETAILS = {
 
 # Soldier / Mercenaries
 class Soldier:
-    def __init__(self, count) -> None:
+    def __init__(self, count, cost: int = 0) -> None:
         self._count = count
         self._id = 'none'
-        self._cost = 0
+        self._cost = cost
 
     @property
     def count(self) -> int:
@@ -90,49 +90,42 @@ class Soldier:
 
 
 class AttackSoldier(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self._cost = 1000
+    def __init__(self, count, cost: int = 1000) -> None:
+        super().__init__(count, cost)
         self._id = 'attack_soldiers'
 
 
 class DefenseSoldier(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self._cost = 1000
+    def __init__(self, count, cost: int = 1000) -> None:
+        super().__init__(count, cost)
         self._id = 'defense_soldiers'
 
 
 class Spy(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self._cost = 2000
+    def __init__(self, count, cost: int = 2000) -> None:
+        super().__init__(count, cost)
         self._id = 'spies'
 
 
 class Sentry(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self._cost = 2000
+    def __init__(self, count, cost: int = 2000) -> None:
+        super().__init__(count, cost)
         self._id = 'sentries'
 
 
 class AttackMerc(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self._cost = 2500
+    def __init__(self, count, cost: int = 2500) -> None:
+        super().__init__(count, cost)
         self._id = 'attack_mercs'
 
 
 class DefenseMerc(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self.cost = 2500
+    def __init__(self, count, cost: int = 2500) -> None:
+        super().__init__(count, cost)
         self._id = 'defense_mercs'
 
 
 class UntrainedMerc(Soldier):
-    def __init__(self, count) -> None:
-        super().__init__(count)
-        self.cost = 2000
+    def __init__(self, count, cost: int = 2000) -> None:
+        super().__init__(count, cost)
         self._id = 'untrained_mercs'
