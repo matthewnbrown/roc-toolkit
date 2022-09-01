@@ -3,7 +3,9 @@ from http.client import RemoteDisconnected
 from urllib3 import Retry
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
-import requests  # py -m pip install requests
+import requests
+
+from rocalert.roc_settings.settingstools import SiteSettings
 
 
 def __generate_useragent():
@@ -43,8 +45,8 @@ class RocWebHandler:
         TEXT = 'text'
         IMAGE = 'img'
         EQUATION = 'equation'
-        
-    def __init__(self, roc_site_settings) -> None:
+
+    def __init__(self, roc_site_settings: SiteSettings) -> None:
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
                         + 'Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                         + 'Chrome/102.0.5005.63 Safari/537.36'}
