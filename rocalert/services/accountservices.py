@@ -175,6 +175,18 @@ class GetStats(RocService):
         if bad_params_resp:
             return bad_params_resp
 
+        panelids = {'user_summary': 'usersummary_panel',
+                    'log': 'activitylog_panel',
+                    'events': 'events_panel',
+                    'servertime': 'gametimers_panel',
+                    'strength': 'militaryeffectiveness_panel',
+                    'soldiers': 'weaponsandtroops_panel',
+                    'totals': 'personaltotals_panel',
+                    'soldiersource': 'soldiersource_panel',
+                    'alliance': 'alliance_panel',
+                    'commander': 'commander_panel',
+                    'officers': 'officers_panel'}
+
         raise NotImplementedError
 
 
