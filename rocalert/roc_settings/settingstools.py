@@ -51,7 +51,7 @@ class Settings:
 
             print('{} : {}'.format(setting, value))
 
-    def get_settings(self):
+    def get_settings(self) -> dict:
         return self.settings
 
 
