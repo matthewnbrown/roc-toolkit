@@ -133,7 +133,7 @@ class ROCTraining:
         self._sentry = newsentry
 
 
-ITEM_BY_CODE = {item.code: item for _, item in ALL_ITEM_DETAILS}
+ITEM_BY_CODE = {item.code: item for _, item in ALL_ITEM_DETAILS.items()}
 
 
 class ROCArmory:
