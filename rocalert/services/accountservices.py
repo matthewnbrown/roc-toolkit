@@ -200,12 +200,26 @@ class GetStats(RocService):
 
         user_sum = GetStats._get_usersummary(soup, panelids['user_summary'])
         ulogs = GetStats._get_log(soup, panelids['log'])
+        servertime = GetStats._get_servertime(soup, panelids['servertime'])
         ustr = GetStats._get_strength(soup, panelids['strength'])
+        totals = GetStats._get_totals
 
         raise NotImplementedError
 
     def _get_usersummary(soup: BeautifulSoup, id: str) -> dict(str, str):
-        pass
+
+        itemvalues = soup.find(id=id) \
+                        .findAll('div', {'class': 'info_value'})
+
+        res = {}
+        res['keys'] = itemvalues[0].text
+        res['loot'] = itemvalues[1].text
+        res['lastactive'] = itemvalues[2].text  # Get Datetime Instead?
+        res['rank'] = itemvalues[3].text
+        res['bestrank'] = itemvalues[4].text
+        res['army'] = itemvalues[5].text
+        res['tbg'] = itemvalues[6].text
+        return res
 
     def _get_log(soup: BeautifulSoup, id: str) -> dict(str, str):
         pass
@@ -222,10 +236,10 @@ class GetStats(RocService):
     def _get_soldiers(soup: BeautifulSoup, id: str) -> dict(str, str):
         pass
 
-    def get_totals(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_totals(soup: BeautifulSoup, id: str) -> dict(str, str):
         pass
 
-    def get_soldiersource(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_soldiersource(soup: BeautifulSoup, id: str) -> dict(str, str):
         pass
 
     def _get_alliance(soup: BeautifulSoup, id: str) -> dict(str, str):
