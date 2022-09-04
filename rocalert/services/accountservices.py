@@ -206,7 +206,7 @@ class GetStats(RocService):
 
         raise NotImplementedError
 
-    def _get_usersummary(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_usersummary(soup: BeautifulSoup, id: str) -> dict[str, str]:
 
         itemvalues = soup.find(id=id) \
                         .findAll('div', {'class': 'info_value'})
@@ -221,34 +221,34 @@ class GetStats(RocService):
         res['tbg'] = itemvalues[6].text
         return res
 
-    def _get_log(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_log(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_events(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_events(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_servertime(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_servertime(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_strength(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_strength(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_soldiers(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_soldiers(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_totals(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_totals(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_soldiersource(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_soldiersource(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_alliance(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_alliance(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_commander(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_commander(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
-    def _get_officers(soup: BeautifulSoup, id: str) -> dict(str, str):
+    def _get_officers(soup: BeautifulSoup, id: str) -> dict[str, str]:
         pass
 
 
