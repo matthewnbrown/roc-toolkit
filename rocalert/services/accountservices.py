@@ -175,6 +175,17 @@ class GetStats(RocService):
         if bad_params_resp:
             return bad_params_resp
 
+        if not roc.is_logged_in():
+            return {'response': 'failure', 'error': 'ROC is not logged in'}
+
+        roc.go_to_training()
+        resp = roc.get_response()
+
+        if resp.status_code != 200:
+            return {'response': 'failure', 'error':
+                    'Received status code:{resp.status_code}'}
+
+        soup = BeautifulSoup(resp, 'html.parser')
         panelids = {'user_summary': 'usersummary_panel',
                     'log': 'activitylog_panel',
                     'events': 'events_panel',
@@ -187,7 +198,44 @@ class GetStats(RocService):
                     'commander': 'commander_panel',
                     'officers': 'officers_panel'}
 
+        user_sum = GetStats._get_usersummary(soup, panelids['user_summary'])
+        ulogs = GetStats._get_log(soup, panelids['log'])
+        ustr = GetStats._get_strength(soup, panelids['strength'])
+
         raise NotImplementedError
+
+    def _get_usersummary(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_log(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_events(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_servertime(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_strength(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_soldiers(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def get_totals(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def get_soldiersource(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_alliance(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_commander(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
+
+    def _get_officers(soup: BeautifulSoup, id: str) -> dict(str, str):
+        pass
 
 
 class GetAccount(RocService):
