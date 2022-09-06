@@ -149,6 +149,7 @@ def run():
             time.sleep(delay_ms/1000)
         print('-----------------------')
 
+
 if beep:
     thr = threading.Thread(target=playbeep, args=(1000,), kwargs={})
     thr.start()
