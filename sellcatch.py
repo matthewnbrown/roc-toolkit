@@ -1,6 +1,5 @@
 import html
 import time
-import unicodedata
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
@@ -8,9 +7,11 @@ from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
 from os.path import exists
 
-targetids = [29428, 30066]
+from rocalert.services.manualcaptchaservice import ManualCaptchaService
+
+targetids = [29428]
 mingold = 1000000000
-delay_ms = 500
+delay_ms = 250
 cookie_filename = 'cookies'
 
 
@@ -84,8 +85,19 @@ def goldformat(gold: int) -> str:
 def attack(roc: RocWebHandler, id: str) -> bool:
     url = roc.site_settings['roc_home'] + f'/attack.php?id={id}'
     captcha = roc.get_url_img_captcha(url)
-    
-    return False
+
+    mcs = ManualCaptchaService()
+    r = mcs.run_service(None, None, {'captcha': captcha})
+
+    if 'captcha' not in r or r['captcha'] is None:
+        raise Exception('No captcha received from service')
+
+    payload = {
+        'defender_id': id,
+        'mission_type': 'attack',
+        'attacks': 12
+    }
+    return roc.submit_captcha_url(r['captcha'], url, payload)
 
 
 def run():
@@ -112,7 +124,10 @@ def run():
             gold = getgold(rochandler, id)
             print(f'ID: {id} | Gold: {goldformat(gold)}')
             if gold > mingold:
-                print('HIT')
+                print('Target Found!')
+                print(sitesettings.get_setting('roc_home')
+                      + f'/attack.php?id={id}')
+                attack(rochandler, id)
             time.sleep(delay_ms/1000)
         print('-----------------------')
 
