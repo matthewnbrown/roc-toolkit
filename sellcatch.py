@@ -1,4 +1,6 @@
+import html
 import time
+import unicodedata
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
@@ -6,7 +8,7 @@ from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
 from os.path import exists
 
-targetids = [29428]
+targetids = [29428, 30066]
 mingold = 1000000000
 delay_ms = 500
 cookie_filename = 'cookies'
@@ -14,18 +16,17 @@ cookie_filename = 'cookies'
 
 def getgoldfrompage(page: str) -> int:
     index = page.index('playercard_gold c">')
-
-    goldstr = page[index + len('playercard_gold c">?'):
-                   page[index:index+200].index(' Gold')]
+    endindex = page[index:index+200].index(' Gold')
+    goldstr = page[index + len('playercard_gold c">?')-1:index+endindex]
     if '?' in goldstr:
         return -1
-    else:
-        return int(goldstr)
+    goldstr = html.unescape(goldstr).strip().replace(',', '')
+    return int(goldstr)
 
 
 def getgold(roc: RocWebHandler, id: str):
-    url = roc.site_settings.get_setting('roc_home') + f'/stats.php?id={id}'
-    roc.__go_to_page(url)
+    url = roc.site_settings['roc_home'] + f'/stats.php?id={id}'
+    roc.go_to_page(url)
     if roc.r.status_code != 200:
         return -1
     else:
@@ -33,9 +34,9 @@ def getgold(roc: RocWebHandler, id: str):
 
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
-    if us['load_cookies_from_browser']:
+    if us.get_setting('load_cookies_from_browser'):
         cookies = load_cookies_from_browser(
-            us['browser'],
+            us.get_setting('browser'),
             roc.site_settings['roc_home']
             )
         roc.add_cookies(cookies)
@@ -56,22 +57,35 @@ def __log(s: str):
 
 
 def login(roc: RocWebHandler, us: UserSettings):
-    __log('Session timed out. ')
-    if __load_browser_cookies() and roc.is_logged_in():
+    __log('Logging in.')
+    if __load_browser_cookies(roc, us) and roc.is_logged_in():
         __log('Successfully pulled cookie from {}'.format(
-            us['browser']))
+            us.get_setting('browser')))
         return True
 
     res = roc.login(
-        us['email'],
-        us['password']
+        us.get_setting('email'),
+        us.get_setting('password')
     )
 
     if res:
-        __log("Login success.", timestamp=False)
+        __log("Login success.")
     else:
         __log("Login failure.")
         return False
+
+
+def goldformat(gold: int) -> str:
+    if gold == -1:
+        return '???'
+    return "{:,}".format(gold)
+
+
+def attack(roc: RocWebHandler, id: str) -> bool:
+    url = roc.site_settings['roc_home'] + f'/attack.php?id={id}'
+    captcha = roc.get_url_img_captcha(url)
+    
+    return False
 
 
 def run():
@@ -96,9 +110,11 @@ def run():
     while True:
         for id in targetids:
             gold = getgold(rochandler, id)
+            print(f'ID: {id} | Gold: {goldformat(gold)}')
             if gold > mingold:
                 print('HIT')
             time.sleep(delay_ms/1000)
+        print('-----------------------')
 
 
 run()
