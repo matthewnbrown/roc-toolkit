@@ -1,5 +1,6 @@
 import html
 import time
+import threading
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
@@ -12,6 +13,9 @@ from rocalert.services.manualcaptchaservice import ManualCaptchaService
 targetids = [29428]
 mingold = 1000000000
 delay_ms = 250
+beep = True
+
+
 cookie_filename = 'cookies'
 
 
@@ -100,6 +104,14 @@ def attack(roc: RocWebHandler, id: str) -> bool:
     return roc.submit_captcha_url(r['captcha'], url, payload)
 
 
+def playbeep(freq: int = 700):
+    try:
+        import winsound
+        winsound.Beep(freq, 3000)
+    except ImportError:
+        print('ERROR SETTING UP BEEPING!')
+
+
 def run():
     user_settings_fp = 'user.settings'
     site_settings_fp = 'site.settings'
@@ -118,18 +130,27 @@ def run():
         targetids[i] = str(targetids[i])
 
     login(rochandler, user_settings)
-
+    time.sleep(1.5)
+    print("Starting..")
     while True:
         for id in targetids:
             gold = getgold(rochandler, id)
             print(f'ID: {id} | Gold: {goldformat(gold)}')
             if gold > mingold:
                 print('Target Found!')
+                if beep:
+                    thr = threading.Thread(
+                        target=playbeep, args=(1000,), kwargs={})
+                    thr.start()
+
                 print(sitesettings.get_setting('roc_home')
                       + f'/attack.php?id={id}')
                 attack(rochandler, id)
             time.sleep(delay_ms/1000)
         print('-----------------------')
 
+if beep:
+    thr = threading.Thread(target=playbeep, args=(1000,), kwargs={})
+    thr.start()
 
 run()
