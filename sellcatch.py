@@ -114,7 +114,7 @@ def playbeep(freq: int = 700):
         print('ERROR SETTING UP BEEPING!')
 
 
-def delay(minms, maxms) -> float:
+def get_randdelay(minms, maxms) -> float:
     range = maxms - minms
     waittime = minms + int(random.uniform(0, 1) * (range))
     return waittime/1000
@@ -154,7 +154,7 @@ def run():
                 print(sitesettings.get_setting('roc_home')
                       + f'/attack.php?id={id}')
                 attack(rochandler, id)
-            time.sleep(delay(delay_min_ms, delay_max_ms))
+            time.sleep(get_randdelay(delay_min_ms, delay_max_ms))
         print('-----------------------')
 
 
