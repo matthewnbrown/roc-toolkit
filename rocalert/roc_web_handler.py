@@ -3,7 +3,7 @@ from http.client import RemoteDisconnected
 from urllib3 import Retry
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
-import requests  # py -m pip install requests
+import requests
 
 
 def __generate_useragent():
@@ -61,6 +61,9 @@ class RocWebHandler:
     def __check_for_bad_captcha(self):
         return 'cooldown' in self.r.url
 
+    def go_to_page(self, url):
+        return self.__go_to_page(url)
+    
     def __go_to_page(self, url) -> requests.Response:
         try:
             self.r = self.session.get(
@@ -93,6 +96,19 @@ class RocWebHandler:
         endIndex = self.r.text.find('"', index, index+100)
         imghash = self.r.text[index + len('img.php?hash='): endIndex]
         return imghash
+
+    def get_url_img_captcha(self, url: str) -> Captcha:
+        if url is None:
+            return None
+        
+        cap_type = self.__page_captcha_type()
+        hash = self.__get_imagehash()
+
+        if hash is None:
+            return None
+
+        img = self.__get_captcha_image(hash)
+        return Captcha(hash, img, captype=cap_type)
 
     def get_img_captcha(self, page: str) -> Captcha:
         if page is None:
