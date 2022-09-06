@@ -1,4 +1,5 @@
 import html
+import random
 import time
 import threading
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
@@ -11,8 +12,9 @@ from os.path import exists
 from rocalert.services.manualcaptchaservice import ManualCaptchaService
 
 targetids = [29428]
-mingold = 1000000000
-delay_ms = 250
+mingold = 100000000000
+delay_min_ms = 200
+delay_max_ms = 300
 beep = True
 
 
@@ -112,6 +114,12 @@ def playbeep(freq: int = 700):
         print('ERROR SETTING UP BEEPING!')
 
 
+def delay(minms, maxms) -> float:
+    range = maxms - minms
+    waittime = minms + int(random.uniform(0, 1) * (range))
+    return waittime/1000
+
+
 def run():
     user_settings_fp = 'user.settings'
     site_settings_fp = 'site.settings'
@@ -146,7 +154,7 @@ def run():
                 print(sitesettings.get_setting('roc_home')
                       + f'/attack.php?id={id}')
                 attack(rochandler, id)
-            time.sleep(delay_ms/1000)
+            time.sleep(delay(delay_min_ms, delay_max_ms))
         print('-----------------------')
 
 
