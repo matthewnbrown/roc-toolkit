@@ -78,6 +78,7 @@ class ManualCaptchaService(RocService):
             return {'error': 'Captcha.img not supplied in request'}
 
         root = Tk()
+        root.call('wm', 'attributes', '.', '-topmost', '1')
         img = bytesimage_to_photoimage(captcha.img)
         gui = GUI(root, img)
         root.mainloop()
