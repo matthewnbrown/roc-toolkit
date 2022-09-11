@@ -4,7 +4,7 @@ from urllib3 import Retry
 from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
-import requests  # py -m pip install requests
+import requests
 
 
 def __generate_useragent():
@@ -62,6 +62,9 @@ class RocWebHandler:
     def __check_for_bad_captcha(self):
         return 'cooldown' in self.r.url
 
+    def go_to_page(self, url):
+        return self.__go_to_page(url)
+
     def __go_to_page(self, url) -> requests.Response:
         try:
             self.r = self.session.get(
@@ -94,6 +97,20 @@ class RocWebHandler:
         endIndex = self.r.text.find('"', index, index+100)
         imghash = self.r.text[index + len('img.php?hash='): endIndex]
         return imghash
+
+    def get_url_img_captcha(self, url: str) -> Captcha:
+        if url is None:
+            return None
+
+        self.__go_to_page(url)
+        cap_type = self.__page_captcha_type()
+        hash = self.__get_imagehash()
+
+        if hash is None:
+            return None
+
+        img = self.__get_captcha_image(hash)
+        return Captcha(hash, img, captype=cap_type)
 
     def get_img_captcha(self, page: str) -> Captcha:
         if page is None:
@@ -172,6 +189,34 @@ class RocWebHandler:
 
         return self.__page_captcha_type() == RocWebHandler.CaptchaType.IMAGE
 
+    def _check_incorrect_captcha(self) -> bool:
+        return 'Wrong number' not in self.r.text or \
+            'wrong number' in self.r.text
+
+    def submit_captcha_url(
+            self, captcha: Captcha,
+            url: str,
+            payload: dict = None,
+            manual_page: str = None
+            ) -> bool:
+
+        if payload is None:
+            payload = {}
+
+        payload['captcha'] = captcha.hash
+        if manual_page:
+            x, y = ROCCaptchaSelector().get_xy_static(captcha.ans, manual_page)
+        else:
+            x, y = 0, 0
+        payload['coordinates[x]'] = x
+        payload['coordinates[y]'] = y
+        payload['manual_captcha'] = captcha.ans if manual_page else ''
+        if manual_page is None:
+            payload['num'] = captcha.ans
+
+        self.r = self.session.post(url, payload)
+        return self._check_incorrect_captcha()
+
     def submit_captcha(
             self, captcha: Captcha,
             ans: str,
@@ -184,14 +229,16 @@ class RocWebHandler:
         if payload is None:
             payload = {}
 
-        payload['captcha'] = captcha.hash,
-        payload['coordinates[x]'] = x,
-        payload['coordinates[y]'] = y,
-        payload['num'] = ans,
+        payload['captcha'] = captcha.hash
+        payload['coordinates[x]'] = x
+        payload['coordinates[y]'] = y
+        payload['manual_captcha'] = ''
+        payload['num'] = ans
 
-        self.r = self.session.post(self.site_settings.get_page(page), payload)
-        return 'Wrong number' not in self.r.text or \
-            'wrong number' in self.r.text
+        self.r = self.session.post(self.site_settings[page], payload)
+
+        return self._check_incorrect_captcha()
+
 
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings.get_recruit())
