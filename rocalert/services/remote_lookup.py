@@ -9,10 +9,30 @@ class RemoteCaptcha():
 
     def __get_result(self, url, payload):
         try:
-            resp = requests.get(url, payload).text
+            resp = requests.get(url, json=payload).json()
+            result = resp['Answer']
         except Exception:
-            resp = 'ERROR ACCESSING REMOTE'
-        return resp
+            result = 'ERROR ACCESSING REMOTE'
+        return result
+
+    def __put_result(self, captcha: Captcha):
+        if self.__add_url is None or captcha is None:
+            return
+
+        payload = {
+            'hash': captcha.hash,
+            'answer': captcha.ans}
+
+        try:
+            resp = requests.put(self.__add_url, json=payload)
+            if resp.status_code != 200:
+                result = resp.reason
+            else:
+                result = 'OK'
+        except Exception:
+            result = 'ERROR ACCESSING REMOTE'
+
+        return result
 
     def lookup_remote(self, captcha: Captcha) -> str:
         if self.__lookup_url is None:
@@ -22,8 +42,9 @@ class RemoteCaptcha():
         return self.__get_result(self.__lookup_url, payload)
 
     def add_remote(self, captcha: Captcha) -> str:
-        if self.__add_url is None:
-            return None
+        if captcha.ans is None or captcha.hash is None:
+            return
+        if not captcha.ans_correct:
+            return
 
-        payload = {'hash': captcha.hash, 'answer': captcha.ans}
-        return self.__get_result(self.__add_url, payload)
+        return self.__put_result(captcha)

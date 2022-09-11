@@ -4,7 +4,8 @@ from numpy import random
 class ROCCaptchaSelector():
     __btn_dimensions = (40, 30)
     __keypadTopLeft = {'roc_recruit': [890, 705],
-                       'roc_armory': [973, 1011]}
+                       'roc_armory': [973, 1011],
+                       'roc_attack': [585, 680]}
     __keypadGap = [52, 42]
 
     def __init__(self, resolution=None) -> None:
