@@ -9,14 +9,17 @@ import io
 
 class AutoCaptchaService(RocService):
     """Service that uses 2Captcha for captcha solving"""
-    def __is_twocaptcha_key_invalid(self, twocaptcha_key):
+    @classmethod
+    def __is_twocaptcha_key_invalid(cls, twocaptcha_key):
         return twocaptcha_key is None or len(twocaptcha_key) == 0
 
-    def __create_solver(self, key: str) -> TwoCaptcha:
+    @classmethod
+    def __create_solver(cls, key: str) -> TwoCaptcha:
         solver = TwoCaptcha(key)
         return solver
 
-    def __twocaptcha_solve(self, api_key, img_path) -> str:
+    @classmethod
+    def __twocaptcha_solve(cls, api_key, img_path) -> str:
         ans = None
         response = None
         if self.__is_twocaptcha_key_invalid():
@@ -55,8 +58,9 @@ class AutoCaptchaService(RocService):
                 'answer': Any answer received from service
                 'response': The entire response from 2captcha
         """
+    @classmethod
     def run_service(
-            self,
+            cls,
             roc: RocWebHandler = None,
             settings: UserSettings = None,
             custom_settings: dict = None
@@ -77,7 +81,7 @@ class AutoCaptchaService(RocService):
         img = PIL.Image.open(io.BytesIO(captcha.img))
         path = settings['captcha_save_path'] + captcha.hash + '.png'
         img.save(path)
-        return self.__twocaptcha_solve(api_key, captcha.img)
+        return cls.__twocaptcha_solve(api_key, captcha.img)
 
         """_summary_
         Reports a captcha answer as correct/incorrect to 2captcha service
@@ -90,8 +94,9 @@ class AutoCaptchaService(RocService):
             wascorrect:
                 Validity of the answer to the captcha
         """
+    @classmethod
     def report_captcha(
-            self,
+            cls,
             settings: UserSettings,
             response: dict,
             wascorrect: bool
@@ -107,7 +112,7 @@ class AutoCaptchaService(RocService):
 
         result = 'success'
         try:
-            solver = self.__create_solver(key=api_key)
+            solver = cls.__create_solver(key=api_key)
             solver.report(response['captchaId'], wascorrect)
         except (NetworkException, ApiException) as e:
             result = 'Error reporting captcha: {}'.format(e.args[0])
