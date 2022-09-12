@@ -1,4 +1,5 @@
-from rocalert.rocaccount import ROCTraining, RocItem, ROCAccount, ROCArmory, ROCStats
+from rocalert.rocaccount import ROCTraining, RocItem, \
+    ROCAccount, ROCArmory, ROCStats
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools import ALL_ITEM_DETAILS
@@ -198,15 +199,18 @@ class GetStats(RocService):
                     'commander': 'commander_panel',
                     'officers': 'officers_panel'}
 
-        user_sum = GetStats._get_usersummary(soup, panelids['user_summary'])
-        ulogs = GetStats._get_log(soup, panelids['log'])
-        servertime = GetStats._get_servertime(soup, panelids['servertime'])
-        ustr = GetStats._get_strength(soup, panelids['strength'])
-        totals = GetStats._get_totals
+        stats = {}
+        GetStats._get_usersummary(soup, stats, panelids['user_summary'])
+        GetStats._get_log(soup, stats, panelids['log'])
+        GetStats._get_servertime(soup, stats, panelids['servertime'])
+        GetStats._get_strength(soup, stats, panelids['strength'])
+        GetStats._get_totals(soup, stats, panelids['totals'])
 
-        raise NotImplementedError
+        return ROCStats(stats)
 
-    def _get_usersummary(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_usersummary(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
 
         itemvalues = soup.find(id=id) \
                         .findAll('div', {'class': 'info_value'})
@@ -221,34 +225,53 @@ class GetStats(RocService):
         res['tbg'] = itemvalues[6].text
         return res
 
-    def _get_log(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_log(soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_events(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_events(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_servertime(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_servertime(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_strength(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_strength(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_soldiers(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_soldiers(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_totals(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_totals(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_soldiersource(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_soldiersource(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_alliance(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_alliance(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_commander(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_commander(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
-    def _get_officers(soup: BeautifulSoup, id: str) -> dict[str, str]:
+    @classmethod
+    def _get_officers(
+            soup: BeautifulSoup, stats: dict, id: str) -> dict[str, str]:
         pass
 
 
