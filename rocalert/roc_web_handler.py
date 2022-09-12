@@ -45,6 +45,13 @@ class RocWebHandler:
         IMAGE = 'img'
         EQUATION = 'equation'
 
+    class Pages:
+        TRAINER = 'roc_train'
+        RECRUIT = 'roc_recruit'
+        ARMORY = 'roc_armory'
+        HOME = 'roc_home'
+        LOGIN = 'roc_login'
+
     def __init__(self, roc_site_settings: SiteSettings) -> None:
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
                         + 'Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
@@ -238,7 +245,6 @@ class RocWebHandler:
         self.r = self.session.post(self.site_settings[page], payload)
 
         return self._check_incorrect_captcha()
-
 
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings.get_recruit())
