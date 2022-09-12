@@ -22,14 +22,14 @@ class AutoCaptchaService(RocService):
     def __twocaptcha_solve(cls, api_key, img_path) -> str:
         ans = None
         response = None
-        if self.__is_twocaptcha_key_invalid():
+        if cls.__is_twocaptcha_key_invalid():
             return {
                 'answer': ans,
                 'error': 'ERROR_TWOCAPTCHA_KEY_NOT_SET',
                 'response': response}
 
         try:
-            solver = self.__create_solver(key=api_key)
+            solver = cls.__create_solver(key=api_key)
             hinttext = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)'
             response = solver.normal(img_path, hintText=hinttext)
             ans = response['code']
