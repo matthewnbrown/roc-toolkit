@@ -202,6 +202,7 @@ class GetStats(RocService):
         stats = {}
         GetStats._get_usersummary(soup, stats, panelids['user_summary'])
         GetStats._get_log(soup, stats, panelids['log'])
+        GetStats._get_events(soup, stats, panelids['events'])
         GetStats._get_servertime(soup, stats, panelids['servertime'])
         GetStats._get_strength(soup, stats, panelids['strength'])
         GetStats._get_totals(soup, stats, panelids['totals'])
