@@ -20,7 +20,7 @@ def spyuser(roc: RocWebHandler, userid: str, homeurl: str) -> bool:
     captchares = ManualCaptchaService().run_service(
         roc, None, {'captcha': captcha})
 
-    validans = {1, 2, 3, 4, 5, 6, 7, 8, 9}
+    validans = {str(i) for i in range(1, 10)}
     if 'error' in captchares or captchares['captcha'].ans not in validans:
         return False
 
