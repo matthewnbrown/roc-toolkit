@@ -1,5 +1,6 @@
 from rocalert.roc_settings.settingstools import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
+from rocalert.services.autocaptchaservice import AutoCaptchaService
 from rocalert.services.rocservice import RocService
 from rocalert.rocpurchases.roc_buyer import ROCTrainer
 
@@ -33,6 +34,13 @@ class RocTrainerService(RocService):
         if not trainer.purchase_required(gold):
             return {r: 'failure', e: 'Purchase not required'}
 
+        captcha = roc.get_img_captcha(roc.Pages.TRAINER)
         payload = trainer.create_order_payload(gold)
+
+        if settings.auto_solve_captchas():
+            captcha = AutoCaptchaService.run_service() # TODO: Write params
+
+        roc.submit_captcha(captcha, captcha.ans, roc.Pages.TRAINER, payload)
+
 
         return {r: 'success', 'result': payload}
