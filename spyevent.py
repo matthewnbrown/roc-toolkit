@@ -92,6 +92,10 @@ def spyuser(roc: RocWebHandler, userid: str) -> bool:
     return roc.submit_captcha_url(captcha, targeturl, payload, 'roc_spy')
 
 
+def hit_spy_limit(responsetext: str) -> bool:
+    return 'You cannot recon this person' in responsetext
+
+
 def spyevent(
     rochandler: RocWebHandler,
     user_settings: UserSettings,
@@ -115,8 +119,13 @@ def spyevent(
                 print('Skipping user')
                 continue
 
-            for i in range(10):
-                spyuser(rochandler, user.id)
+            for j in range(10):
+                valid_captcha = spyuser(rochandler, user.id)
+                if not valid_captcha:
+                    j -= 1
+                if hit_spy_limit(rochandler.r.text):
+                    print(f'Hit spy limit for {user.name}')
+                    break
 
 
 def runevent():
@@ -308,7 +317,7 @@ def test_multiimage(
 
     def oncaptchasolve(ans: str):
         print(f'captcha solved with ans {ans}')
-    x, y = 6, 5
+    x, y = 6, 1
 
     startcap = []
 
@@ -320,5 +329,5 @@ def test_multiimage(
     event.start_event()
 
 
-# test_multiimage('D:/', )
-runevent()
+test_multiimage('D:/')
+#runevent()
