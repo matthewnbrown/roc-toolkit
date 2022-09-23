@@ -205,11 +205,63 @@ class SpyEvent:
 
             self._battlefield.extend(user_resp['result'])
 
-    def _clear_usercaptchas(self, user: BattlefieldTarget) -> None:
+    def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
         for captcha in self._usercaptchas[user]:
             del self._captchamap[captcha]
 
+        self._spystatus[user].active_captchas = 0
+        self._spystatus[user].required_captchas = 0
+
+        self._gui.remove_captchas(self._usercaptchas[user])
         del self._usercaptchas[user]
+
+    def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
+        backup = []
+        result = []
+
+        while num_captchas > 0 and len(self._battlefield) > 0:
+            cur_user = self._battlefield.popleft()
+            backup.append(cur_user)
+            count = self._spystatus[cur_user].required_captchas
+            num_captchas -= count
+
+            for i in range(count):
+                cap = self._get_captcha(cur_user)
+
+                if cap is None or cap.hash is None:
+                    i -= 1
+                    print(f'Failed getting captcha for {cur_user.name}')
+                    continue
+
+                self._captchamap[cap] = cur_user
+                self._usercaptchas[cur_user].add(cap)
+                result.append(cap)
+
+        while len(backup) > 0:
+            self._battlefield.appendleft(backup.pop())
+
+        return result
+
+    def _oncaptchasolved(self, captcha: Captcha) -> None:
+        user = self._captchamap[captcha.hash]
+        targeturl = self._get_spy_url(user)
+
+        payload = {
+            'defender_id': user.id,
+            'mission_type': 'recon',
+            'reconspies': 1
+        }
+
+        del self._captchamap[captcha]
+        self._spystatus[user].active_captchas -= 1
+        valid_captcha = self._roc.submit_captcha_url(
+            captcha, targeturl, payload, 'roc_spy')
+
+        if valid_captcha:
+            self._spystatus[user].solved_captchas += 1
+
+        if hit_spy_limit(self._roc.r.text):
+            self._handle_maxed_target(user)
 
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
@@ -223,38 +275,15 @@ class SpyEvent:
             return
 
         def onsolvecallback(captcha: Captcha) -> None:
-            user = self._captchamap[captcha.hash]
-            targeturl = self._get_spy_url(user)
-
-            payload = {
-                'defender_id': user.id,
-                'mission_type': 'recon',
-                'reconspies': 1
-            }
-
-            del self._captchamap[captcha]
-            self._spystatus[user].active_captchas -= 1
-            valid_captcha = self._roc.submit_captcha_url(
-                captcha, targeturl, payload, 'roc_spy')
-
-            if valid_captcha:
-                self._spystatus[user].solved_captchas += 1
-
-            if hit_spy_limit(self._roc.r.text):
-                self._clear_usercaptchas(user)
+            self._oncaptchasolved(captcha)
 
         def getnewcaptchas(desiredcount) -> List[Captcha]:
-            valid_captcha = self._roc
-            if not valid_captcha:
-                pass
-
-            if hit_spy_limit(self._roc.r.text):
-                pass
+            self._getnewcaptchas(desiredcount)
 
         xcount, ycount = 8, 1
         initcaptchas = getnewcaptchas(xcount*ycount)
 
-        MulticaptchaGUI(
+        self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
 
 
