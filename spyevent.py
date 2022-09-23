@@ -243,7 +243,7 @@ class SpyEvent:
         return result
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
-        user = self._captchamap[captcha.hash]
+        user = self._captchamap[captcha]
         del self._captchamap[captcha]
         self._spystatus[user].active_captchas -= 1
 
@@ -255,9 +255,8 @@ class SpyEvent:
             'reconspies': 1
         }
 
-        valid_captcha = True
-        #valid_captcha = self._roc.submit_captcha_url(
-        #    captcha, targeturl, payload, 'roc_spy')
+        valid_captcha = self._roc.submit_captcha_url(
+            captcha, targeturl, payload, 'roc_spy')
 
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
@@ -281,7 +280,7 @@ class SpyEvent:
             self._oncaptchasolved(captcha)
 
         def getnewcaptchas(desiredcount) -> List[Captcha]:
-            self._getnewcaptchas(desiredcount)
+            return self._getnewcaptchas(desiredcount)
 
         xcount, ycount = 8, 1
         initcaptchas = getnewcaptchas(xcount*ycount)
@@ -289,13 +288,15 @@ class SpyEvent:
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
 
+        self._gui.start_event()
+
 
 def _bytesimage_to_photoimage_resize(
         image,
         newx: int = 150,
         newy: int = 150
         ) -> PhotoImage:
-    nparr = np.asarray(image, dtype=np.uint8)
+    nparr = np.frombuffer(image, dtype=np.uint8)
     img_np = cv2.imdecode(nparr, cv2.IMREAD_GRAYSCALE)
     img_np_resize = cv2.resize(
                     img_np, (newx, newy), fx=0, fy=0,
