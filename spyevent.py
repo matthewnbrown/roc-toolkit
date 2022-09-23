@@ -1,4 +1,4 @@
-from collections import deque
+from collections import defaultdict, deque
 from functools import partial
 from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
 import cv2
@@ -147,6 +147,15 @@ def runevent():
 
 
 class SpyEvent:
+    class SpyStatus:
+        def __init__(self) -> None:
+            self.active_captchas = 0
+            self.solved_captchas = 0
+
+        @property
+        def required_captchas(self):
+            return max(10 - self.solved_captchas - self.active_captchas, 0)
+
     def __init__(
             self,
             roc: RocWebHandler,
@@ -170,6 +179,7 @@ class SpyEvent:
         self._onlyspylist = onlyspylist
         self._restrictedtargets = onlyspylist and len(onlyspylist) > 0
         self._captchamap = {}
+        self._spystatus = defaultdict(self.SpyStatus)
 
     def _hit_spy_limit(responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
@@ -215,8 +225,13 @@ class SpyEvent:
                 'reconspies': 1
             }
 
+            del self._captchamap[captcha]
+            self._spystatus[user].active_captchas -= 1
             valid_captcha = self._roc.submit_captcha_url(
                 captcha, targeturl, payload, 'roc_spy')
+
+            if valid_captcha:
+                self._spystatus[user].solved_captchas += 1
 
             if hit_spy_limit(self._roc.r.text):
                 print(f'Hit spy limit for {user.name}')
@@ -226,7 +241,7 @@ class SpyEvent:
             if not valid_captcha:
                 pass
 
-            if hit_spy_limit(rochandler.r.text):
+            if hit_spy_limit(self._roc.r.text):
                 print(f'Hit spy limit for {user.name}')
 
         xcount, ycount = 8, 1
