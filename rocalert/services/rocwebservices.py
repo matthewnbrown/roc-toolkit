@@ -11,7 +11,7 @@ def _cleanstr_to_int(num: str) -> int:
 class BattlefieldPageService():
 
     @classmethod
-    def run_service(cls, roc: RocWebHandler, pagenum: int) -> dict:
+    def run_service(cls, roc: RocWebHandler, pagenum: int) -> Dict:
         pageurl = roc.site_settings['roc_home'] + \
             f'/battlefield.php?p={pagenum}'
 
