@@ -402,6 +402,17 @@ class MulticaptchaGUI:
     def _end_event(self) -> None:
         self._root.destroy()
 
+    def _remove_captcha(self, captcha: Captcha) -> None:
+        index = self._captchas.index(captcha)
+        del self._captchas[index]
+        del self._images[index]
+
+    def remove_captchas(self, captchas: Iterable) -> None:
+        for captcha in captchas:
+            self.remove_captcha(captcha)
+
+        self._update_captcha_view()
+
     def start_event(self) -> None:
         self._root.mainloop()
 
