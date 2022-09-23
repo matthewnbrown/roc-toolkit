@@ -244,6 +244,9 @@ class SpyEvent:
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
         user = self._captchamap[captcha.hash]
+        del self._captchamap[captcha]
+        self._spystatus[user].active_captchas -= 1
+
         targeturl = self._get_spy_url(user)
 
         payload = {
@@ -252,15 +255,12 @@ class SpyEvent:
             'reconspies': 1
         }
 
-        del self._captchamap[captcha]
-        self._spystatus[user].active_captchas -= 1
         valid_captcha = self._roc.submit_captcha_url(
             captcha, targeturl, payload, 'roc_spy')
 
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
-
-        if hit_spy_limit(self._roc.r.text):
+        elif hit_spy_limit(self._roc.r.text):
             self._handle_maxed_target(user)
 
     def start_event(self) -> None:
