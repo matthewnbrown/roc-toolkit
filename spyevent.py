@@ -1,27 +1,23 @@
 from collections import defaultdict, deque
+from typing import Callable, Iterable, List, Set
+from os.path import exists
 from functools import partial
-from threading import Thread
-import threading
-from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
+from threading import Thread, Lock
+from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW, Event
+from PIL import Image, ImageTk
 import cv2
 import numpy as np
-import tkinter
-from typing import Callable, Deque, Iterable, List, Set
-from PIL import Image, ImageTk
 
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
-from rocalert.services.manualcaptchaservice import ManualCaptchaService
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
-from os.path import exists
-
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 # Comma separated ids
-skip_ids = {1,2,3}
+skip_ids = {1, 2, 3}
 onlyspy_ids = {}
 cookie_filename = 'cookies'
 
@@ -75,82 +71,6 @@ def login(roc: RocWebHandler, us: UserSettings):
         return False
 
 
-def spyuser(roc: RocWebHandler, userid: str) -> bool:
-    targeturl = roc.site_settings['roc_home'] \
-        + f'/attack.php?id={userid}&mission_type=recon'
-    captcha = roc.get_url_img_captcha(targeturl)
-    if captcha is None:
-        return False
-
-    captchares = ManualCaptchaService().run_service(
-        roc, None, {'captcha': captcha})
-
-    validans = {str(i) for i in range(1, 10)}
-    if 'error' in captchares or captchares['captcha'].ans not in validans:
-        return False
-
-    payload = {
-        'defender_id': userid,
-        'mission_type': 'recon',
-        'reconspies': 1
-    }
-
-    return roc.submit_captcha_url(captcha, targeturl, payload, 'roc_spy')
-
-
-def hit_spy_limit(responsetext: str) -> bool:
-    return 'You cannot recon this person' in responsetext
-
-
-def spyevent(
-    rochandler: RocWebHandler,
-    user_settings: UserSettings,
-        ) -> None:
-
-    if not login(rochandler, user_settings):
-        print('Error logging in.')
-        quit()
-
-    i = 1
-    while True:
-        userlist = BattlefieldPageService.run_service(rochandler, i)
-        i += 1
-        if userlist['response'] == 'error':
-            print('Finished.')
-            break
-
-        for user in userlist['result']:
-            print(f'Current target: {user.name}')
-            if int(user.id) in skip_ids:
-                print('Skipping user')
-                continue
-
-            for j in range(10):
-                valid_captcha = spyuser(rochandler, user.id)
-                if not valid_captcha:
-                    j -= 1
-                if hit_spy_limit(rochandler.r.text):
-                    print(f'Hit spy limit for {user.name}')
-                    break
-
-
-def runevent():
-    user_settings_fp = 'user.settings'
-    site_settings_fp = 'site.settings'
-    buyer_settings_fp = 'buyer.settings'
-
-    if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp, buyer_settings_fp):
-        print("Exiting. Please fill out settings files")
-        quit()
-
-    user_settings = UserSettings(filepath=user_settings_fp)
-    site_settings = SiteSettings(filepath=site_settings_fp)
-    rochandler = RocWebHandler(site_settings)
-
-    spyevent(rochandler, user_settings)
-
-
 class SpyEvent:
     class SpyStatus:
         def __init__(self) -> None:
@@ -186,9 +106,9 @@ class SpyEvent:
         self._captchamap = {}
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
-        self._bflock = threading.Lock()
+        self._bflock = Lock()
         self._battlefield = None
-        self._captchamaplock = threading.Lock()
+        self._captchamaplock = Lock()
         self._updating_captchas = False
 
     def _hit_spy_limit(responsetext: str) -> bool:
@@ -290,16 +210,15 @@ class SpyEvent:
             'reconspies': 1
         }
 
-        valid_captcha = True
-        #valid_captcha = self._roc.submit_captcha_url(
-        #    captcha, targeturl, payload, 'roc_spy')
+        valid_captcha = self._roc.submit_captcha_url(
+            captcha, targeturl, payload, 'roc_spy')
 
         self._captchamaplock.acquire()
         del self._captchamap[captcha]
         self._spystatus[user].active_captchas -= 1
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
-        elif hit_spy_limit(self._roc.r.text):
+        elif self._hit_spy_limit(self._roc.r.text):
             self._handle_maxed_target(user)
         self._captchamaplock.release()
 
@@ -373,8 +292,8 @@ class MulticaptchaGUI:
         self._root = Tk()
         self._root.call('wm', 'attributes', '.', '-topmost', '1')
 
-        self._update_view_lock = threading.Lock()
-        self._modifycaptchas_lock = threading.Lock()
+        self._update_view_lock = Lock()
+        self._modifycaptchas_lock = Lock()
 
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
@@ -443,7 +362,7 @@ class MulticaptchaGUI:
             self._getcaptchas(
                 self._captchawindowscount*2 - len(self._captchas))
 
-    def __on_keypress(self, event: tkinter.EventType.KeyPress):
+    def __on_keypress(self, event: Event):
         key = event.keysym
         if key.isnumeric() and int(key) > 0:
             self._answer_selected(key)
@@ -504,7 +423,7 @@ class MulticaptchaGUI:
 
     def start_event(self) -> None:
         self._root.mainloop()
-    
+
     def end_event(self) -> None:
         self._root.destroy()
 
