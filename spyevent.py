@@ -159,8 +159,8 @@ class SpyEvent:
     def __init__(
             self,
             roc: RocWebHandler,
-            skiplist: Set[str] = Set(),
-            onlyspylist: Set[str] = Set()
+            skiplist: Set[str] = set(),
+            onlyspylist: Set[str] = set()
             ) -> None:
         """_summary_
 
@@ -198,7 +198,7 @@ class SpyEvent:
         pagenum = 1
         self._battlefield = deque()
         while True:
-            user_resp = BattlefieldPageService.run_service(self._roc, 1)
+            user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
             pagenum += 1
             if user_resp['response'] == 'error':
                 return
@@ -255,8 +255,9 @@ class SpyEvent:
             'reconspies': 1
         }
 
-        valid_captcha = self._roc.submit_captcha_url(
-            captcha, targeturl, payload, 'roc_spy')
+        valid_captcha = True
+        #valid_captcha = self._roc.submit_captcha_url(
+        #    captcha, targeturl, payload, 'roc_spy')
 
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
@@ -273,6 +274,8 @@ class SpyEvent:
         if len(self._battlefield) == 0:
             print("Error: could not get battlefield")
             return
+        else:
+            print(f"Detected {len(self._battlefield)} users.")
 
         def onsolvecallback(captcha: Captcha) -> None:
             self._oncaptchasolved(captcha)
@@ -505,6 +508,6 @@ def runevent_new():
     event.start_event()
 
 
-test_multiimage('D:/')
+#test_multiimage('D:/')
 # runevent()
-# runevent_new()
+runevent_new()
