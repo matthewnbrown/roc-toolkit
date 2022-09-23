@@ -179,6 +179,7 @@ class SpyEvent:
         self._onlyspylist = onlyspylist
         self._restrictedtargets = onlyspylist and len(onlyspylist) > 0
         self._captchamap = {}
+        self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
 
     def _hit_spy_limit(responsetext: str) -> bool:
@@ -203,6 +204,12 @@ class SpyEvent:
                 return
 
             self._battlefield.extend(user_resp['result'])
+
+    def _clear_usercaptchas(self, user: BattlefieldTarget) -> None:
+        for captcha in self._usercaptchas[user]:
+            del self._captchamap[captcha]
+
+        del self._usercaptchas[user]
 
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
@@ -234,7 +241,7 @@ class SpyEvent:
                 self._spystatus[user].solved_captchas += 1
 
             if hit_spy_limit(self._roc.r.text):
-                print(f'Hit spy limit for {user.name}')
+                self._clear_usercaptchas(user)
 
         def getnewcaptchas(desiredcount) -> List[Captcha]:
             valid_captcha = self._roc
@@ -242,7 +249,7 @@ class SpyEvent:
                 pass
 
             if hit_spy_limit(self._roc.r.text):
-                print(f'Hit spy limit for {user.name}')
+                pass
 
         xcount, ycount = 8, 1
         initcaptchas = getnewcaptchas(xcount*ycount)
