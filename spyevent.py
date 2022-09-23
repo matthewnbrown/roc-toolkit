@@ -15,7 +15,7 @@ from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.services.manualcaptchaservice import ManualCaptchaService
 from rocalert.cookiehelper import load_cookies_from_path, \
-    load_cookies_from_browser
+    load_cookies_from_browser, save_cookies_to_path
 from os.path import exists
 
 from rocalert.services.rocwebservices import BattlefieldPageService
@@ -54,6 +54,7 @@ def login(roc: RocWebHandler, us: UserSettings):
     if __load_browser_cookies(roc, us) and roc.is_logged_in():
         __log('Successfully pulled cookie from {}'.format(
             us.get_setting('browser')))
+        save_cookies_to_path(roc.get_cookies(), cookie_filename)
         return True
 
     if __load_cookies_file(roc, cookie_filename) and roc.is_logged_in():
@@ -67,6 +68,7 @@ def login(roc: RocWebHandler, us: UserSettings):
 
     if roc.is_logged_in():
         __log("Login success.")
+        save_cookies_to_path(roc.get_cookies(), cookie_filename)
         return True
     else:
         __log("Login failure.")
@@ -187,6 +189,7 @@ class SpyEvent:
         self._bflock = threading.Lock()
         self._battlefield = None
         self._captchamaplock = threading.Lock()
+        self._updating_captchas = False
 
     def _hit_spy_limit(responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
@@ -246,7 +249,9 @@ class SpyEvent:
                 self._captchamaplock.acquire()
                 self._captchamap[cap] = cur_user
                 self._usercaptchas[cur_user].add(cap)
+                self._spystatus[cur_user].active_captchas += 1
                 self._captchamaplock.release()
+
                 result.append(cap)
 
         while len(backup) > 0:
@@ -258,14 +263,23 @@ class SpyEvent:
         self._gui.add_captchas(captchas)
 
     def _getsend_captchas(self, count) -> None:
-        caps = self._getnewcaptchas(count)
-        self._send_captchas_to_gui(caps)
+        self._captchamaplock.acquire()
+        updating = self._updating_captchas
+
+        if not updating:
+            self._updating_captchas = True
+        self._captchamaplock.release()
+
+        if not updating:
+            caps = self._getnewcaptchas(count)
+            self._send_captchas_to_gui(caps)
+            self._captchamaplock.acquire()
+            self._updating_captchas = False
+            self._captchamaplock.release()
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
         self._captchamaplock.acquire()
         user = self._captchamap[captcha]
-        del self._captchamap[captcha]
-        self._spystatus[user].active_captchas -= 1
         self._captchamaplock.release()
 
         targeturl = self._get_spy_url(user)
@@ -281,6 +295,8 @@ class SpyEvent:
         #    captcha, targeturl, payload, 'roc_spy')
 
         self._captchamaplock.acquire()
+        del self._captchamap[captcha]
+        self._spystatus[user].active_captchas -= 1
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
         elif hit_spy_limit(self._roc.r.text):
@@ -421,8 +437,11 @@ class MulticaptchaGUI:
 
         self._update_view_lock.release()
 
-    def _add_new_captchas(self) -> None:
-        self._getcaptchas(self._captchawindowscount - len(self._captchas))
+    def _get_new_captchas(self) -> None:
+        diff = self._captchawindowscount*2 - len(self._captchas)
+        if diff > 0:
+            self._getcaptchas(
+                self._captchawindowscount*2 - len(self._captchas))
 
     def __on_keypress(self, event: tkinter.EventType.KeyPress):
         key = event.keysym
@@ -443,6 +462,9 @@ class MulticaptchaGUI:
                 but.grid(row=i, column=j)
 
     def _answer_selected(self, answer: str) -> None:
+        if len(self._images) <= 0:
+            return
+
         self._modifycaptchas_lock.acquire()
         self._images.popleft()
         cap = self._captchas.popleft()
@@ -450,7 +472,8 @@ class MulticaptchaGUI:
 
         cap.ans = answer
         self._onselect(cap)
-        self._add_new_captchas()
+        self._get_new_captchas()
+        self._update_captcha_view()
 
     def _remove_captcha(self, captcha: Captcha) -> None:
         index = self._captchas.index(captcha)
@@ -459,7 +482,7 @@ class MulticaptchaGUI:
 
     def add_captchas(self, newcaptchas: List[Captcha]) -> None:
         self._modifycaptchas_lock.acquire()
-
+        print(f'Adding {len(newcaptchas)} captchas')
         no_caps = len(self._images) == 0
 
         newimgs = self._create_imgs_from_captchas(newcaptchas)
