@@ -4,7 +4,7 @@ from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
 import cv2
 import numpy as np
 import tkinter
-from typing import Callable, Deque, Iterable, List
+from typing import Callable, Deque, Iterable, List, Set
 from PIL import Image, ImageTk
 
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
@@ -20,7 +20,7 @@ from rocalert.services.rocwebservices import BattlefieldPageService
 
 # Comma separated ids
 skip_ids = {1,2,3}
-
+onlyspy_ids = {}
 cookie_filename = 'cookies'
 
 
@@ -159,17 +159,17 @@ class SpyEvent:
     def __init__(
             self,
             roc: RocWebHandler,
-            skiplist: List[str] = None,
-            onlyspylist: List[str] = None
+            skiplist: Set[str] = Set(),
+            onlyspylist: Set[str] = Set()
             ) -> None:
         """_summary_
 
         Args:
             roc (RocWebHandler): _description_
                 ROC session to use for spy event
-            skiplist (List[str], optional): _description_. Defaults to None.
+            skiplist (Set[str], optional): _description_. Default: Set().
                 List of user IDs to not spy
-            onlyspylist (List[str], optional): _description_. Defaults to None.
+            onlyspylist (Set[str], optional): _description_. Default: Set().
                 List of user IDs that will only be spied on.
                 All other users will be skipped if this
                 parameter is not None or an empty list
@@ -501,7 +501,8 @@ def runevent_new():
         print('Error logging in.')
         quit()
 
-    pass
+    event = SpyEvent(rochandler, skip_ids, onlyspy_ids)
+    event.start_event()
 
 
 test_multiimage('D:/')
