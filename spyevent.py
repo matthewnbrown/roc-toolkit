@@ -1,5 +1,7 @@
 from collections import defaultdict, deque
 from functools import partial
+from threading import Thread
+import threading
 from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
 import cv2
 import numpy as np
@@ -181,6 +183,9 @@ class SpyEvent:
         self._captchamap = {}
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
+        self._bflock = threading.Lock()
+        self._battlefield = None
+        self._captchamaplock = threading.Lock()
 
     def _hit_spy_limit(responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
@@ -195,17 +200,20 @@ class SpyEvent:
             + f'/attack.php?id={user.id}&mission_type=recon'
 
     def _get_all_users(self) -> None:
+        self._bflock.acquire()
         pagenum = 1
-        self._battlefield = deque()
+        self._battlefield = self._battlefield if self._battlefield else deque()
         while True:
             user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
             pagenum += 1
             if user_resp['response'] == 'error':
+                self._bflock.release()
                 return
 
             self._battlefield.extend(user_resp['result'])
 
     def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
+        self._captchamaplock.acquire()
         for captcha in self._usercaptchas[user]:
             del self._captchamap[captcha]
 
@@ -214,11 +222,12 @@ class SpyEvent:
 
         self._gui.remove_captchas(self._usercaptchas[user])
         del self._usercaptchas[user]
+        self._captchamaplock.release()
 
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         backup = []
         result = []
-
+        self._bflock.acquire()
         while num_captchas > 0 and len(self._battlefield) > 0:
             cur_user = self._battlefield.popleft()
             backup.append(cur_user)
@@ -233,19 +242,30 @@ class SpyEvent:
                     print(f'Failed getting captcha for {cur_user.name}')
                     continue
 
+                self._captchamaplock.acquire()
                 self._captchamap[cap] = cur_user
                 self._usercaptchas[cur_user].add(cap)
+                self._captchamaplock.release()
                 result.append(cap)
 
         while len(backup) > 0:
             self._battlefield.appendleft(backup.pop())
-
+        self._bflock.release()
         return result
 
+    def _send_captchas_to_gui(self, captchas: List[Captcha]) -> None:
+        self._gui.add_captchas(captchas)
+
+    def _getsend_captchas(self, count) -> None:
+        caps = self._getnewcaptchas(count)
+        self._send_captchas_to_gui(caps)
+
     def _oncaptchasolved(self, captcha: Captcha) -> None:
+        self._captchamaplock.acquire()
         user = self._captchamap[captcha]
         del self._captchamap[captcha]
         self._spystatus[user].active_captchas -= 1
+        self._captchamaplock.release()
 
         targeturl = self._get_spy_url(user)
 
@@ -255,13 +275,16 @@ class SpyEvent:
             'reconspies': 1
         }
 
-        valid_captcha = self._roc.submit_captcha_url(
-            captcha, targeturl, payload, 'roc_spy')
+        valid_captcha = True
+        #valid_captcha = self._roc.submit_captcha_url(
+        #    captcha, targeturl, payload, 'roc_spy')
 
+        self._captchamaplock.acquire()
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
         elif hit_spy_limit(self._roc.r.text):
             self._handle_maxed_target(user)
+        self._captchamaplock.release()
 
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
@@ -277,10 +300,12 @@ class SpyEvent:
             print(f"Detected {len(self._battlefield)} users.")
 
         def onsolvecallback(captcha: Captcha) -> None:
-            self._oncaptchasolved(captcha)
+            t = Thread(target=self._oncaptchasolved, args=[captcha])
+            t.start()
 
         def getnewcaptchas(desiredcount) -> List[Captcha]:
-            return self._getnewcaptchas(desiredcount)
+            t = Thread(target=self._getsend_captchas, args=[desiredcount])
+            t.start()
 
         xcount, ycount = 8, 1
         initcaptchas = getnewcaptchas(xcount*ycount)
@@ -328,6 +353,9 @@ class MulticaptchaGUI:
         """
         self._root = Tk()
         self._root.call('wm', 'attributes', '.', '-topmost', '1')
+
+        self._update_view_lock = threading.Lock()
+        self._modifycaptchas_lock = threading.Lock()
 
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
@@ -377,6 +405,8 @@ class MulticaptchaGUI:
         return self._xcaptchacount * self._ycaptchacount
 
     def _update_captcha_view(self) -> None:
+        self._update_view_lock.acquire()
+
         for i in range(min(len(self._captchas), self._captchawindowscount)):
             self._canvases[i].delete('all')
             self._canvases[i].create_image(0, 0,
@@ -386,19 +416,10 @@ class MulticaptchaGUI:
         for i in range(self._captchawindowscount - len(self._captchas)):
             self._canvases[self._captchawindowscount - i-1].delete('all')
 
+        self._update_view_lock.release()
+
     def _add_new_captchas(self) -> None:
-        newcaptachas = self._getcaptchas(
-            self._captchawindowscount - len(self._captchas))
-        newimgs = self._create_imgs_from_captchas(newcaptachas)
-        self._captchas.extend(newcaptachas)
-        self._images.extend(newimgs)
-
-        while len(newcaptachas) > 0 and \
-                len(self._captchas) < self._captchawindowscount:
-            newcaptachas = self._getcaptchas()
-            self._captchas.extend(newcaptachas)
-
-        self._update_captcha_view()
+        self._getcaptchas(self._captchawindowscount - len(self._captchas))
 
     def __on_keypress(self, event: tkinter.EventType.KeyPress):
         key = event.keysym
@@ -418,36 +439,48 @@ class MulticaptchaGUI:
                 but = Button(root, text=num, command=action_with_arg)
                 but.grid(row=i, column=j)
 
-    def _check_finished(self) -> None:
-        if len(self._captchas) == 0:
-            self._end_event()
-
     def _answer_selected(self, answer: str) -> None:
+        self._modifycaptchas_lock.acquire()
         self._images.popleft()
         cap = self._captchas.popleft()
+        self._modifycaptchas_lock.release()
 
         cap.ans = answer
         self._onselect(cap)
         self._add_new_captchas()
-
-        self._check_finished()
-
-    def _end_event(self) -> None:
-        self._root.destroy()
 
     def _remove_captcha(self, captcha: Captcha) -> None:
         index = self._captchas.index(captcha)
         del self._captchas[index]
         del self._images[index]
 
+    def add_captchas(self, newcaptchas: List[Captcha]) -> None:
+        self._modifycaptchas_lock.acquire()
+
+        no_caps = len(self._images) == 0
+
+        newimgs = self._create_imgs_from_captchas(newcaptchas)
+        self._captchas.extend(newcaptchas)
+        self._images.extend(newimgs)
+
+        if no_caps:
+            self._update_captcha_view()
+
+        self._modifycaptchas_lock.release()
+
     def remove_captchas(self, captchas: Iterable) -> None:
+        self._modifycaptchas_lock.acquire()
         for captcha in captchas:
-            self.remove_captcha(captcha)
+            self._remove_captcha(captcha)
 
         self._update_captcha_view()
+        self._modifycaptchas_lock.release()
 
     def start_event(self) -> None:
         self._root.mainloop()
+    
+    def end_event(self) -> None:
+        self._root.destroy()
 
 
 def test_multiimage(
@@ -509,6 +542,6 @@ def runevent_new():
     event.start_event()
 
 
-#test_multiimage('D:/')
+# test_multiimage('D:/')
 # runevent()
 runevent_new()
