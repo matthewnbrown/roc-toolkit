@@ -299,16 +299,18 @@ class SpyEvent:
         else:
             print(f"Detected {len(self._battlefield)} users.")
 
-        def onsolvecallback(captcha: Captcha) -> None:
+        def onsolvecallback(captcha: Captcha) -> Thread:
             t = Thread(target=self._oncaptchasolved, args=[captcha])
             t.start()
+            return t
 
-        def getnewcaptchas(desiredcount) -> List[Captcha]:
+        def getnewcaptchas(desiredcount) -> Thread:
             t = Thread(target=self._getsend_captchas, args=[desiredcount])
             t.start()
+            return t
 
         xcount, ycount = 8, 1
-        initcaptchas = getnewcaptchas(xcount*ycount)
+        initcaptchas = self._getnewcaptchas(xcount*ycount*2)
 
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
