@@ -67,6 +67,7 @@ def login(roc: RocWebHandler, us: UserSettings):
 
     if roc.is_logged_in():
         __log("Login success.")
+        return True
     else:
         __log("Login failure.")
         return False
