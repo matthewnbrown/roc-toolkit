@@ -4,12 +4,13 @@ from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
 import cv2
 import numpy as np
 import tkinter
-from typing import Callable, Iterable, List
+from typing import Callable, Deque, Iterable, List
 from PIL import Image, ImageTk
 
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import Captcha, RocWebHandler
+from rocalert.rocaccount import BattlefieldTarget
 from rocalert.services.manualcaptchaservice import ManualCaptchaService
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
@@ -145,6 +146,96 @@ def runevent():
     spyevent(rochandler, user_settings)
 
 
+class SpyEvent:
+    def __init__(
+            self,
+            roc: RocWebHandler,
+            skiplist: List[str] = None,
+            onlyspylist: List[str] = None
+            ) -> None:
+        """_summary_
+
+        Args:
+            roc (RocWebHandler): _description_
+                ROC session to use for spy event
+            skiplist (List[str], optional): _description_. Defaults to None.
+                List of user IDs to not spy
+            onlyspylist (List[str], optional): _description_. Defaults to None.
+                List of user IDs that will only be spied on.
+                All other users will be skipped if this
+                parameter is not None or an empty list
+        """
+        self._roc = roc
+        self._skiplist = skiplist
+        self._onlyspylist = onlyspylist
+        self._restrictedtargets = onlyspylist and len(onlyspylist) > 0
+        self._captchamap = {}
+
+    def _hit_spy_limit(responsetext: str) -> bool:
+        return 'You cannot recon this person' in responsetext
+
+    def _get_captcha(self, user: BattlefieldTarget) -> Captcha:
+        url = self._get_spy_url(user)
+        captcha = self._roc.get_url_img_captcha(url)
+        return captcha
+
+    def _get_spy_url(self, user: BattlefieldTarget) -> str:
+        return self._roc.site_settings['roc_home'] \
+            + f'/attack.php?id={user.id}&mission_type=recon'
+
+    def _get_all_users(self) -> None:
+        pagenum = 1
+        self._battlefield = deque()
+        while True:
+            user_resp = BattlefieldPageService.run_service(self._roc, 1)
+            pagenum += 1
+            if user_resp['response'] == 'error':
+                return
+
+            self._battlefield.extend(user_resp['result'])
+
+    def start_event(self) -> None:
+        if not self._roc.is_logged_in():
+            print('Error: Could not start event. ROC is not logged in')
+            return
+
+        self._get_all_users()
+
+        if len(self._battlefield) == 0:
+            print("Error: could not get battlefield")
+            return
+
+        def onsolvecallback(captcha: Captcha) -> None:
+            user = self._captchamap[captcha.hash]
+            targeturl = self._get_spy_url(user)
+
+            payload = {
+                'defender_id': user.id,
+                'mission_type': 'recon',
+                'reconspies': 1
+            }
+
+            valid_captcha = self._roc.submit_captcha_url(
+                captcha, targeturl, payload, 'roc_spy')
+
+            if hit_spy_limit(self._roc.r.text):
+                print(f'Hit spy limit for {user.name}')
+
+        def getnewcaptchas(desiredcount) -> List[Captcha]:
+            valid_captcha = self._roc
+            if not valid_captcha:
+                pass
+
+            if hit_spy_limit(rochandler.r.text):
+                print(f'Hit spy limit for {user.name}')
+
+        xcount, ycount = 8, 1
+        initcaptchas = getnewcaptchas(xcount*ycount)
+
+        MulticaptchaGUI(
+            initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
+
+
 def _bytesimage_to_photoimage_resize(
         image,
         newx: int = 150,
@@ -241,7 +332,8 @@ class MulticaptchaGUI:
             self._canvases[self._captchawindowscount - i-1].delete('all')
 
     def _add_new_captchas(self) -> None:
-        newcaptachas = self._getcaptchas()
+        newcaptachas = self._getcaptchas(
+            self._captchawindowscount - len(self._captchas))
         newimgs = self._create_imgs_from_captchas(newcaptachas)
         self._captchas.extend(newcaptachas)
         self._images.extend(newimgs)
@@ -329,5 +421,27 @@ def test_multiimage(
     event.start_event()
 
 
+def runevent_new():
+    user_settings_fp = 'user.settings'
+    site_settings_fp = 'site.settings'
+    buyer_settings_fp = 'buyer.settings'
+
+    if SettingsFileMaker.needs_user_setup(
+            user_settings_fp, site_settings_fp, buyer_settings_fp):
+        print("Exiting. Please fill out settings files")
+        quit()
+
+    user_settings = UserSettings(filepath=user_settings_fp)
+    site_settings = SiteSettings(filepath=site_settings_fp)
+    rochandler = RocWebHandler(site_settings)
+
+    if not login(rochandler, user_settings):
+        print('Error logging in.')
+        quit()
+
+    pass
+
+
 test_multiimage('D:/')
-#runevent()
+# runevent()
+# runevent_new()
