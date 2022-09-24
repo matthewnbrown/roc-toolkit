@@ -17,7 +17,7 @@ from rocalert.cookiehelper import load_cookies_from_path, \
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 # Comma separated ids
-skip_ids = {1, 2, 3}
+skip_ids = {7530}
 onlyspy_ids = {}
 cookie_filename = 'cookies'
 
