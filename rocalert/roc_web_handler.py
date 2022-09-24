@@ -15,8 +15,9 @@ class Captcha:
         TEXT = 'text'
         IMAGE = 'img'
         EQUATION = 'equation'
+
     def __init__(
-            self, hash: str, img, ans: str = '-1',
+            self, hash: str, img: bytes = None, ans: str = '-1',
             correct: bool = False, captype: str = None
             ) -> None:
 
@@ -235,6 +236,8 @@ class RocWebHandler:
 
         return self._check_incorrect_captcha()
 
+    def get_imgcap_from_hash(self, hash: str) -> bytes:
+        return self.__get_captcha_image(hash)
 
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings['roc_recruit'])
