@@ -1,11 +1,11 @@
 from abc import abstractmethod, abstractproperty
+from typing import Dict
 
 
 class RocCaptcha:
-    def __init__(self) -> None:
-        super().__init__()
-        self._answer = None
-        self._payload = None
+    def __init__(self, answer, correct: bool = None) -> None:
+        self._answer = answer
+        self._correct = correct
 
     @property
     def is_solved(self) -> bool:
@@ -19,17 +19,49 @@ class RocCaptcha:
     def answer(self, new_answer) -> None:
         raise NotImplementedError
 
+    @property
+    def correct(self) -> bool:
+        return self._correct
+
+    @correct.setter
+    def correct(self, iscorrect: bool) -> None:
+        self._correct = iscorrect
+
     @abstractmethod
-    def get_payload(self):
+    def get_payload(self) -> Dict:
         raise NotImplementedError
 
 
 class ImageCaptcha(RocCaptcha):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(
+            self, hash: str, image: bytes = None,
+            answer: str = None, correct: bool = None
+            ) -> None:
+        super().__init__(answer, correct)
 
-    def get_payload(self):
-        return super().get_payload()
+        self._hash = hash
+        self._image = image
+        self._answer = answer
+        self._correct = correct
+
+    @property
+    def image(self) -> bytes:
+        return self._image
+
+    @image.setter
+    def image(self, image: bytes) -> None:
+        self._image = image
+
+    @property
+    def answer(self) -> bytes:
+        return self._answer
+
+    @answer.setter
+    def answer(self, newans: bytes) -> None:
+        self._answer = newans
+
+    def get_payload(self) -> Dict:
+        pass
 
 
 class EquationCaptcha(RocCaptcha):
