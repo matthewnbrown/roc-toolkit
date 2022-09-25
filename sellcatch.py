@@ -94,9 +94,11 @@ def attack(roc: RocWebHandler, id: str) -> bool:
 
     mcs = ManualCaptchaService()
     r = mcs.run_service(None, None, {'captcha': captcha})
-
+    
     if 'captcha' not in r or r['captcha'] is None:
         raise Exception('No captcha received from service')
+    captcha = r['captcha']
+    print(f'Received answer: \'{captcha.ans}\'')
 
     payload = {
         'defender_id': id,
