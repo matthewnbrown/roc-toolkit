@@ -207,8 +207,8 @@ class RocWebHandler:
             x, y = 0, 0
         payload['coordinates[x]'] = x
         payload['coordinates[y]'] = y
-        payload['manual_captcha'] = captcha.ans if manual_page else ''
-        if manual_page is None:
+        payload['manualcaptcha'] = captcha.ans if not manual_page else ''
+        if manual_page:
             payload['num'] = captcha.ans
 
         self.r = self.session.post(url, payload)
