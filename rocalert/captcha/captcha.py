@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class Captcha(ABC):
+class RocCaptcha(ABC):
     def __init__(self) -> None:
         super().__init__()
 
@@ -10,7 +10,7 @@ class Captcha(ABC):
         raise NotImplementedError('get_payload is not implemented')
 
 
-class ImageCaptcha(Captcha):
+class ImageCaptcha(RocCaptcha):
     def __init__(self) -> None:
         super().__init__()
 
@@ -18,7 +18,7 @@ class ImageCaptcha(Captcha):
         return super().get_payload()
 
 
-class EquationCaptcha(Captcha):
+class EquationCaptcha(RocCaptcha):
     def __init__(self) -> None:
         super().__init__()
 
@@ -26,6 +26,6 @@ class EquationCaptcha(Captcha):
         return super().get_payload()
 
 
-class TextCaptcha(Captcha):
+class TextCaptcha(RocCaptcha):
     def __init__(self) -> None:
         super().__init__()
