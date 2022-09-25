@@ -1,6 +1,8 @@
-from typing import Dict, Iterable, List
+from collections import deque
+from typing import Dict, Iterable, List, Tuple
+from urllib import response
 from bs4 import BeautifulSoup
-from rocalert.roc_web_handler import RocWebHandler
+from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 
 
@@ -80,3 +82,81 @@ class BattlefieldPageService():
             _cleanstr_to_int(tff_gold[1].text.strip().split(' ')[0])
 
         return BattlefieldTarget(id, rank, name, alliance, tff, tfftype, gold)
+
+
+class SpyResult:
+    SUCCESS = 0
+    FAILURE = 1
+    WRONG_CAPTCHA = 2
+    ADMIN = 3
+    UNKNOWN = -1
+    ERROR = -2
+
+    def __init__(
+            self,
+            result: int,
+            resp: response = None,
+            error: str = None
+            ) -> None:
+        self.result = result
+        self.response = resp
+        self.error = error
+
+
+class SpyService():
+    def __init__(
+            self,
+            roc: RocWebHandler,
+            targets: List[Tuple[BattlefieldTarget, Captcha]] = []
+            ) -> None:
+        self._roc = roc
+        self._targets = deque(targets)
+
+    def _get_spy_url(self, user: BattlefieldTarget) -> str:
+        return self._roc.site_settings['roc_home'] \
+            + f'/attack.php?id={user.id}&mission_type=recon'
+
+    def _get_result(self, resp: response) -> SpyResult:
+        # TODO: IMplement
+        return None
+
+    def _spy_user(
+            self,
+            targetcap: Tuple[BattlefieldTarget, Captcha]
+            ) -> SpyResult:
+        target, captcha = targetcap
+
+        if captcha.hash is None:
+            return SpyResult(SpyResult.ERROR, error='Captcha has no hash')
+        if captcha.ans is None:
+            return SpyResult(SpyResult.ERROR, error='No answer provided')
+        if target.id is None:
+            return SpyResult(SpyResult.ERROR, error='Target has no ID')
+
+        targeturl = self._get_spy_url(target)
+
+        payload = {
+            'defender_id': target.id,
+            'mission_type': 'recon',
+            'reconspies': 1
+        }
+
+        valid_captcha = self._roc.submit_captcha_url(
+            captcha, targeturl, payload, 'roc_spy')
+
+        if not valid_captcha:
+            return SpyResult(SpyResult.WRONG_CAPTCHA, resp=self._roc.r)
+        
+        return self._get_result(self._roc.r)
+        
+
+    def add_targets(self, targets: List[Tuple[BattlefieldTarget, Captcha]]):
+        self._targets.append(targets)
+
+    def run_service(self) -> List[SpyResult]:
+        res = []
+        for targetcap in self._targets:
+            res.append(self._spy_user(targetcap))
+
+        targetcap = deque()
+        return res
