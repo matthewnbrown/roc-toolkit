@@ -27,10 +27,6 @@ class RocCaptcha:
     def correct(self, iscorrect: bool) -> None:
         self._correct = iscorrect
 
-    @abstractmethod
-    def get_payload(self) -> Dict:
-        raise NotImplementedError
-
 
 class ImageCaptcha(RocCaptcha):
     def __init__(
@@ -60,16 +56,10 @@ class ImageCaptcha(RocCaptcha):
     def answer(self, newans: bytes) -> None:
         self._answer = newans
 
-    def get_payload(self) -> Dict:
-        pass
-
 
 class EquationCaptcha(RocCaptcha):
     def __init__(self) -> None:
         super().__init__()
-
-    def get_payload(self):
-        return super().get_payload()
 
 
 class TextCaptcha(RocCaptcha):
