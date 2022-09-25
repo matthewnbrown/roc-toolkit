@@ -1,7 +1,7 @@
 from collections import deque
 from typing import Dict, Iterable, List, Tuple
-from urllib import response
 from bs4 import BeautifulSoup
+from requests import Response
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 
@@ -95,7 +95,7 @@ class SpyResult:
     def __init__(
             self,
             result: int,
-            resp: response = None,
+            resp: Response = None,
             error: str = None
             ) -> None:
         self.result = result
@@ -116,9 +116,18 @@ class SpyService():
         return self._roc.site_settings['roc_home'] \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
-    def _get_result(self, resp: response) -> SpyResult:
-        # TODO: IMplement
-        return None
+    def _get_result(self, resp: Response) -> SpyResult:
+        text = resp.text
+
+        if 'report_id' in resp.url:
+            if 'has been alerted' in text:
+                return SpyResult(SpyResult.FAILURE, resp)
+            elif 'spy enters undetected' in text:
+                return SpyResult(SpyResult.SUCCESS, resp)
+        if 'non-player Administrator account' in text:
+            return SpyResult(SpyResult.ADMIN, resp)
+
+        return SpyResult(SpyResult.UNKNOWN, resp)
 
     def _spy_user(
             self,
@@ -146,9 +155,8 @@ class SpyService():
 
         if not valid_captcha:
             return SpyResult(SpyResult.WRONG_CAPTCHA, resp=self._roc.r)
-        
+
         return self._get_result(self._roc.r)
-        
 
     def add_targets(self, targets: List[Tuple[BattlefieldTarget, Captcha]]):
         self._targets.append(targets)
