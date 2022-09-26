@@ -51,7 +51,7 @@ class Settings:
 
             print('{} : {}'.format(setting, value))
 
-    def get_settings(self):
+    def get_settings(self) -> dict:
         return self.settings
 
 
@@ -391,13 +391,16 @@ class SettingsValidator:
 
 # creates default settings file if the user has yet to do so
 class SettingsFileMaker:
-    def needs_user_setup(usersettings_fp: str,
-                         sitesettings_fp: str,
-                         buyersettings_fp: str
+    def needs_user_setup(usersettings_fp: str = None,
+                         sitesettings_fp: str = None,
+                         buyersettings_fp: str = None
                          ) -> bool:
-        has_user_settings = os.path.isfile(usersettings_fp)
-        has_site_settings = os.path.isfile(sitesettings_fp)
-        has_buy_settings = os.path.isfile(buyersettings_fp)
+        has_user_settings = usersettings_fp is None \
+            or os.path.isfile(usersettings_fp)
+        has_site_settings = sitesettings_fp is None \
+            or os.path.isfile(sitesettings_fp)
+        has_buy_settings = buyersettings_fp is None \
+            or os.path.isfile(buyersettings_fp)
 
         if has_user_settings and has_site_settings and has_buy_settings:
             return False
@@ -405,17 +408,17 @@ class SettingsFileMaker:
         print('You are missing necessary settings files, '
               + 'generic files will be created if needed')
 
-        if not has_user_settings:
+        if usersettings_fp and not has_user_settings:
             settings = UserSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(usersettings_fp, settings)
             print('Created user settings file {}'.format(usersettings_fp))
 
-        if not has_site_settings:
+        if has_site_settings and not has_site_settings:
             settings = SiteSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(sitesettings_fp, settings)
             print('Created site settings file {}'.format(sitesettings_fp))
 
-        if not has_buy_settings:
+        if has_buy_settings and not has_buy_settings:
             settings = BuyerSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(buyersettings_fp, settings)
             print('Created buyer settings file {}'.format(buyersettings_fp))

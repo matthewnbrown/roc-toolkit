@@ -5,6 +5,8 @@ from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 import requests
 
+from rocalert.roc_settings.settingstools import SiteSettings
+
 
 def __generate_useragent():
     pass
