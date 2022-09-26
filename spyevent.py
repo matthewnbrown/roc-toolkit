@@ -180,6 +180,13 @@ class SpyEvent:
             for i in range(count):
                 cap = self._get_captcha(cur_user)
 
+                if cap and cap.type == cap.CaptchaType.TEXT:
+                    print("Warning: Received TEXT Captcha"
+                          + ' attempting captcha reset')
+                    self._roc.reset_cooldown()
+                    i -= 1
+                    continue
+
                 if cap is None or cap.hash is None:
                     i -= 1
                     print(f'Failed getting captcha for {cur_user.name}')
