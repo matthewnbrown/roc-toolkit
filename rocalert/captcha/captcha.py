@@ -5,7 +5,6 @@ from typing import Dict
 from rocalert.roc_web_handler import Captcha
 
 
-
 class RocCaptcha:
     def __init__(self, answer, correct: bool = None) -> None:
         self._answer = answer
@@ -75,6 +74,7 @@ class ImageCaptcha(RocCaptcha):
     @hash.setter
     def hash(self, newhasah) -> None:
         self._hash = newhasah
+
 
 class EquationCaptcha(RocCaptcha):
     def __init__(
@@ -185,7 +185,12 @@ class CaptchaPayloadGenerator:
 
     @classmethod
     def _gen_eqn_payload(cls, captcha: Captcha) -> Dict[str, str]:
-        pass
+        payload = {
+            'flagInput': str(captcha.ans),
+            'flagSubmit': 'Submit'
+        }
+
+        return payload
 
     @classmethod
     def _gen_textcap_payload(cls, captcha: Captcha) -> Dict[str, str]:
