@@ -263,5 +263,9 @@ class RocWebHandler:
     def go_to_armory(self) -> None:
         self.__go_to_page(self.site_settings['roc_armory'])
 
+    def get_page_captcha_type(self, url) -> str:
+        self.__go_to_page(url)
+        return self.__page_captcha_type()
+
     def send_armory_order(self, payload: dict):
         pass
