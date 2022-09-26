@@ -1,11 +1,15 @@
 from numpy import random
 
+# onmousemove = function(e)
+# {console.log("mouse location:", e.clientX, e.clientY)}
+
 
 class ROCCaptchaSelector():
     __btn_dimensions = (40, 30)
     __keypadTopLeft = {'roc_recruit': [890, 705],
                        'roc_armory': [973, 1011],
-                       'roc_attack': [585, 680]}
+                       'roc_attack': [585, 680],
+                       'roc_spy': [585, 695]}
     __keypadGap = [52, 42]
 
     def __init__(self, resolution=None) -> None:

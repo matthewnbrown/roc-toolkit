@@ -6,14 +6,21 @@ from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 import requests
 
+from rocalert.roc_settings.settingstools import SiteSettings
+
 
 def __generate_useragent():
     pass
 
 
 class Captcha:
+    class CaptchaType:
+        TEXT = 'text'
+        IMAGE = 'img'
+        EQUATION = 'equation'
+
     def __init__(
-            self, hash: str, img, ans: str = '-1',
+            self, hash: str, img: bytes = None, ans: str = '-1',
             correct: bool = False, captype: str = None
             ) -> None:
 
@@ -40,11 +47,6 @@ class Captcha:
 
 
 class RocWebHandler:
-    class CaptchaType:
-        TEXT = 'text'
-        IMAGE = 'img'
-        EQUATION = 'equation'
-
     class Pages:
         TRAINER = 'roc_train'
         RECRUIT = 'roc_recruit'
@@ -90,11 +92,11 @@ class RocWebHandler:
 
     def __page_captcha_type(self) -> str:
         if self.__check_for_bad_captcha():
-            return self.CaptchaType.TEXT
+            return Captcha.CaptchaType.TEXT
         if '[click the correct number to proceed]' in self.r.text:
-            return self.CaptchaType.IMAGE
+            return Captcha.CaptchaType.IMAGE
         if '<h1>What is' in self.r.text:
-            return self.CaptchaType.EQUATION
+            return Captcha.CaptchaType.EQUATION
         return None
 
     def __get_imagehash(self) -> str:
@@ -141,7 +143,7 @@ class RocWebHandler:
         endIndex = self.r.text.find('</h1>', index, index+100)
         equation = self.r.text[index + len('<h1>What is'):  endIndex]
         equation = equation.strip()[:-1]
-        return Captcha(equation, None, captype=self.CaptchaType.EQUATION)
+        return Captcha(equation, None, captype=Captcha.CaptchaType.EQUATION)
 
     def __get_captcha_image(self, hash):
         imgurl = (self.site_settings.get_home()
@@ -194,7 +196,7 @@ class RocWebHandler:
         }
         self.r = self.session.post(self.site_settings.get_page(page), payload)
 
-        return self.__page_captcha_type() == RocWebHandler.CaptchaType.IMAGE
+        return self.__page_captcha_type() == Captcha.CaptchaType.IMAGE
 
     def _check_incorrect_captcha(self) -> bool:
         return 'Wrong number' not in self.r.text or \
@@ -217,8 +219,8 @@ class RocWebHandler:
             x, y = 0, 0
         payload['coordinates[x]'] = x
         payload['coordinates[y]'] = y
-        payload['manual_captcha'] = captcha.ans if manual_page else ''
-        if manual_page is None:
+        payload['manualcaptcha'] = captcha.ans if not manual_page else ''
+        if manual_page:
             payload['num'] = captcha.ans
 
         self.r = self.session.post(url, payload)
@@ -239,12 +241,15 @@ class RocWebHandler:
         payload['captcha'] = captcha.hash
         payload['coordinates[x]'] = x
         payload['coordinates[y]'] = y
-        payload['manual_captcha'] = ''
+        payload['manualcaptcha'] = ''
         payload['num'] = ans
 
         self.r = self.session.post(self.site_settings[page], payload)
 
         return self._check_incorrect_captcha()
+
+    def get_imgcap_from_hash(self, hash: str) -> bytes:
+        return self.__get_captcha_image(hash)
 
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self.site_settings.get_recruit())
@@ -263,7 +268,7 @@ class RocWebHandler:
 
     def on_cooldown(self) -> bool:
         self.go_to_armory()
-        return self.__page_captcha_type() == RocWebHandler.CaptchaType.TEXT
+        return self.__page_captcha_type() == Captcha.CaptchaType.TEXT
 
     def go_to_armory(self) -> None:
         self.__go_to_page(self.site_settings.get_armory())
@@ -273,6 +278,10 @@ class RocWebHandler:
 
     def get_response(self) -> requests.Response:
         return self.r
+
+    def get_page_captcha_type(self, url) -> str:
+        self.__go_to_page(url)
+        return self.__page_captcha_type()
 
     def send_armory_order(self, payload: dict):
         pass

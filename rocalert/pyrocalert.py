@@ -193,7 +193,7 @@ class RocAlert:
 
         if captcha is None:
             return None
-        if captcha.type and captcha.type == self.roc.CaptchaType.TEXT:
+        if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
             captcha.ans_correct = False
             return captcha
 
@@ -247,9 +247,9 @@ class RocAlert:
     def __handle_captcha(self, captchaType: str) -> Captcha:
         self.__log(f'Detected {captchaType} captcha...')
 
-        if captchaType == self.roc.CaptchaType.IMAGE:
+        if captchaType == Captcha.CaptchaType.IMAGE:
             return self.__handle_img_captcha('roc_recruit')
-        elif captchaType == self.roc.CaptchaType.EQUATION:
+        elif captchaType == Captcha.CaptchaType.EQUATION:
             return self.__handle_equation_captcha()
 
         return None
@@ -331,7 +331,7 @@ class RocAlert:
 
     def __recruitCheck(self) -> bool:
         captchaType = self.roc.recruit_has_captcha()
-        if captchaType == self.roc.CaptchaType.TEXT:
+        if captchaType == Captcha.CaptchaType.TEXT:
             self.__log('Detected text captcha in recruit')
             self.__failure_timeout = True
             return False
@@ -373,7 +373,7 @@ class RocAlert:
         if res_captcha is None:
             return False
 
-        if res_captcha.type and res_captcha.type == self.roc.CaptchaType.TEXT:
+        if res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
             self.__cooldown = True
             self.__log('Detected text captcha in armory')
             return False
