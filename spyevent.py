@@ -275,7 +275,7 @@ class SpyEvent:
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
         self._captchamaplock.acquire()
-
+        # TODO: Add specific thread that constantly handles solved captchas
         if captcha not in self._captchamap:
             self._captchamaplock.release()
             return
