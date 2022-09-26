@@ -46,7 +46,7 @@ class Captcha:
 
 
 class RocWebHandler:
-    def __init__(self, roc_site_settings) -> None:
+    def __init__(self, roc_site_settings: SiteSettings) -> None:
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
                         + 'Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                         + 'Chrome/102.0.5005.63 Safari/537.36'}
