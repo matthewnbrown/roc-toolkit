@@ -1,4 +1,6 @@
 from collections import defaultdict, deque
+from random import random
+from time import time
 from typing import Callable, Deque, Iterable, List, Set
 from os.path import exists
 from functools import partial
@@ -7,6 +9,7 @@ from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW, Event
 from PIL import Image, ImageTk
 import cv2
 import numpy as np
+from rocalert.captcha.equation_solver import EquationSolver
 
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
     SiteSettings, UserSettings
@@ -71,6 +74,17 @@ def login(roc: RocWebHandler, us: UserSettings):
     else:
         __log("Login failure.")
         return False
+
+
+def SolveEqn(roc: RocWebHandler):
+    c = roc.get_equation_captcha()
+    print(f'Received equation \'{c.hash}\'')
+    c.ans = EquationSolver.solve_equation(c.hash)
+
+    minsleeptime = 3 if int(c.ans) % 10 == 0 else 5
+    time.sleep(minsleeptime + int(random.uniform(0, 1) * minsleeptime))
+
+    roc.submit_equation(c)
 
 
 class SpyEvent:
@@ -177,19 +191,29 @@ class SpyEvent:
             count = self._spystatus[cur_user].required_captchas
             num_captchas -= count
 
+            consfailures = 0
             for i in range(count):
+                if consfailures > 2:
+                    print(f"Too many failures, skipping {cur_user.name}")
+
                 cap = self._get_captcha(cur_user)
+                if cap and cap.type == cap.CaptchaType.EQUATION:
+                    print('Warning: received equation captcha')
+                    SolveEqn(self._roc)
+                    consfailures += 1
 
                 if cap and cap.type == cap.CaptchaType.TEXT:
                     print("Warning: Received TEXT Captcha"
                           + ' attempting captcha reset')
                     self._roc.reset_cooldown()
                     i -= 1
+                    consfailures += 1
                     continue
 
                 if cap is None or cap.hash is None:
                     i -= 1
                     print(f'Failed getting captcha for {cur_user.name}')
+                    consfailures += 1
                     continue
 
                 self._captchamaplock.acquire()
@@ -197,7 +221,7 @@ class SpyEvent:
                 self._usercaptchas[cur_user].add(cap)
                 self._spystatus[cur_user].active_captchas += 1
                 self._captchamaplock.release() 
-
+                consfailures = 0
                 result.append(cap)
 
         while len(backup) > 0:
