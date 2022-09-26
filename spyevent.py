@@ -1,5 +1,4 @@
 from collections import defaultdict, deque
-from re import U
 from typing import Callable, Deque, Iterable, List, Set
 from os.path import exists
 from functools import partial
@@ -19,7 +18,7 @@ from rocalert.services.rocwebservices import BattlefieldPageService
 
 # Comma separated ids
 skip_ids = {7530}
-onlyspy_ids = {}
+onlyspy_ids = {29428}
 cookie_filename = 'cookies'
 
 
@@ -112,7 +111,7 @@ class SpyEvent:
         self._captchamaplock = Lock()
         self._updating_captchas = False
 
-    def _hit_spy_limit(responsetext: str) -> bool:
+    def _hit_spy_limit(self, responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
 
     def _get_captcha(self, user: BattlefieldTarget) -> Captcha:
@@ -129,14 +128,14 @@ class SpyEvent:
             new_users: Iterable[BattlefieldTarget]
             ) -> Deque[BattlefieldTarget]:
         res = deque()
-        if onlyspy_ids and len(onlyspy_ids) > 0:
+        if self._onlyspylist and len(self._onlyspylist) > 0:
             for user in new_users:
-                if user in onlyspy_ids:
+                if user.id in self._onlyspylist:
                     res.append(user)
             return res
 
         for user in new_users:
-            if user.id not in skip_ids:
+            if user.id not in self._skiplist:
                 res.append(user)
         return res
 
@@ -237,7 +236,7 @@ class SpyEvent:
         self._spystatus[user].active_captchas -= 1
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
-        elif self._hit_spy_limit(self._roc.r.text):
+        if self._hit_spy_limit(self._roc.r.text):
             self._handle_maxed_target(user)
         self._captchamaplock.release()
 
@@ -502,9 +501,9 @@ def runevent_new():
         print('Error logging in.')
         quit()
 
-    skip_ids = {str(id) for id in skip_ids}
-    onlyspy_ids = {str(id) for id in onlyspy_ids}
-    event = SpyEvent(rochandler, skip_ids, onlyspy_ids)
+    skip_idsstr = {str(id) for id in skip_ids}
+    onlyspy_idsstr = {str(id) for id in onlyspy_ids}
+    event = SpyEvent(rochandler, skip_idsstr, onlyspy_idsstr)
     event.start_event()
 
 
