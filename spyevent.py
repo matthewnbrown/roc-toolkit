@@ -16,9 +16,11 @@ from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
 from rocalert.services.rocwebservices import BattlefieldPageService
 
-# Comma separated ids
+# Comma separated ids. Put your own ID in here
 skip_ids = {7530}
-onlyspy_ids = {29428}
+
+# This will only spy on selected IDs. Skip_ids will be ignored
+onlyspy_ids = {}
 cookie_filename = 'cookies'
 
 
@@ -155,16 +157,15 @@ class SpyEvent:
             self._battlefield.extend(newuser)
 
     def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
-        self._captchamaplock.acquire()
+        print(f'Maxed out spy attempts on {user.name}')
         for captcha in self._usercaptchas[user]:
             del self._captchamap[captcha]
 
         self._spystatus[user].active_captchas = 0
-        self._spystatus[user].required_captchas = 0
+        self._spystatus[user].solved_captchas = 10
 
         self._gui.remove_captchas(self._usercaptchas[user])
         del self._usercaptchas[user]
-        self._captchamaplock.release()
 
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         backup = []
@@ -188,7 +189,7 @@ class SpyEvent:
                 self._captchamap[cap] = cur_user
                 self._usercaptchas[cur_user].add(cap)
                 self._spystatus[cur_user].active_captchas += 1
-                self._captchamaplock.release()
+                self._captchamaplock.release() 
 
                 result.append(cap)
 
@@ -233,6 +234,7 @@ class SpyEvent:
 
         self._captchamaplock.acquire()
         del self._captchamap[captcha]
+        self._usercaptchas[user].remove(captcha)
         self._spystatus[user].active_captchas -= 1
         if valid_captcha:
             self._spystatus[user].solved_captchas += 1
