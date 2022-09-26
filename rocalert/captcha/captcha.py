@@ -1,5 +1,4 @@
-from abc import abstractmethod, abstractproperty
-from typing import Dict
+from abc import abstractproperty
 
 
 class RocCaptcha:
@@ -37,8 +36,6 @@ class ImageCaptcha(RocCaptcha):
 
         self._hash = hash
         self._image = image
-        self._answer = answer
-        self._correct = correct
 
     @property
     def image(self) -> bytes:
@@ -49,19 +46,51 @@ class ImageCaptcha(RocCaptcha):
         self._image = image
 
     @property
-    def answer(self) -> bytes:
+    def answer(self) -> str:
         return self._answer
 
     @answer.setter
-    def answer(self, newans: bytes) -> None:
+    def answer(self, newans: str) -> None:
         self._answer = newans
 
 
 class EquationCaptcha(RocCaptcha):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(
+                self,
+                equation: str, answer: str = None,
+                correct: bool = None) -> None:
+        super().__init__(answer, correct)
+
+    @property
+    def answer(self) -> str:
+        return self.answer
+
+    @answer.setter
+    def answer(self, newans: int) -> None:
+        self.answer = str(newans)
 
 
 class TextCaptcha(RocCaptcha):
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(
+            self, hash: str, image: bytes = None,
+            answer: str = None, correct: bool = None
+            ) -> None:
+        super().__init__(answer, correct)
+        self._hash = hash
+        self._image = image
+
+    @property
+    def image(self) -> bytes:
+        return self._image
+
+    @image.setter
+    def image(self, image: bytes) -> None:
+        self._image = image
+
+    @property
+    def answer(self) -> str:
+        return self._answer
+
+    @answer.setter
+    def answer(self, newans: str) -> None:
+        self._answer = newans
