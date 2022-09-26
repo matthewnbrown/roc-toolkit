@@ -20,10 +20,12 @@ from rocalert.cookiehelper import load_cookies_from_path, \
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 # Comma separated ids. Put your own ID in here
-skip_ids = {7530}
-
+starting_rank = 1
+skip_ids = {7530, 27607, 31123}
+skip_ranks = {112}
 # This will only spy on selected IDs. Skip_ids will be ignored
 onlyspy_ids = {}
+
 cookie_filename = 'cookies'
 
 
@@ -97,11 +99,14 @@ class SpyEvent:
         def required_captchas(self):
             return max(10 - self.solved_captchas - self.active_captchas, 0)
 
+    # TODO: Change all the user filters to one Callable filter
     def __init__(
             self,
             roc: RocWebHandler,
+            start_rank: int = 1,
             skiplist: Set[str] = set(),
-            onlyspylist: Set[str] = set()
+            onlyspylist: Set[str] = set(),
+            skip_rank: Set[int] = set()
             ) -> None:
         """_summary_
 
@@ -118,6 +123,8 @@ class SpyEvent:
         self._roc = roc
         self._skiplist = skiplist
         self._onlyspylist = onlyspylist
+        self._start_rank = start_rank,
+        self._skip_rank = skip_rank
         self._restrictedtargets = onlyspylist and len(onlyspylist) > 0
         self._captchamap = {}
         self._usercaptchas = defaultdict(set)
@@ -151,7 +158,9 @@ class SpyEvent:
             return res
 
         for user in new_users:
-            if user.id not in self._skiplist:
+            if (user.id not in self._skiplist
+                    and int(user.rank) not in self._skip_rank
+                    and int(user.rank) >= starting_rank):
                 res.append(user)
         return res
 
@@ -196,14 +205,16 @@ class SpyEvent:
         backup = []
         result = []
         self._bflock.acquire()
+
         while num_captchas > 0 and len(self._battlefield) > 0:
             cur_user = self._battlefield.popleft()
             backup.append(cur_user)
             count = self._spystatus[cur_user].required_captchas
-            num_captchas -= count
 
+            getcaps = min(num_captchas, count)
+            num_captchas -= getcaps
             consfailures = 0
-            for i in range(count):
+            for i in range(getcaps):
                 if consfailures > 2:
                     print(f"Too many failures, skipping {cur_user.name}")
                     break
@@ -235,7 +246,7 @@ class SpyEvent:
                 self._captchamap[cap] = cur_user
                 self._usercaptchas[cur_user].add(cap)
                 self._spystatus[cur_user].active_captchas += 1
-                self._captchamaplock.release() 
+                self._captchamaplock.release()
                 consfailures = 0
                 result.append(cap)
 
@@ -264,8 +275,12 @@ class SpyEvent:
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
         self._captchamaplock.acquire()
+
+        if captcha not in self._captchamap:
+            self._captchamaplock.release()
+            return
+
         user = self._captchamap[captcha]
-        self._captchamaplock.release()
 
         targeturl = self._get_spy_url(user)
 
@@ -278,7 +293,6 @@ class SpyEvent:
         valid_captcha = self._roc.submit_captcha_url(
             captcha, targeturl, payload, 'roc_spy')
 
-        self._captchamaplock.acquire()
         del self._captchamap[captcha]
         self._usercaptchas[user].remove(captcha)
         self._spystatus[user].active_captchas -= 1
@@ -313,11 +327,12 @@ class SpyEvent:
             t.start()
             return t
 
-        xcount, ycount = 8, 1
+        xcount, ycount = 4, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
 
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
+        self._running = True
 
         self._gui.start_event()
 
@@ -489,6 +504,8 @@ class MulticaptchaGUI:
         self._update_captcha_view()
         self._modifycaptchas_lock.release()
 
+        self._get_new_captchas()
+
     def start_event(self) -> None:
         self._root.mainloop()
 
@@ -553,10 +570,9 @@ def runevent_new():
 
     skip_idsstr = {str(id) for id in skip_ids}
     onlyspy_idsstr = {str(id) for id in onlyspy_ids}
-    event = SpyEvent(rochandler, skip_idsstr, onlyspy_idsstr)
+    event = SpyEvent(rochandler, starting_rank,
+                     skip_idsstr, onlyspy_idsstr, skip_ranks)
     event.start_event()
 
 
-# test_multiimage('D:/')
-# runevent()
 runevent_new()
