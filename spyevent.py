@@ -195,14 +195,17 @@ class SpyEvent:
             for i in range(count):
                 if consfailures > 2:
                     print(f"Too many failures, skipping {cur_user.name}")
+                    break
 
-                cap = self._get_captcha(cur_user)
-                if cap and cap.type == cap.CaptchaType.EQUATION:
+                captype = self._roc.get_page_captcha_type(
+                        self._get_spy_url(cur_user))
+                if captype == Captcha.CaptchaType.EQUATION:
                     print('Warning: received equation captcha')
                     SolveEqn(self._roc)
+                    i -= 1
                     consfailures += 1
 
-                if cap and cap.type == cap.CaptchaType.TEXT:
+                if captype == Captcha.CaptchaType.TEXT:
                     print("Warning: Received TEXT Captcha"
                           + ' attempting captcha reset')
                     self._roc.reset_cooldown()
@@ -210,6 +213,7 @@ class SpyEvent:
                     consfailures += 1
                     continue
 
+                cap = self._get_captcha(cur_user)
                 if cap is None or cap.hash is None:
                     i -= 1
                     print(f'Failed getting captcha for {cur_user.name}')
