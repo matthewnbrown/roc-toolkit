@@ -170,8 +170,8 @@ class SpyEvent:
             newuser = self._userfilter(user_resp['result'])
             self._battlefield.extend(newuser)
 
-    def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
-        print(f'Maxed out spy attempts on {user.name}')
+    def _remove_user(self, user: BattlefieldTarget) -> None:
+        print(f'{user.name} was removed from the list')
         for captcha in self._usercaptchas[user]:
             del self._captchamap[captcha]
 
@@ -180,6 +180,17 @@ class SpyEvent:
 
         self._gui.remove_captchas(self._usercaptchas[user])
         del self._usercaptchas[user]
+
+    def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
+        print(f'Maxed out spy attempts on {user.name}')
+        self._remove_user(user)
+
+    def _handle_admin(self, user: BattlefieldTarget) -> None:
+        print(f'Detected admin account {user.name}.')
+        self._remove_user(user)
+
+    def _detect_admin(self, responsetext: str) -> bool:
+        return 'Administrator account' in responsetext
 
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         backup = []
@@ -275,6 +286,8 @@ class SpyEvent:
             self._spystatus[user].solved_captchas += 1
         if self._hit_spy_limit(self._roc.r.text):
             self._handle_maxed_target(user)
+        elif self._detect_admin(self._roc.r.text):
+            self._handle_admin(user)
         self._captchamaplock.release()
 
     def start_event(self) -> None:
