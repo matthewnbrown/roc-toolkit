@@ -1,5 +1,5 @@
 from collections import defaultdict, deque
-from typing import Callable, Iterable, List, Set
+from typing import Callable, Deque, Iterable, List, Set
 from os.path import exists
 from functools import partial
 from threading import Thread, Lock
@@ -123,10 +123,18 @@ class SpyEvent:
         return self._roc.site_settings['roc_home'] \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
+    def _userfilter(
+            self,
+            new_users: Iterable[BattlefieldTarget]
+            ) -> Deque[BattlefieldTarget]:
+
+        return new_users
+
     def _get_all_users(self) -> None:
         self._bflock.acquire()
         pagenum = 1
         self._battlefield = self._battlefield if self._battlefield else deque()
+
         while True:
             user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
             pagenum += 1
@@ -134,7 +142,8 @@ class SpyEvent:
                 self._bflock.release()
                 return
 
-            self._battlefield.extend(user_resp['result'])
+            newuser = self._userfilter(user_resp['result'])
+            self._battlefield.extend(newuser)
 
     def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
         self._captchamaplock.acquire()
