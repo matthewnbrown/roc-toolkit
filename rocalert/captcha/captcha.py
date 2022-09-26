@@ -68,6 +68,13 @@ class ImageCaptcha(RocCaptcha):
     def page(self, newpage) -> str:
         self._page = newpage
 
+    @property
+    def hash(self) -> str:
+        return self._hash
+
+    @hash.setter
+    def hash(self, newhasah) -> None:
+        self._hash = newhasah
 
 class EquationCaptcha(RocCaptcha):
     def __init__(
@@ -158,7 +165,23 @@ class CaptchaPayloadGenerator:
 
     @classmethod
     def _gen_image_payload(cls, captcha: ImageCaptcha) -> Dict[str, str]:
-        pass
+
+        if captcha.page:
+            cs = ROCCaptchaSelector()
+            x, y = cs.get_xy_static(captcha.answer, captcha.page)
+        else:
+            x, y = 0, 0
+
+        payload = {
+            'captcha': captcha.hash,
+            'coordinates[x]': x,
+            'coordinates[y]': y,
+            'manualcaptcha': captcha.answer if not captcha.page else '',
+        }
+
+        if captcha.page:
+            payload['num'] = captcha.answer
+        return payload
 
     @classmethod
     def _gen_eqn_payload(cls, captcha: Captcha) -> Dict[str, str]:
