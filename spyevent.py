@@ -1,4 +1,5 @@
 from collections import defaultdict, deque
+from re import U
 from typing import Callable, Deque, Iterable, List, Set
 from os.path import exists
 from functools import partial
@@ -127,8 +128,17 @@ class SpyEvent:
             self,
             new_users: Iterable[BattlefieldTarget]
             ) -> Deque[BattlefieldTarget]:
+        res = deque()
+        if onlyspy_ids and len(onlyspy_ids) > 0:
+            for user in new_users:
+                if user in onlyspy_ids:
+                    res.append(user)
+            return res
 
-        return new_users
+        for user in new_users:
+            if user.id not in skip_ids:
+                res.append(user)
+        return res
 
     def _get_all_users(self) -> None:
         self._bflock.acquire()
@@ -492,6 +502,8 @@ def runevent_new():
         print('Error logging in.')
         quit()
 
+    skip_ids = {str(id) for id in skip_ids}
+    onlyspy_ids = {str(id) for id in onlyspy_ids}
     event = SpyEvent(rochandler, skip_ids, onlyspy_ids)
     event.start_event()
 
