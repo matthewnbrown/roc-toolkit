@@ -27,6 +27,9 @@ class RocPage:
         logform = page.find(id='login_form')
         self._loggedin = logform is None
 
+    def _timestamp_to_datetime(timestamp: int) -> datetime:
+        return datetime.fromtimestamp(timestamp)
+
     @property
     def logged_in(self) -> bool:
         return self._loggedin
@@ -65,26 +68,62 @@ class RocUserPage(RocPage):
 class RocRecruitPage(RocPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        content = page.find(id='content')
-        raise NotImplementedError
+        recruit_form = page.find(id='spm_reset_form')
+
+        spmtext = recruit_form.find('div', {'class': 'td c'})
+        self._spm = int(spmtext.split(':')[1].strip())
+        self._captcha = self._extractcaptcha(
+            recruit_form.find(id='captcha_image'))
+
+        if self._captcha is None:
+            resettime = recruit_form.find(
+                'span', {'class': 'countdown'}).get('data-timestamp')
+            self._nextcaptchatime = self._timestamp_to_datetime(int(resettime))
+            self._getnorefresh(recruit_form)
+        else:
+            self._nextcaptchatime = datetime.now()
+            self._getrefresh(recruit_form)
+
+    def _extractcaptcha(captchasoup: BeautifulSoup) -> str:
+        if captchasoup is None:
+            return None
+
+        return captchasoup.get('src').split('=')[1]
+
+    @property
+    def spm(self) -> int:
+        """_summary_
+
+        Returns:
+            int: _description_ Soldiers per minute
+        """
+        return self._spm
+
+    @property
+    def captcha_hash(self) -> str:
+        return self._captcha
+
+    @property
+    def next_captcha_time(self) -> datetime:
+        return self._nextcaptchatime
 
 
 class RocTrainingPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        content = page.find(id='content')
+        # content = page.find(id='content')
         raise NotImplementedError
 
 
 class RocArmoryPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        content = page.find(id='content')
+        # content = page.find(id='content')
         raise NotImplementedError
 
 
 class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        content = page.find(id='content')
+        # content = page.find(id='content')
         raise NotImplementedError
