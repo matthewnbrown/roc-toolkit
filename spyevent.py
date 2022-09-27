@@ -52,14 +52,14 @@ def __log(s: str):
 
 def login(roc: RocWebHandler, us: UserSettings):
     __log('Logging in.')
+    if __load_cookies_file(roc, cookie_filename) and roc.is_logged_in():
+        __log('Successfully used cookie file')
+        return True
+
     if __load_browser_cookies(roc, us) and roc.is_logged_in():
         __log('Successfully pulled cookie from {}'.format(
             us.get_setting('browser')))
         save_cookies_to_path(roc.get_cookies(), cookie_filename)
-        return True
-
-    if __load_cookies_file(roc, cookie_filename) and roc.is_logged_in():
-        __log('Successfully used cookie file')
         return True
 
     roc.login(
@@ -395,6 +395,7 @@ def runevent_new():
     event = SpyEvent(rochandler, starting_rank,
                      skip_idsstr, onlyspy_idsstr, skip_ranks)
     event.start_event()
+    save_cookies_to_path(rochandler.get_cookies(), cookie_filename)
 
 
 runevent_new()
