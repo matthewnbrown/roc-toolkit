@@ -60,3 +60,31 @@ class RocUserPage(RocPage):
     @property
     def next_turn(self) -> datetime:
         return self._nextturn
+
+
+class RocRecruitPage(RocPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
+        content = page.find(id='content')
+        raise NotImplementedError
+
+
+class RocTrainingPage(RocUserPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
+        content = page.find(id='content')
+        raise NotImplementedError
+
+
+class RocArmoryPage(RocUserPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
+        content = page.find(id='content')
+        raise NotImplementedError
+
+
+class RocKeepPage(RocUserPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
+        content = page.find(id='content')
+        raise NotImplementedError
