@@ -1,4 +1,3 @@
-from collections import defaultdict
 from typing import Dict, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -14,6 +13,12 @@ class RocNumber:
             self._value = int(value)
         else:
             raise ValueError("Value must be a string or integer!")
+
+    def __add__(self, other):
+        return RocNumber(self.value + other.value)
+
+    def __sub__(self, other):
+        return RocNumber(self.value - other.value)
 
     @property
     def value(self) -> int:
@@ -118,6 +123,62 @@ class RocTrainingPage(RocImageCaptchaPage):
         super().__init__(page)
         # content = page.find(id='content')
         raise NotImplementedError
+
+    @property
+    def attack_soldiers(self) -> RocNumber:
+        return self._attacksold
+
+    @property
+    def attack_mercenaries(self) -> RocNumber:
+        return self._attackmercs
+
+    @property
+    def defense_soldiers(self) -> RocNumber:
+        return self._defensesold
+
+    @property
+    def defense_mercenaries(self) -> RocNumber:
+        return self._defensemercs
+
+    @property
+    def untrained_soldiers(self) -> RocNumber:
+        return self._untrainedsold
+
+    @property
+    def untrained_mercenaries(self) -> RocNumber:
+        return self._untrainedmercs
+
+    @property
+    def spies(self) -> RocNumber:
+        return self._spies
+
+    @property
+    def sentries(self) -> RocNumber:
+        return self._sentries
+
+    @property
+    def zombies(self) -> RocNumber:
+        return self._zombies
+
+    @property
+    def total_soldiers(self) -> RocNumber:
+        return self.attack_soldiers \
+                + self.defense_soldiers \
+                + self.untrained_soldiers
+
+    @property
+    def total_mercenaries(self) -> RocNumber:
+        return self._attackmercs \
+                + self._defensemercs \
+                + self._untrainedmercs
+
+    @property
+    def total_covert_force(self) -> RocNumber:
+        return self._spies + self._sentries
+
+    @property
+    def total_fighting_force(self) -> RocNumber:
+        return self.total_soldiers + self.total_mercenaries
 
 
 class RocArmoryPage(RocImageCaptchaPage):
