@@ -15,7 +15,7 @@ class RocNumber:
             raise ValueError("Value must be a string or integer!")
 
     @property
-    def vajlue(self) -> int:
+    def value(self) -> int:
         return self._value
 
     def get_prettyvalue(self) -> str:
