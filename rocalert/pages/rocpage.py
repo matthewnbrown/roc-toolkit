@@ -125,5 +125,21 @@ class RocArmoryPage(RocUserPage):
 class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        # content = page.find(id='content')
+        content = page.find(id='content')
         raise NotImplementedError
+
+    @property
+    def repairing(self) -> bool:
+        return self._repfinishtime is not None
+
+    @property
+    def finish_repair_time(self) -> datetime:
+        return self._repfinishtime
+
+    @property
+    def key_count(self) -> int:
+        return self._keycount
+
+    @property
+    def broken_key_count(self) -> int:
+        return self._brokenkeycount
