@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Dict, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -65,15 +65,25 @@ class RocUserPage(RocPage):
         return self._nextturn
 
 
-class RocRecruitPage(RocPage):
+class RocImageCaptchaPage(RocPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
+
+        captchasoup = page.find(id='captcha_image')
+
+        if captchasoup is None:
+            self._captcha = None
+        else:
+            self._captcha = captchasoup.get('src').split('=')[1]
+
+
+class RocRecruitPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
         recruit_form = page.find(id='spm_reset_form')
 
         spmtext = recruit_form.find('div', {'class': 'td c'})
         self._spm = int(spmtext.split(':')[1].strip())
-        self._captcha = self._extractcaptcha(
-            recruit_form.find(id='captcha_image'))
 
         if self._captcha is None:
             resettime = recruit_form.find(
@@ -83,12 +93,6 @@ class RocRecruitPage(RocPage):
         else:
             self._nextcaptchatime = datetime.now()
             self._getrefresh(recruit_form)
-
-    def _extractcaptcha(captchasoup: BeautifulSoup) -> str:
-        if captchasoup is None:
-            return None
-
-        return captchasoup.get('src').split('=')[1]
 
     @property
     def spm(self) -> int:
@@ -108,19 +112,41 @@ class RocRecruitPage(RocPage):
         return self._nextcaptchatime
 
 
-class RocTrainingPage(RocUserPage):
+class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
         # content = page.find(id='content')
         raise NotImplementedError
 
 
-class RocArmoryPage(RocUserPage):
+class RocArmoryPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        # content = page.find(id='content')
+        content = page.find(id='content')
+        armory = content.find(id='armory')
+
+        self._getweapons(armory)
+
         raise NotImplementedError
 
+    def _getweapons(self, armory: BeautifulSoup) -> None:
+        pass
+
+    @property
+    def get_attack_weapons(self) -> Dict[str, int]:
+        pass
+
+    @property
+    def get_defense_weapons(self) -> Dict[str, int]:
+        pass
+
+    @property
+    def get_spy_weapons(self) -> Dict[str, int]:
+        pass
+
+    @property
+    def get_sentry_weapons(self) -> Dict[str, int]:
+        pass
 
 class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
