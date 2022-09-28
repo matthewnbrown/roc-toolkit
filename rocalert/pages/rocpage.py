@@ -126,7 +126,28 @@ class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
         content = page.find(id='content')
-        raise NotImplementedError
+
+        keycounts = content.find_all('b')
+        keytypes = content.find_all('small')
+
+        self._keycount = 0
+        self._brokenkeycount = 0
+
+        for i in len(keycounts):
+            count = keycounts[i].text
+            keytype = keytypes[i].text
+
+            if 'broken' in keytype:
+                self._brokenkeycount += count
+            else:
+                self._keycount += count
+
+        cd = content.find('span', {'class': 'countdown'})
+        if cd:
+            fintimestr = int(cd.get('data-timestamp'))
+            self._repfinishtime = self._timestamp_to_datetime(fintimestr)
+        else:
+            self._repfinishtime = None
 
     @property
     def repairing(self) -> bool:
