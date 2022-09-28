@@ -1,10 +1,11 @@
+from collections import defaultdict
 from typing import Dict, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 
 class RocNumber:
-    def __init__(self, value: Union[int, str]) -> None:
+    def __init__(self, value: Union[int, str] = 0) -> None:
         if type(value) == int:
             self._value = value
         elif type(value) == str:
@@ -124,28 +125,25 @@ class RocArmoryPage(RocImageCaptchaPage):
         super().__init__(page)
         content = page.find(id='content')
         armory = content.find(id='armory')
-
         self._getweapons(armory)
 
         raise NotImplementedError
 
     def _getweapons(self, armory: BeautifulSoup) -> None:
+        self._weapons = {}
+
+        for i in range(1, 15):
+            id = f'weapon{i}'
+            weapon = armory.find(id=id)
+            count = weapon.find('span', {'class':'amount'})
+            self._weapons[id] = RocNumber(count)
+
+    @property
+    def get_armory_stats(self) -> Dict[str, int]:
         pass
 
     @property
-    def get_attack_weapons(self) -> Dict[str, int]:
-        pass
-
-    @property
-    def get_defense_weapons(self) -> Dict[str, int]:
-        pass
-
-    @property
-    def get_spy_weapons(self) -> Dict[str, int]:
-        pass
-
-    @property
-    def get_sentry_weapons(self) -> Dict[str, int]:
+    def get_weapontroop_dist(self) -> Dict[str, int]:
         pass
 
 class RocKeepPage(RocUserPage):
