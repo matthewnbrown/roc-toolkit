@@ -1,4 +1,4 @@
-from typing import Dict, Union
+from typing import Dict, Tuple, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -179,6 +179,18 @@ class RocTrainingPage(RocImageCaptchaPage):
     @property
     def total_fighting_force(self) -> RocNumber:
         return self.total_soldiers + self.total_mercenaries
+
+    @property
+    def avail_attack_mercs(self) -> Tuple[RocNumber, RocNumber]:
+        return (self._availmercs['attack'], self._merccost['attack'])
+
+    @property
+    def avail_defense_mercs(self) -> Tuple[RocNumber, RocNumber]:
+        return (self._availmercs['defense'], self._merccost['defense'])
+
+    @property
+    def avail_untrained_mercs(self) -> Tuple[RocNumber, RocNumber]:
+        return (self._availmercs['untrained'], self._merccost['untrained'])
 
 
 class RocArmoryPage(RocImageCaptchaPage):
