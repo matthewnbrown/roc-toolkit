@@ -125,26 +125,38 @@ class RocArmoryPage(RocImageCaptchaPage):
         super().__init__(page)
         content = page.find(id='content')
         armory = content.find(id='armory')
-        self._getweapons(armory)
+        self._parseweapons(armory)
 
         raise NotImplementedError
 
-    def _getweapons(self, armory: BeautifulSoup) -> None:
+    def _parseweapons(self, armory: BeautifulSoup) -> None:
         self._weapons = {}
 
-        for i in range(1, 15):
-            id = f'weapon{i}'
-            weapon = armory.find(id=id)
-            count = weapon.find('span', {'class':'amount'})
-            self._weapons[id] = RocNumber(count)
+        weaponmap = {
+            1: 'dagger',
+            2: 'maul',
+            3: 'blade',
+            4: 'excalibur',
+            5: 'sai',
+            6: 'shield',
+            7: 'mithril',
+            8: 'dragonskin',
+            9: 'cloak',
+            10: 'hook',
+            11: 'pickaxe',
+            12: 'horn',
+            13: 'guard_dog',
+            14: 'torch'
+        }
+        for i in range(1, len(weaponmap)+1):
+            weapon = armory.find(id=f'weapon{i}')
+            count = weapon.find('span', {'class': 'amount'})
+            self._weapons[weaponmap[i]] = RocNumber(count)
 
     @property
-    def get_armory_stats(self) -> Dict[str, int]:
-        pass
+    def get_weapons(self) -> Dict[str, RocNumber]:
+        return self._weapons
 
-    @property
-    def get_weapontroop_dist(self) -> Dict[str, int]:
-        pass
 
 class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
