@@ -1,6 +1,6 @@
 from collections import deque
 from functools import partial
-from threading import Lock
+from threading import Lock, Condition, Thread
 from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW, Event
 from PIL import Image, ImageTk
 import cv2
@@ -138,6 +138,7 @@ class MulticaptchaGUI:
 
         self._update_view_lock = Lock()
         self._modifycaptchas_lock = Lock()
+        self._newcaptchas = Condition()
 
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
@@ -179,7 +180,6 @@ class MulticaptchaGUI:
         res = []
         for captcha in captchas:
             res.append(_bytesimage_to_photoimage_resize(captcha.img))
-
         return res
 
     @property
@@ -187,8 +187,7 @@ class MulticaptchaGUI:
         return self._xcaptchacount * self._ycaptchacount
 
     def _update_captcha_view(self) -> None:
-        self._update_view_lock.acquire()
-
+        self._newcaptchas.acquire()
         for i in range(min(len(self._captchas), self._captchawindowscount)):
             self._canvases[i].delete('all')
             self._canvases[i].create_image(0, 0,
@@ -197,8 +196,7 @@ class MulticaptchaGUI:
 
         for i in range(self._captchawindowscount - len(self._captchas)):
             self._canvases[self._captchawindowscount - i-1].delete('all')
-
-        self._update_view_lock.release()
+        self._newcaptchas.release()
 
     def _get_new_captchas(self) -> None:
         diff = self._captchawindowscount*2 - len(self._captchas)
@@ -224,48 +222,47 @@ class MulticaptchaGUI:
                 but = Button(root, text=num, command=action_with_arg)
                 but.grid(row=i, column=j)
 
+    def _available_image(self) -> bool:
+        return len(self._images) > 0
+
+    def _waitforcaps(self) -> None:
+        self._newcaptchas.acquire()
+        def cond(): return self._available_image()
+        print("No captchas to show, waiting for delivery")
+        self._newcaptchas.wait_for(cond)
+        print('Received captcha delivery, updating')
+        self._update_captcha_view()
+        self._newcaptchas.release()
+
     def _answer_selected(self, answer: str) -> None:
-        if len(self._images) <= 0:
+        self._newcaptchas.acquire()
+        if len(self._images) == 0:
+            self._newcaptchas.release()
             return
 
-        self._modifycaptchas_lock.acquire()
         self._images.popleft()
         cap = self._captchas.popleft()
-        self._modifycaptchas_lock.release()
+
+        if not self._available_image():
+            t = Thread(target=self._waitforcaps)
+            t.start()
+
+        self._newcaptchas.release()
 
         cap.ans = answer
         self._onselect(cap)
         self._get_new_captchas()
         self._update_captcha_view()
 
-    def _remove_captcha(self, captcha: Captcha) -> None:
-        index = self._captchas.index(captcha)
-        del self._captchas[index]
-        del self._images[index]
-
     def add_captchas(self, newcaptchas: List[Captcha]) -> None:
-        self._modifycaptchas_lock.acquire()
-        print(f'Adding {len(newcaptchas)} captchas')
-        no_caps = len(self._images) == 0
-
         newimgs = self._create_imgs_from_captchas(newcaptchas)
+        self._newcaptchas.acquire()
+        print(f'Adding {len(newcaptchas)} captchas')
         self._captchas.extend(newcaptchas)
         self._images.extend(newimgs)
 
-        if no_caps:
-            self._update_captcha_view()
-
-        self._modifycaptchas_lock.release()
-
-    def remove_captchas(self, captchas: Iterable) -> None:
-        self._modifycaptchas_lock.acquire()
-        for captcha in captchas:
-            self._remove_captcha(captcha)
-
-        self._update_captcha_view()
-        self._modifycaptchas_lock.release()
-
-        self._get_new_captchas()
+        self._newcaptchas.notify_all()
+        self._newcaptchas.release()
 
     def start(self) -> None:
         self._root.mainloop()
