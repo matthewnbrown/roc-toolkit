@@ -142,6 +142,7 @@ class MulticaptchaGUI:
 
         self._event_over = False
         self._root.bind('<<end_event>>', self._end)
+        self._root.bind('<<newcaptchas>>', self._newcaptcha_event)
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
         self._images = deque(images)
@@ -227,15 +228,6 @@ class MulticaptchaGUI:
     def _available_image(self) -> bool:
         return len(self._images) > 0
 
-    def _waitforcaps(self) -> None:
-        self._newcaptchas.acquire()
-        def cond(): return self._available_image()
-        print("No captchas to show, waiting for delivery")
-        self._newcaptchas.wait_for(cond)
-        print('Received captcha delivery, updating')
-        self._update_captcha_view()
-        self._newcaptchas.release()
-
     def _answer_selected(self, answer: str) -> None:
         self._newcaptchas.acquire()
         if len(self._images) == 0:
@@ -245,15 +237,14 @@ class MulticaptchaGUI:
         self._images.popleft()
         cap = self._captchas.popleft()
 
-        if not self._available_image():
-            t = Thread(target=self._waitforcaps)
-            t.start()
-
         self._newcaptchas.release()
 
         cap.ans = answer
         self._onselect(cap)
         self._get_new_captchas()
+        self._update_captcha_view()
+
+    def _newcaptcha_event(self, event: Event) -> None:
         self._update_captcha_view()
 
     def add_captchas(self, newcaptchas: List[Captcha]) -> None:
@@ -265,6 +256,7 @@ class MulticaptchaGUI:
 
             self._newcaptchas.notify_all()
             self._newcaptchas.release()
+            self._root.event_generate('<<newcaptchas>>')
 
     def start(self) -> None:
         self._root.mainloop()
