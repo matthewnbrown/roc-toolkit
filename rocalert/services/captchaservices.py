@@ -140,6 +140,7 @@ class MulticaptchaGUI:
         self._modifycaptchas_lock = Lock()
         self._newcaptchas = Condition()
 
+        self._end_event = False
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
         self._images = deque(images)
@@ -205,6 +206,10 @@ class MulticaptchaGUI:
                 self._captchawindowscount*2 - len(self._captchas))
 
     def __on_keypress(self, event: Event):
+        if self._end_event:
+            self._end()
+            return
+
         key = event.keysym
         if key.isnumeric() and int(key) > 0:
             self._answer_selected(key)
@@ -257,7 +262,6 @@ class MulticaptchaGUI:
     def add_captchas(self, newcaptchas: List[Captcha]) -> None:
         newimgs = self._create_imgs_from_captchas(newcaptchas)
         self._newcaptchas.acquire()
-        print(f'Adding {len(newcaptchas)} captchas')
         self._captchas.extend(newcaptchas)
         self._images.extend(newimgs)
 
@@ -267,5 +271,8 @@ class MulticaptchaGUI:
     def start(self) -> None:
         self._root.mainloop()
 
-    def end(self) -> None:
+    def signal_end(self) -> None:
+        self._end_event = True
+
+    def _end(self) -> None:
         self._root.destroy()

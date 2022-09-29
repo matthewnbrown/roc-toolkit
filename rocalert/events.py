@@ -208,6 +208,7 @@ class SpyEvent:
                     cons_fails += 1
 
             print(f'Finished spying user #{user.rank}: {user.name}')
+        print('Battlefield has been cleared')
 
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
@@ -234,7 +235,7 @@ class SpyEvent:
 
         def eventthread():
             self._handle_spying()
-            self._gui.end()
+            self._gui.signal_end()
 
         xcount, ycount = 4, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
@@ -247,3 +248,5 @@ class SpyEvent:
         self._gui.start()
 
         spyhandle.join()
+
+        print("Spy event is completed.")
