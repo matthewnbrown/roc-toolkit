@@ -18,8 +18,8 @@ from rocalert.services.captchaservices import MulticaptchaGUI
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 
-lower_rank_cutoff = 25
-upper_rank_cutoff = 100
+lower_rank_cutoff = 1
+upper_rank_cutoff = None
 
 # Comma separated ids. Put your own ID in here
 skip_ids = {7530}
@@ -299,7 +299,7 @@ class SpyEvent:
         }
 
         valid_captcha = self._roc.submit_captcha_url(
-            captcha, targeturl, payload, 'roc_spy')
+            captcha, targeturl, payload)
 
         del self._captchamap[captcha]
         self._usercaptchas[user].remove(captcha)
