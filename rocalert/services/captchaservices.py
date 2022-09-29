@@ -267,8 +267,8 @@ class MulticaptchaGUI:
 
         self._get_new_captchas()
 
-    def start_event(self) -> None:
+    def start(self) -> None:
         self._root.mainloop()
 
-    def end_event(self) -> None:
+    def end(self) -> None:
         self._root.destroy()
