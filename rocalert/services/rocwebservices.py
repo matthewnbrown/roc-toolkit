@@ -38,6 +38,21 @@ class BattlefieldPageService():
         }
 
     @classmethod
+    def get_page_range(cls, roc: RocWebHandler) -> Tuple(int, int):
+        pageurl = roc.site_settings['roc_home'] + \
+            f'/battlefield.php?p={1}'
+
+        roc.go_to_page(pageurl)
+        soup = BeautifulSoup(roc.r.text, 'html.parser')
+        content = soup.find('div', id='content')
+        pagerangetext = content.contents[1].contents[1].text.strip()
+
+        pairs = pagerangetext.split(' of ')
+        lower = int(pairs[0].strip().split(' ')[1])
+        upper = int(pairs[1].strip().split(' ')[0])
+        return (lower, upper)
+
+    @classmethod
     def _checkvalidpage(cls, content: BeautifulSoup, pagenum: int) -> bool:
         pagerangetext = content.contents[1].contents[1].text
         usercount = int(pagerangetext[pagerangetext.index('(') + 1:
