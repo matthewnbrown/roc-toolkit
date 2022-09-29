@@ -312,6 +312,13 @@ class SpyEvent:
             self._handle_admin(user)
         self._captchamaplock.release()
 
+    def _handle_submissions(self) -> None:
+        while len(self._battlefield > 0):
+            # get user
+            # handle all submissions for user
+            # repeat
+            pass
+
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
             print('Error: Could not start event. ROC is not logged in')
@@ -340,9 +347,12 @@ class SpyEvent:
 
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
-        self._running = True
 
-        self._gui.start_event()
+        guithread = Thread(target=self._gui.start)
+        guithread.start()
+        self._handle_submissions()
+        self._gui.end()
+        guithread.join()
 
 
 def test_multiimage(
@@ -379,7 +389,7 @@ def test_multiimage(
 
     event = MulticaptchaGUI(startcap, oncaptchasolve, getcapchtas, x, y)
 
-    event.start_event()
+    event.start()
 
 
 def runevent_new():
