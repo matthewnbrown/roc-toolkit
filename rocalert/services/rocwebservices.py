@@ -38,7 +38,7 @@ class BattlefieldPageService():
         }
 
     @classmethod
-    def get_page_range(cls, roc: RocWebHandler) -> Tuple(int, int):
+    def get_page_range(cls, roc: RocWebHandler) -> Tuple[int, int]:
         pageurl = roc.site_settings['roc_home'] + \
             f'/battlefield.php?p={1}'
 
@@ -82,7 +82,7 @@ class BattlefieldPageService():
 
         children = usercontent.find_all('div', recursive=False)
 
-        rank = children[0].get('id').split('_')[1]
+        rank = _cleanstr_to_int(children[0].get('id').split('_')[1])
         name_alli = children[1].find_all('a')
         name = name_alli[0].text
         alliance = None if len(name_alli) <= 1 else name_alli[1].text
@@ -93,7 +93,7 @@ class BattlefieldPageService():
         tff = _cleanstr_to_int(tfftext[0])
         tfftype = tfftext[1]
 
-        gold = None if '?' in tff_gold[1].text else \
+        gold = -1 if '?' in tff_gold[1].text else \
             _cleanstr_to_int(tff_gold[1].text.strip().split(' ')[0])
 
         return BattlefieldTarget(id, rank, name, alliance, tff, tfftype, gold)
