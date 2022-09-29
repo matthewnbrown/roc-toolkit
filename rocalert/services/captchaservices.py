@@ -140,7 +140,8 @@ class MulticaptchaGUI:
         self._modifycaptchas_lock = Lock()
         self._newcaptchas = Condition()
 
-        self._end_event = False
+        self._event_over = False
+        self._root.bind('<<end_event>>', self._end)
         self._captchas = deque(captchas)
         images = self._create_imgs_from_captchas(captchas)
         self._images = deque(images)
@@ -206,10 +207,6 @@ class MulticaptchaGUI:
                 self._captchawindowscount*2 - len(self._captchas))
 
     def __on_keypress(self, event: Event):
-        if self._end_event:
-            self._end()
-            return
-
         key = event.keysym
         if key.isnumeric() and int(key) > 0:
             self._answer_selected(key)
@@ -260,19 +257,21 @@ class MulticaptchaGUI:
         self._update_captcha_view()
 
     def add_captchas(self, newcaptchas: List[Captcha]) -> None:
-        newimgs = self._create_imgs_from_captchas(newcaptchas)
-        self._newcaptchas.acquire()
-        self._captchas.extend(newcaptchas)
-        self._images.extend(newimgs)
+        if not self._event_over:
+            newimgs = self._create_imgs_from_captchas(newcaptchas)
+            self._newcaptchas.acquire()
+            self._captchas.extend(newcaptchas)
+            self._images.extend(newimgs)
 
-        self._newcaptchas.notify_all()
-        self._newcaptchas.release()
+            self._newcaptchas.notify_all()
+            self._newcaptchas.release()
 
     def start(self) -> None:
         self._root.mainloop()
 
     def signal_end(self) -> None:
-        self._end_event = True
+        self._event_over = True
+        self._root.event_generate('<<end_event>>')
 
-    def _end(self) -> None:
+    def _end(self, event: Event) -> None:
         self._root.destroy()
