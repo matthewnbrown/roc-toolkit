@@ -178,13 +178,13 @@ class SpyEvent:
             user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
             pagenum += 1
             if user_resp['response'] == 'error':
-                self._bflock.release()
-                return
+                break
 
             newuser = self._userfilter(user_resp['result'])
-            if self._reversedordeer:
-                newuser.reverse()
             self._battlefield.extend(newuser)
+
+        self._battlefield.reverse()
+        self._bflock.release()
 
     def _remove_user(self, user: BattlefieldTarget) -> None:
         print(f'{user.name} was removed from the list')
