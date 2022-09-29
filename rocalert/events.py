@@ -237,7 +237,7 @@ class SpyEvent:
             self._handle_spying()
             self._gui.signal_end()
 
-        xcount, ycount = 4, 1
+        xcount, ycount = 8, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
 
         self._gui = MulticaptchaGUI(
