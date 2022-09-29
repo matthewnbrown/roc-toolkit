@@ -227,6 +227,14 @@ class SpyEvent:
             self._handle_admin(user)
         self._captchamaplock.release()
 
+    def _handle_spying(self) -> None:
+
+        while len(self._battlefield) > 0:
+            # pop user
+            # spy till end condition
+            # repeat
+            pass
+
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
             print('Error: Could not start event. ROC is not logged in')
@@ -255,6 +263,11 @@ class SpyEvent:
 
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
-        self._running = True
 
-        self._gui.start_event()
+        guithread = Thread(target=self._gui.start)
+        guithread.start()
+
+        self._handle_spying()
+
+        self._gui.end()
+        guithread.join()
