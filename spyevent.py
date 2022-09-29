@@ -17,14 +17,34 @@ from rocalert.cookiehelper import load_cookies_from_path, \
 from rocalert.services.captchaservices import MulticaptchaGUI
 from rocalert.services.rocwebservices import BattlefieldPageService
 
+
+lower_rank_cutoff = 1
+upper_rank_cutoff = None
+
 # Comma separated ids. Put your own ID in here
-starting_rank = 1
-skip_ids = {7530, 27607, 31123}
+skip_ids = {7530}
 skip_ranks = {112}
-# This will only spy on selected IDs. Skip_ids will be ignored
+
+reversed_order = True
+
+
+# This will only spy on selected IDs. Other filters ignored
 onlyspy_ids = {}
 
 cookie_filename = 'cookies'
+
+skip_idsstr = {str(id) for id in skip_ids}
+onlyspy_idsstr = {str(id) for id in onlyspy_ids}
+
+
+def user_filter(user: BattlefieldTarget) -> bool:
+    if onlyspy_idsstr and len(onlyspy_idsstr) > 0:
+        return user in onlyspy_idsstr
+
+    if user.rank < lower_rank_cutoff or user.rank > upper_rank_cutoff:
+        return False
+
+    return not (user.rank in skip_ranks or user.id in skip_idsstr)
 
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
@@ -101,10 +121,8 @@ class SpyEvent:
     def __init__(
             self,
             roc: RocWebHandler,
-            start_rank: int = 1,
-            skiplist: Set[str] = set(),
-            onlyspylist: Set[str] = set(),
-            skip_rank: Set[int] = set()
+            userfilter: Callable,
+            reversedorder: bool = True
             ) -> None:
         """_summary_
 
@@ -119,12 +137,9 @@ class SpyEvent:
                 parameter is not None or an empty list
         """
         self._roc = roc
-        self._skiplist = skiplist
-        self._onlyspylist = onlyspylist
-        self._start_rank = start_rank,
-        self._skip_rank = skip_rank
-        self._restrictedtargets = onlyspylist and len(onlyspylist) > 0
         self._captchamap = {}
+        self._targetfilter = userfilter
+        self._reversedordeer = reversedorder
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
         self._bflock = Lock()
@@ -149,16 +164,8 @@ class SpyEvent:
             new_users: Iterable[BattlefieldTarget]
             ) -> Deque[BattlefieldTarget]:
         res = deque()
-        if self._onlyspylist and len(self._onlyspylist) > 0:
-            for user in new_users:
-                if user.id in self._onlyspylist:
-                    res.append(user)
-            return res
-
         for user in new_users:
-            if (user.id not in self._skiplist
-                    and int(user.rank) not in self._skip_rank
-                    and int(user.rank) >= starting_rank):
+            if self._targetfilter(user):
                 res.append(user)
         return res
 
@@ -175,6 +182,8 @@ class SpyEvent:
                 return
 
             newuser = self._userfilter(user_resp['result'])
+            if self._reversedordeer:
+                newuser.reverse()
             self._battlefield.extend(newuser)
 
     def _remove_user(self, user: BattlefieldTarget) -> None:
@@ -390,10 +399,7 @@ def runevent_new():
         print('Error logging in.')
         quit()
 
-    skip_idsstr = {str(id) for id in skip_ids}
-    onlyspy_idsstr = {str(id) for id in onlyspy_ids}
-    event = SpyEvent(rochandler, starting_rank,
-                     skip_idsstr, onlyspy_idsstr, skip_ranks)
+    event = SpyEvent(rochandler, user_filter, reversed_order)
     event.start_event()
     save_cookies_to_path(rochandler.get_cookies(), cookie_filename)
 
