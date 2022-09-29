@@ -1,8 +1,8 @@
 from collections import defaultdict, deque
-from random import random
-from time import time
+import random
+import time
 from typing import Callable, Deque, Iterable, List
-from threading import Thread, Lock
+from threading import Thread, Lock, Event
 
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.roc_web_handler import Captcha, RocWebHandler
@@ -52,29 +52,25 @@ class SpyEvent:
                 parameter is not None or an empty list
         """
         self._roc = roc
-        self._captchamap = {}
         self._targetfilter = userfilter
         self._reversedorder = reversedorder
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
-        self._bflock = Lock()
         self._battlefield = None
-        self._captchamaplock = Lock()
-        self._updating_captchas = False
+
+        self._updatecaptchaslock = Lock()
+        self._captchaslock = Lock()
+        self._newcaptchas = Event()
+        self._captchas = deque()
 
     def _hit_spy_limit(self, responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
-
-    def _get_captcha(self, user: BattlefieldTarget) -> Captcha:
-        url = self._get_spy_url(user)
-        captcha = self._roc.get_url_img_captcha(url)
-        return captcha
 
     def _get_spy_url(self, user: BattlefieldTarget) -> str:
         return self._roc.site_settings['roc_home'] \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
-    def _userfilter(
+    def _filterusers(
             self,
             new_users: Iterable[BattlefieldTarget]
             ) -> Deque[BattlefieldTarget]:
@@ -85,7 +81,6 @@ class SpyEvent:
         return res
 
     def _get_all_users(self) -> None:
-        self._bflock.acquire()
         pagenum = 1
         self._battlefield = self._battlefield if self._battlefield else deque()
 
@@ -95,118 +90,69 @@ class SpyEvent:
             if user_resp['response'] == 'error':
                 break
 
-            newuser = self._userfilter(user_resp['result'])
+            newuser = self._filterusers(user_resp['result'])
             self._battlefield.extend(newuser)
 
         if self._reversedorder:
             self._battlefield.reverse()
-        self._bflock.release()
-
-    def _remove_user(self, user: BattlefieldTarget) -> None:
-        print(f'{user.name} was removed from the list')
-        for captcha in self._usercaptchas[user]:
-            del self._captchamap[captcha]
-
-        self._spystatus[user].active_captchas = 0
-        self._spystatus[user].solved_captchas = 10
-
-        self._gui.remove_captchas(self._usercaptchas[user])
-        del self._usercaptchas[user]
-
-    def _handle_maxed_target(self, user: BattlefieldTarget) -> None:
-        print(f'Maxed out spy attempts on {user.name}')
-        self._remove_user(user)
-
-    def _handle_admin(self, user: BattlefieldTarget) -> None:
-        print(f'Detected admin account {user.name}.')
-        self._remove_user(user)
 
     def _detect_admin(self, responsetext: str) -> bool:
         return 'Administrator account' in responsetext
 
+    def _getcaptcha(self) -> Captcha:
+        return self._roc.get_img_captcha('roc_armory')
+
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
-        backup = []
         result = []
-        self._bflock.acquire()
+        consfailures = 0
+        while num_captchas > 0:
+            if consfailures > 3:
+                return result
 
-        while num_captchas > 0 and len(self._battlefield) > 0:
-            cur_user = self._battlefield.popleft()
-            backup.append(cur_user)
-            count = self._spystatus[cur_user].required_captchas
+            captype = self._roc.get_page_captcha_type(
+                self._roc.site_settings['roc_armory'])
 
-            getcaps = min(num_captchas, count)
-            num_captchas -= getcaps
+            if captype == Captcha.CaptchaType.EQUATION:
+                print('Warning: received equation captcha')
+                SolveEqn(self._roc)
+                consfailures += 1
+                continue
+            if captype == Captcha.CaptchaType.TEXT:
+                print("Warning: Received TEXT Captcha"
+                      + ' attempting captcha reset')
+                self._roc.reset_cooldown()
+                consfailures += 1
+                continue
+
+            cap = self._getcaptcha()
+            if cap is None or cap.hash is None:
+                consfailures += 1
+                continue
+
             consfailures = 0
-            for i in range(getcaps):
-                if consfailures > 2:
-                    print(f"Too many failures, skipping {cur_user.name}")
-                    break
-
-                captype = self._roc.get_page_captcha_type(
-                        self._get_spy_url(cur_user))
-                if captype == Captcha.CaptchaType.EQUATION:
-                    print('Warning: received equation captcha')
-                    SolveEqn(self._roc)
-                    i -= 1
-                    consfailures += 1
-
-                if captype == Captcha.CaptchaType.TEXT:
-                    print("Warning: Received TEXT Captcha"
-                          + ' attempting captcha reset')
-                    self._roc.reset_cooldown()
-                    i -= 1
-                    consfailures += 1
-                    continue
-
-                cap = self._get_captcha(cur_user)
-                if cap is None or cap.hash is None:
-                    i -= 1
-                    print(f'Failed getting captcha for {cur_user.name}')
-                    consfailures += 1
-                    continue
-
-                self._captchamaplock.acquire()
-                self._captchamap[cap] = cur_user
-                self._usercaptchas[cur_user].add(cap)
-                self._spystatus[cur_user].active_captchas += 1
-                self._captchamaplock.release()
-                consfailures = 0
-                result.append(cap)
-
-        while len(backup) > 0:
-            self._battlefield.appendleft(backup.pop())
-        self._bflock.release()
+            num_captchas -= 1
+            result.append(cap)
         return result
 
     def _send_captchas_to_gui(self, captchas: List[Captcha]) -> None:
         self._gui.add_captchas(captchas)
 
     def _getsend_captchas(self, count) -> None:
-        self._captchamaplock.acquire()
-        updating = self._updating_captchas
-
-        if not updating:
-            self._updating_captchas = True
-        self._captchamaplock.release()
-
-        if not updating:
+        if not self._updatecaptchaslock.locked():
+            self._updatecaptchaslock.acquire()
             caps = self._getnewcaptchas(count)
             self._send_captchas_to_gui(caps)
-            self._captchamaplock.acquire()
-            self._updating_captchas = False
-            self._captchamaplock.release()
+            self._updatecaptchaslock.release()
 
     def _oncaptchasolved(self, captcha: Captcha) -> None:
-        self._captchamaplock.acquire()
-        # TODO: Add specific thread that constantly handles solved captchas
-        if captcha not in self._captchamap:
-            self._captchamaplock.release()
-            return
+        if captcha and captcha.ans:
+            self._captchaslock.acquire()
+            self._captchas.append(captcha)
+            self._newcaptchas.set()
+            self._captchaslock.release()
 
-        user = self._captchamap[captcha]
-
+    def _spyuser(self, user: BattlefieldTarget, captcha: Captcha) -> str:
         targeturl = self._get_spy_url(user)
-
         payload = {
             'defender_id': user.id,
             'mission_type': 'recon',
@@ -216,24 +162,52 @@ class SpyEvent:
         valid_captcha = self._roc.submit_captcha_url(
             captcha, targeturl, payload)
 
-        del self._captchamap[captcha]
-        self._usercaptchas[user].remove(captcha)
-        self._spystatus[user].active_captchas -= 1
-        if valid_captcha:
-            self._spystatus[user].solved_captchas += 1
+        if not valid_captcha:
+            return 'error'
         if self._hit_spy_limit(self._roc.r.text):
-            self._handle_maxed_target(user)
+            'maxed'
         elif self._detect_admin(self._roc.r.text):
-            self._handle_admin(user)
-        self._captchamaplock.release()
+            'admin'
+
+    def _pull_next_captcha(self) -> Captcha:
+        self._captchaslock.acquire()
+        self._newcaptchas.clear()
+        if len(self._captchas) > 0:
+            cap = self._captchas.popleft()
+        else:
+            self._captchaslock.release()
+            self._newcaptchas.wait()
+            self._captchaslock.acquire()
+            cap = self._captchas.popleft()
+            self._newcaptchas.clear()
+        self._captchaslock.release()
+
+        return cap
 
     def _handle_spying(self) -> None:
-
         while len(self._battlefield) > 0:
-            # pop user
-            # spy till end condition
-            # repeat
-            pass
+            user = self._battlefield.popleft()
+            cons_fails = 0
+
+            count = 0
+            while count < 10:
+                if cons_fails > 3:
+                    print('Failed too many times, skipping user')
+                captcha = self._pull_next_captcha()
+                spyres = self._spyuser(user, captcha)
+
+                if spyres == 'success':
+                    count += 1
+                    cons_fails = 0
+                if spyres == 'admin':
+                    print(f'Detected untouchable admin account {user.name}.')
+                    break
+                elif spyres == 'maxed':
+                    break
+                elif spyres == 'error':
+                    cons_fails += 1
+
+            print(f'Finished spying user #{user.rank}: {user.name}')
 
     def start_event(self) -> None:
         if not self._roc.is_logged_in():
@@ -258,16 +232,18 @@ class SpyEvent:
             t.start()
             return t
 
+        def eventthread():
+            self._handle_spying()
+            self._gui.end()
+
         xcount, ycount = 4, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
 
         self._gui = MulticaptchaGUI(
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
 
-        guithread = Thread(target=self._gui.start)
-        guithread.start()
+        spyhandle = Thread(target=eventthread)
+        spyhandle.start()
+        self._gui.start()
 
-        self._handle_spying()
-
-        self._gui.end()
-        guithread.join()
+        spyhandle.join()
