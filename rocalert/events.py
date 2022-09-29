@@ -54,7 +54,7 @@ class SpyEvent:
         self._roc = roc
         self._captchamap = {}
         self._targetfilter = userfilter
-        self._reversedordeer = reversedorder
+        self._reversedorder = reversedorder
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
         self._bflock = Lock()
@@ -98,7 +98,8 @@ class SpyEvent:
             newuser = self._userfilter(user_resp['result'])
             self._battlefield.extend(newuser)
 
-        self._battlefield.reverse()
+        if self._reversedorder:
+            self._battlefield.reverse()
         self._bflock.release()
 
     def _remove_user(self, user: BattlefieldTarget) -> None:
@@ -256,4 +257,4 @@ class SpyEvent:
             initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
         self._running = True
 
-        self._gui.start()
+        self._gui.start_event()
