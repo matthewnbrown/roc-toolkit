@@ -1,7 +1,7 @@
 from collections import defaultdict, deque
 from random import random
 from time import time
-from typing import Callable, Deque, Iterable, List, Set
+from typing import Callable, Deque, Iterable, List
 from os.path import exists
 from threading import Thread, Lock
 
@@ -18,8 +18,8 @@ from rocalert.services.captchaservices import MulticaptchaGUI
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 
-lower_rank_cutoff = 1
-upper_rank_cutoff = None
+lower_rank_cutoff = 25
+upper_rank_cutoff = 100
 
 # Comma separated ids. Put your own ID in here
 skip_ids = {7530}
@@ -41,7 +41,8 @@ def user_filter(user: BattlefieldTarget) -> bool:
     if onlyspy_idsstr and len(onlyspy_idsstr) > 0:
         return user in onlyspy_idsstr
 
-    if user.rank < lower_rank_cutoff or user.rank > upper_rank_cutoff:
+    if lower_rank_cutoff and user.rank < lower_rank_cutoff \
+            or upper_rank_cutoff and user.rank > upper_rank_cutoff:
         return False
 
     return not (user.rank in skip_ranks or user.id in skip_idsstr)
