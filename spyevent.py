@@ -1,5 +1,6 @@
 from typing import Callable
 from os.path import exists
+from rocalert.captcha.captcha_logger import CaptchaLogger
 
 from rocalert.events import SpyEvent
 from rocalert.roc_settings.settingstools import SettingsFileMaker, \
@@ -25,6 +26,9 @@ reversed_order = True
 onlyspy_ids = {}
 
 cookie_filename = 'cookies'
+
+captchasavepath = 'captcha_img/'
+captchaans_log = 'logs/spyevent.log'
 
 skip_idsstr = {str(id) for id in skip_ids}
 onlyspy_idsstr = {str(id) for id in onlyspy_ids}
@@ -145,7 +149,10 @@ def runevent_new():
         print('Error logging in.')
         quit()
 
-    event = SpyEvent(rochandler, user_filter, reversed_order)
+    captchalogger = CaptchaLogger(captchaans_log)
+    event = SpyEvent(
+        rochandler, user_filter, reversed_order,
+        captcha_save_path=captchasavepath, captchalogger=captchalogger)
     event.start_event()
     save_cookies_to_path(rochandler.get_cookies(), cookie_filename)
 

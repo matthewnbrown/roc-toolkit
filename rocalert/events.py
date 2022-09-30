@@ -1,7 +1,9 @@
 from collections import defaultdict, deque
+import io
 import random
 import time
 import numpy as np
+import PIL.Image
 from typing import Callable, Deque, Iterable, List
 from threading import Thread, Lock, Event
 from rocalert.captcha.captcha_logger import CaptchaLogger
@@ -40,6 +42,7 @@ class SpyEvent:
             roc: RocWebHandler,
             userfilter: Callable,
             reversedorder: bool = True,
+            captcha_save_path: str = None,
             captchalogger: CaptchaLogger = None
             ) -> None:
         """_summary_
@@ -55,6 +58,7 @@ class SpyEvent:
                 parameter is not None or an empty list
         """
         self._captchalogger = captchalogger
+        self._captcha_save_path = captcha_save_path
         self._roc = roc
         self._targetfilter = userfilter
         self._reversedorder = reversedorder
@@ -66,6 +70,14 @@ class SpyEvent:
         self._captchaslock = Lock()
         self._newcaptchas = Event()
         self._captchas = deque()
+
+    def _save_captcha(self, captcha: Captcha) -> None:
+        if self._captcha_save_path is None:
+            return
+
+        img = PIL.Image.open(io.BytesIO(captcha.img))
+        path = self._captcha_save_path + captcha.hash + '.png'
+        img.save(path)
 
     def _log_captcha(self, captcha: Captcha) -> None:
         if self._captchalogger is None:
@@ -113,7 +125,8 @@ class SpyEvent:
 
     def _check_captcha_is_noimage(self, captcha: Captcha) -> bool:
         nparr = np.frombuffer(captcha.img, dtype=np.uint8)
-        return np.mean(nparr) < 100
+        mean = np.mean(nparr)
+        return mean < 105
 
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         result = []
@@ -139,11 +152,13 @@ class SpyEvent:
 
             cap = self._getcaptcha()
 
-            if self._check_captcha_is_noimage(cap):
-                print('Rejected no image captcha')
-
             if cap is None or cap.hash is None:
                 consfailures += 1
+                continue
+
+            self._save_captcha(cap)
+            if self._check_captcha_is_noimage(cap):
+                print('Rejected no image captcha')
                 continue
 
             consfailures = 0
@@ -186,6 +201,8 @@ class SpyEvent:
             return 'maxed'
         elif self._detect_admin(self._roc.r.text):
             return 'admin'
+
+        return 'success'
 
     def _pull_next_captcha(self) -> Captcha:
         self._captchaslock.acquire()
