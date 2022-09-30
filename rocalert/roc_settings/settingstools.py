@@ -13,7 +13,7 @@ class Setting:
     def __init__(self,
                  prettyname: str,
                  name: str,
-                 default_value,
+                 default_value=None,
                  valtype: type = None,
                  description: str = None,
                  value=None,
@@ -26,9 +26,9 @@ class Setting:
         self.desc = description
         self.validation_func = validation_func
 
-        if type(valtype) != type:
+        if valtype and type(valtype) != type:
             print(f'Warning: {name} setting valtype is not a valid type.')
-        elif self.value and type(self.value) != valtype:
+        elif value and valtype and type(self.value) != valtype:
             print(f'Warning: {name} setting type does not match value type.')
 
 
@@ -427,7 +427,7 @@ class SettingsConverter:
     def convert(value: str, valtype: type):
         if valtype in SettingsConverter.__convmap__:
             return SettingsConverter.__convmap__[valtype](value.strip())
-        return None
+        return value
 
     def __tostr__(value: str) -> str:
         return value
@@ -486,8 +486,13 @@ class SettingsLoader:
                     print(f"Warning: Setting {setting_name} found "
                           + "that is not in defaults")
 
-            setting = settings[setting_name]
+            if setting_name in settings:
+                setting = settings[setting_name]
+            else:
+                setting = Setting(setting_name, setting_name, value=value)
             setting.value = SettingsConverter.convert(value, setting.valtype)
+
+        return settings
 
     def __split_comment(line: str) -> str:
         return line.split('#', maxsplit=1)[0]
