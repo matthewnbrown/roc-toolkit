@@ -1,8 +1,10 @@
 from collections import defaultdict, deque
 import random
 import time
+import numpy as np
 from typing import Callable, Deque, Iterable, List
 from threading import Thread, Lock, Event
+from rocalert.captcha.captcha_logger import CaptchaLogger
 
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.roc_web_handler import Captcha, RocWebHandler
@@ -37,7 +39,8 @@ class SpyEvent:
             self,
             roc: RocWebHandler,
             userfilter: Callable,
-            reversedorder: bool = True
+            reversedorder: bool = True,
+            captchalogger: CaptchaLogger = None
             ) -> None:
         """_summary_
 
@@ -51,6 +54,7 @@ class SpyEvent:
                 All other users will be skipped if this
                 parameter is not None or an empty list
         """
+        self._captchalogger = captchalogger
         self._roc = roc
         self._targetfilter = userfilter
         self._reversedorder = reversedorder
@@ -62,6 +66,11 @@ class SpyEvent:
         self._captchaslock = Lock()
         self._newcaptchas = Event()
         self._captchas = deque()
+
+    def _log_captcha(self, captcha: Captcha) -> None:
+        if self._captchalogger is None:
+            return
+        self._captchalogger.log_captcha(captcha)
 
     def _hit_spy_limit(self, responsetext: str) -> bool:
         return 'You cannot recon this person' in responsetext
@@ -102,6 +111,10 @@ class SpyEvent:
     def _getcaptcha(self) -> Captcha:
         return self._roc.get_img_captcha('roc_armory')
 
+    def _check_captcha_is_noimage(self, captcha: Captcha) -> bool:
+        nparr = np.frombuffer(captcha.img, dtype=np.uint8)
+        return np.mean(nparr) < 100
+
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         result = []
         consfailures = 0
@@ -125,6 +138,10 @@ class SpyEvent:
                 continue
 
             cap = self._getcaptcha()
+
+            if self._check_captcha_is_noimage(cap):
+                print('Rejected no image captcha')
+
             if cap is None or cap.hash is None:
                 consfailures += 1
                 continue
@@ -162,6 +179,7 @@ class SpyEvent:
         valid_captcha = self._roc.submit_captcha_url(
             captcha, targeturl, payload)
 
+        captcha.ans_correct = valid_captcha
         if not valid_captcha:
             return 'error'
         if self._hit_spy_limit(self._roc.r.text):
@@ -195,17 +213,20 @@ class SpyEvent:
                     print('Failed too many times, skipping user')
                 captcha = self._pull_next_captcha()
                 spyres = self._spyuser(user, captcha)
+                self._log_captcha(captcha)
+
+                if spyres == 'error':
+                    cons_fails += 1
+                else:
+                    cons_fails = 0
 
                 if spyres == 'success':
                     count += 1
-                    cons_fails = 0
-                if spyres == 'admin':
+                elif spyres == 'admin':
                     print(f'Detected untouchable admin account {user.name}.')
                     break
                 elif spyres == 'maxed':
                     break
-                elif spyres == 'error':
-                    cons_fails += 1
 
             print(f'Finished spying user #{user.rank}: {user.name}')
         print('Battlefield has been cleared')
