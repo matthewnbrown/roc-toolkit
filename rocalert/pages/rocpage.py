@@ -117,6 +117,33 @@ class RocRecruitPage(RocImageCaptchaPage):
     def next_captcha_time(self) -> datetime:
         return self._nextcaptchatime
 
+class HasStats:
+    def _get_stats(self, content: BeautifulSoup):
+        raise NotImplementedError
+
+    @property
+    def strike(self) -> RocNumber:
+        return self._strike
+
+    @property
+    def defense(self) -> RocNumber:
+        return self._defense
+
+    @property
+    def spy(self) -> RocNumber:
+        return self._spy
+
+    @property
+    def sentry(self) -> RocNumber:
+        return self._sentry
+
+    @property
+    def kills(self) -> RocNumber:
+        return self._kills
+
+    @property
+    def kill_ratio(self) -> float:
+        return self._killratio
 
 class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
