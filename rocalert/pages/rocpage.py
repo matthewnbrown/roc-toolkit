@@ -120,22 +120,43 @@ class RocRecruitPage(RocImageCaptchaPage):
 
 class StatTable:
     def __init__(self, table: BeautifulSoup) -> None:
-        pass
+        rows = table.find_all('tr')
+
+        self._strike = self._parseaction(rows[1])
+        self._defense = self._parseaction(rows[2])
+        self._spy = self._parseaction[rows[3]]
+        self._sentry = self._parseaction[rows[4]]
+        self._kills = RocNumber(rows[5].contents[3].text)
+        self._killratio = float(rows[6].contents[3].text)
+
+    def _parseaction(
+            self, row: BeautifulSoup
+            ) -> Tuple[float, RocNumber, int]:
+
+        label = row.contents[1].text
+        if '+' in label:
+            bonus = float(label[label.index('+')+1: label.index('%')])
+        else:
+            bonus = 0.0
+        action = RocNumber(row.contents[3].text)
+        rank = int(row.contents[5].text[1:])
+
+        return (bonus, action, rank)
 
     @property
-    def strike(self) -> RocNumber:
+    def strike(self) -> Tuple[float, RocNumber, int]:
         return self._strike
 
     @property
-    def defense(self) -> RocNumber:
+    def defense(self) -> Tuple[float, RocNumber, int]:
         return self._defense
 
     @property
-    def spy(self) -> RocNumber:
+    def spy(self) -> Tuple[float, RocNumber, int]:
         return self._spy
 
     @property
-    def sentry(self) -> RocNumber:
+    def sentry(self) -> Tuple[float, RocNumber, int]:
         return self._sentry
 
     @property
