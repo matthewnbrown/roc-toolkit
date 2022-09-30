@@ -119,10 +119,9 @@ class RocRecruitPage(RocImageCaptchaPage):
         return self._nextcaptchatime
 
 
-class HasStats:
-    @abstractmethod
-    def _get_stats(self, content: BeautifulSoup):
-        raise NotImplementedError
+class StatTable:
+    def __init__(self, table: BeautifulSoup) -> None:
+        pass
 
     @property
     def strike(self) -> RocNumber:
@@ -149,10 +148,9 @@ class HasStats:
         return self._killratio
 
 
-class HasWeaponTroopsDist:
-    @abstractmethod
-    def _get_weaponstroopdist(self, content: BeautifulSoup) -> None:
-        raise NotImplementedError
+class WeaponTroopDistribution:
+    def __init__(self, table) -> None:
+        pass
 
     @property
     def attack_wt_dist(self) -> Tuple(RocNumber, RocNumber):
