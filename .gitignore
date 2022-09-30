@@ -5,6 +5,7 @@ user.settings
 buyer.settings
 trainer.settings
 logs
+tests/testpages/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
