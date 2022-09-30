@@ -1,4 +1,3 @@
-from abc import abstractmethod
 from typing import Dict, Tuple, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -148,7 +147,7 @@ class StatTable:
         return self._killratio
 
 
-class WeaponTroopDistribution:
+class WeaponTroopDistTable:
     def __init__(self, table) -> None:
         pass
 
@@ -184,10 +183,14 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._merccost = {}
 
         content = page.find(id='content')
-        self._get_mercs_avail(content)
+        fpc = content.find_all('div', {'class': 'flexpanel_container'})
+        self._get_mercs_avail(fpc[0])
 
-        content.find_all('table', {'class': 'sep f'})
-        raise NotImplementedError
+        fpctables = fpc[1].find_all('table')
+        self._stattable = StatTable(fpctables[0])
+        self._weapondisttable = WeaponTroopDistTable(fpctables[2])
+
+        self._get_troops_table(fpctables[1])
 
     def _get_mercs_avail(self, content: BeautifulSoup) -> None:
         attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
@@ -204,6 +207,9 @@ class RocTrainingPage(RocImageCaptchaPage):
         untcountstr = untspan[0].text.split(' ')[1]
         self._availmercs['untrained'] = RocNumber(untcountstr)
         self._merccost['defense'] = RocNumber(untspan[1].text)
+
+    def _get_troops_table(self, table: BeautifulSoup) -> None:
+        pass
 
     @property
     def attack_soldiers(self) -> RocNumber:
