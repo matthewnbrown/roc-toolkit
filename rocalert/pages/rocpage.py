@@ -148,8 +148,35 @@ class StatTable:
 
 
 class WeaponTroopDistTable:
-    def __init__(self, table) -> None:
-        pass
+    def __init__(self, table: BeautifulSoup) -> None:
+        rows = table.find_all('tr')
+
+        self._wtdist = {}
+        self._wtdist['attack'] = (
+            RocNumber(rows[2].contents[3].text),
+            RocNumber(rows[2].contents[5].text.split(' ')[0]))
+
+        self._wtdist['defense'] = (
+            RocNumber(rows[3].contents[3].text),
+            RocNumber(rows[3].contents[5].text.split(' ')[0]))
+
+        self._wtdist['spy'] = (
+            RocNumber(rows[4].contents[3].text),
+            RocNumber(rows[4].contents[5].text))
+
+        self._wtdist['sentry'] = (
+            RocNumber(rows[5].contents[3].text),
+            RocNumber(rows[5].contents[5].text))
+
+        self._tff = RocNumber(rows[6].contents[4].text)
+        self._untrained = self._extract_untrained(rows[2].contents[5].text)
+
+    def _extract_untrained(self, attacksoldiers: str) -> RocNumber:
+        split = attacksoldiers.split(' ')
+        if len(split) != 3:
+            return RocNumber(0)
+        num = split[1]
+        return RocNumber(num.split('+', maxsplit=1)[1])
 
     @property
     def attack_wt_dist(self) -> Tuple(RocNumber, RocNumber):
@@ -170,6 +197,10 @@ class WeaponTroopDistTable:
     @property
     def total_covert_force(self) -> RocNumber:
         return self._wtdist['spy'][0] + self._wtdist['sentry'][0]
+
+    @property
+    def untrained_soldiers(self) -> RocNumber:
+        return self._untrained
 
     @property
     def total_fighting_force(self) -> RocNumber:
@@ -209,7 +240,8 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._merccost['defense'] = RocNumber(untspan[1].text)
 
     def _parse_row(self, row: BeautifulSoup) -> Tuple:
-        return (RocNumber(row.contents[2]), RocNumber(row.contents[3]))
+        return (RocNumber(row.contents[3].text),
+                RocNumber(row.contents[5].text))
 
     def _get_troops_table(self, table: BeautifulSoup) -> None:
         rows = table.find_all('tr')
