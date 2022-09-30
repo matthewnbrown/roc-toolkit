@@ -133,13 +133,16 @@ class SettingsLoaderTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
+
 class UserSettingsTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
+
 class SiteSettingsTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+
 
 if __name__ == "__main__":
     unittest.main()
