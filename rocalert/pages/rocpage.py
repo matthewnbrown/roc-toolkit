@@ -121,8 +121,26 @@ class RocRecruitPage(RocImageCaptchaPage):
 class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
+        self._availmercs = {}
+        self._merccost = {}
         # content = page.find(id='content')
         raise NotImplementedError
+
+    def _get_mercs_avail(self, content: BeautifulSoup) -> None:
+        attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
+        attcountstr = attspans[0].text.split(' ')[1]
+        self._availmercs['attack'] = RocNumber(attcountstr)
+        self._merccost['attack'] = RocNumber(attspans[1].text)
+
+        defspans = content.find(id='cell_merc_defense_mercs').find_all('span')
+        defcountstr = defspans[0].text.split(' ')[1]
+        self._availmercs['defense'] = RocNumber(defcountstr)
+        self._merccost['defense'] = RocNumber(defspans[1].text)
+
+        untspan = content.find(id='cell_merc_untrained_mercs').find_all('span')
+        untcountstr = untspan[0].text.split(' ')[1]
+        self._availmercs['untrained'] = RocNumber(untcountstr)
+        self._merccost['defense'] = RocNumber(untspan[1].text)
 
     @property
     def attack_soldiers(self) -> RocNumber:
