@@ -123,7 +123,11 @@ class RocTrainingPage(RocImageCaptchaPage):
         super().__init__(page)
         self._availmercs = {}
         self._merccost = {}
-        # content = page.find(id='content')
+
+        content = page.find(id='content')
+        self._get_mercs_avail(content)
+
+        content.find_all('table', {'class': 'sep f'})
         raise NotImplementedError
 
     def _get_mercs_avail(self, content: BeautifulSoup) -> None:
