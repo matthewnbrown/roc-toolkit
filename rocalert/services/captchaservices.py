@@ -1,6 +1,6 @@
 from collections import deque
 from functools import partial
-from threading import Lock, Condition, Thread
+from threading import Lock, Condition
 from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW, Event
 from PIL import Image, ImageTk
 import cv2

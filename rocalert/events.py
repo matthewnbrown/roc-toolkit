@@ -165,9 +165,9 @@ class SpyEvent:
         if not valid_captcha:
             return 'error'
         if self._hit_spy_limit(self._roc.r.text):
-            'maxed'
+            return 'maxed'
         elif self._detect_admin(self._roc.r.text):
-            'admin'
+            return 'admin'
 
     def _pull_next_captcha(self) -> Captcha:
         self._captchaslock.acquire()
