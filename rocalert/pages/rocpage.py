@@ -1,3 +1,4 @@
+from abc import abstractmethod
 from typing import Dict, Tuple, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -117,7 +118,9 @@ class RocRecruitPage(RocImageCaptchaPage):
     def next_captcha_time(self) -> datetime:
         return self._nextcaptchatime
 
+
 class HasStats:
+    @abstractmethod
     def _get_stats(self, content: BeautifulSoup):
         raise NotImplementedError
 
@@ -144,6 +147,37 @@ class HasStats:
     @property
     def kill_ratio(self) -> float:
         return self._killratio
+
+
+class HasWeaponTroopsDist:
+    @abstractmethod
+    def _get_weaponstroopdist(self, content: BeautifulSoup) -> None:
+        raise NotImplementedError
+
+    @property
+    def attack_wt_dist(self) -> Tuple(RocNumber, RocNumber):
+        return self._wtdist['attack']
+
+    @property
+    def defense_wt_dist(self) -> Tuple(RocNumber, RocNumber):
+        return self._wtdist['defense']
+
+    @property
+    def spy_wt_dist(self) -> Tuple(RocNumber, RocNumber):
+        return self._wtdist['spy']
+
+    @property
+    def sentry_wt_dist(self) -> Tuple(RocNumber, RocNumber):
+        return self._wtdist['sentry']
+
+    @property
+    def total_covert_force(self) -> RocNumber:
+        return self._wtdist['spy'][0] + self._wtdist['sentry'][0]
+
+    @property
+    def total_fighting_force(self) -> RocNumber:
+        return self._tff
+
 
 class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
@@ -227,7 +261,7 @@ class RocTrainingPage(RocImageCaptchaPage):
 
     @property
     def total_fighting_force(self) -> RocNumber:
-        return self.total_soldiers + self.total_mercenaries
+        return self._tff
 
     @property
     def avail_attack_mercs(self) -> Tuple[RocNumber, RocNumber]:
