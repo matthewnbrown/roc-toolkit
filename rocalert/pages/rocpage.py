@@ -208,63 +208,75 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._availmercs['untrained'] = RocNumber(untcountstr)
         self._merccost['defense'] = RocNumber(untspan[1].text)
 
+    def _parse_row(self, row: BeautifulSoup) -> Tuple:
+        return (RocNumber(row.contents[2]), RocNumber(row.contents[3]))
+
     def _get_troops_table(self, table: BeautifulSoup) -> None:
-        pass
+        rows = table.find_all('tr')
+        self._attacksold = self._parse_row(rows[2])
+        self._attackmercs = self._parse_row(rows[3])
+        self._defensesold = self._parse_row(rows[4])
+        self._defensemercs = self._parse_row(rows[5])
+        self._untrainedsold = self._parse_row(rows[6])
+        self._untrainedmercs = self._parse_row(rows[7])
+        self._spies = self._parse_row(rows[8])
+        self._sentries = self._parse_row(rows[9])
+        self._zombies = self._parse_row(rows[10])
+        self._totalmercs = self._parse_row(rows[11])
+        self._totalsoldiers = self._parse_row(rows[12])
+        self._totalcovert = self._parse_row(rows[13])
+        self._tff = self._parse_row(rows[14])
 
     @property
-    def attack_soldiers(self) -> RocNumber:
+    def attack_soldiers(self) -> Tuple(RocNumber, RocNumber):
         return self._attacksold
 
     @property
-    def attack_mercenaries(self) -> RocNumber:
+    def attack_mercenaries(self) -> Tuple(RocNumber, RocNumber):
         return self._attackmercs
 
     @property
-    def defense_soldiers(self) -> RocNumber:
+    def defense_soldiers(self) -> Tuple(RocNumber, RocNumber):
         return self._defensesold
 
     @property
-    def defense_mercenaries(self) -> RocNumber:
+    def defense_mercenaries(self) -> Tuple(RocNumber, RocNumber):
         return self._defensemercs
 
     @property
-    def untrained_soldiers(self) -> RocNumber:
+    def untrained_soldiers(self) -> Tuple(RocNumber, RocNumber):
         return self._untrainedsold
 
     @property
-    def untrained_mercenaries(self) -> RocNumber:
+    def untrained_mercenaries(self) -> Tuple(RocNumber, RocNumber):
         return self._untrainedmercs
 
     @property
-    def spies(self) -> RocNumber:
+    def spies(self) -> Tuple(RocNumber, RocNumber):
         return self._spies
 
     @property
-    def sentries(self) -> RocNumber:
+    def sentries(self) -> Tuple(RocNumber, RocNumber):
         return self._sentries
 
     @property
-    def zombies(self) -> RocNumber:
+    def zombies(self) -> Tuple(RocNumber, RocNumber):
         return self._zombies
 
     @property
-    def total_soldiers(self) -> RocNumber:
-        return self.attack_soldiers \
-                + self.defense_soldiers \
-                + self.untrained_soldiers
+    def total_soldiers(self) -> Tuple(RocNumber, RocNumber):
+        return self._totalsoldiers
 
     @property
-    def total_mercenaries(self) -> RocNumber:
-        return self._attackmercs \
-                + self._defensemercs \
-                + self._untrainedmercs
+    def total_mercenaries(self) -> Tuple(RocNumber, RocNumber):
+        return self._totalmercs
 
     @property
-    def total_covert_force(self) -> RocNumber:
-        return self._spies + self._sentries
+    def total_covert_force(self) -> Tuple(RocNumber, RocNumber):
+        return self._totalcovert
 
     @property
-    def total_fighting_force(self) -> RocNumber:
+    def total_fighting_force(self) -> Tuple(RocNumber, RocNumber):
         return self._tff
 
     @property
