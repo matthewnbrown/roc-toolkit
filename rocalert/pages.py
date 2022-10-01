@@ -252,7 +252,7 @@ class RocTrainingTableEntry:
         self._cost = cost
 
     @property
-    def cost(self) -> RocNumber:
+    def income(self) -> RocNumber:
         return self._cost
 
     @property
@@ -263,8 +263,6 @@ class RocTrainingTableEntry:
 class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        self._availmercs = {}
-        self._merccost = {}
 
         content = page.find(id='content')
         fpc = content.find_all('div', {'class': 'flexpanel_container'})
@@ -279,18 +277,18 @@ class RocTrainingPage(RocImageCaptchaPage):
     def _get_mercs_avail(self, content: BeautifulSoup) -> None:
         attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
         attcountstr = attspans[0].text.split(' ')[1]
-        self._availmercs['attack'] = RocNumber(attcountstr)
-        self._merccost['attack'] = RocNumber(attspans[1].text)
+        self._availattmercs = RocTrainingTableEntry(
+            RocNumber(attcountstr), RocNumber(attspans[1].text))
 
         defspans = content.find(id='cell_merc_defense_mercs').find_all('span')
         defcountstr = defspans[0].text.split(' ')[1]
-        self._availmercs['defense'] = RocNumber(defcountstr)
-        self._merccost['defense'] = RocNumber(defspans[1].text)
+        self._availdefmercs = RocTrainingTableEntry(
+            RocNumber(defcountstr), RocNumber(defspans[1].text))
 
         untspan = content.find(id='cell_merc_untrained_mercs').find_all('span')
         untcountstr = untspan[0].text.split(' ')[1]
-        self._availmercs['untrained'] = RocNumber(untcountstr)
-        self._merccost['defense'] = RocNumber(untspan[1].text)
+        self._availuntmercs = RocTrainingTableEntry(
+            RocNumber(untcountstr), RocNumber(untspan[1].text))
 
     def _parse_row(self, row: BeautifulSoup) -> RocTrainingTableEntry:
         return RocTrainingTableEntry(
@@ -314,68 +312,68 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._tff = self._parse_row(rows[14])
 
     @property
-    def attack_soldiers(self) -> Tuple[RocNumber, RocNumber]:
+    def attack_soldiers(self) -> RocTrainingTableEntry:
         return self._attacksold
 
     @property
-    def attack_mercenaries(self) -> Tuple[RocNumber, RocNumber]:
+    def attack_mercenaries(self) -> RocTrainingTableEntry:
         return self._attackmercs
 
     @property
-    def defense_soldiers(self) -> Tuple[RocNumber, RocNumber]:
+    def defense_soldiers(self) -> RocTrainingTableEntry:
         return self._defensesold
 
     @property
-    def defense_mercenaries(self) -> Tuple[RocNumber, RocNumber]:
+    def defense_mercenaries(self) -> RocTrainingTableEntry:
         return self._defensemercs
 
     @property
-    def untrained_soldiers(self) -> Tuple[RocNumber, RocNumber]:
+    def untrained_soldiers(self) -> RocTrainingTableEntry:
         return self._untrainedsold
 
     @property
-    def untrained_mercenaries(self) -> Tuple[RocNumber, RocNumber]:
+    def untrained_mercenaries(self) -> RocTrainingTableEntry:
         return self._untrainedmercs
 
     @property
-    def spies(self) -> Tuple[RocNumber, RocNumber]:
+    def spies(self) -> RocTrainingTableEntry:
         return self._spies
 
     @property
-    def sentries(self) -> Tuple[RocNumber, RocNumber]:
+    def sentries(self) -> RocTrainingTableEntry:
         return self._sentries
 
     @property
-    def zombies(self) -> Tuple[RocNumber, RocNumber]:
+    def zombies(self) -> RocTrainingTableEntry:
         return self._zombies
 
     @property
-    def total_soldiers(self) -> Tuple[RocNumber, RocNumber]:
+    def total_soldiers(self) -> RocTrainingTableEntry:
         return self._totalsoldiers
 
     @property
-    def total_mercenaries(self) -> Tuple[RocNumber, RocNumber]:
+    def total_mercenaries(self) -> RocTrainingTableEntry:
         return self._totalmercs
 
     @property
-    def total_covert_force(self) -> Tuple[RocNumber, RocNumber]:
+    def total_covert_force(self) -> RocTrainingTableEntry:
         return self._totalcovert
 
     @property
-    def total_fighting_force(self) -> Tuple[RocNumber, RocNumber]:
+    def total_fighting_force(self) -> RocTrainingTableEntry:
         return self._tff
 
     @property
-    def avail_attack_mercs(self) -> Tuple[RocNumber, RocNumber]:
-        return (self._availmercs['attack'], self._merccost['attack'])
+    def avail_attack_mercs(self) -> RocTrainingTableEntry:
+        return self._availattmercs
 
     @property
-    def avail_defense_mercs(self) -> Tuple[RocNumber, RocNumber]:
-        return (self._availmercs['defense'], self._merccost['defense'])
+    def avail_defense_mercs(self) -> RocTrainingTableEntry:
+        return self._availdefmercs
 
     @property
-    def avail_untrained_mercs(self) -> Tuple[RocNumber, RocNumber]:
-        return (self._availmercs['untrained'], self._merccost['untrained'])
+    def avail_untrained_mercs(self) -> RocTrainingTableEntry:
+        return self._availuntmercs
 
 
 class RocArmoryPage(RocImageCaptchaPage):
