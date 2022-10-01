@@ -124,10 +124,28 @@ class StatTable:
 
         self._strike = self._parseaction(rows[1])
         self._defense = self._parseaction(rows[2])
-        self._spy = self._parseaction[rows[3]]
-        self._sentry = self._parseaction[rows[4]]
+        self._spy = self._parseaction(rows[3])
+        self._sentry = self._parseaction(rows[4])
         self._kills = RocNumber(rows[5].contents[3].text)
         self._killratio = float(rows[6].contents[3].text)
+
+    class StatTableEntry:
+        def __init__(self, bonus: float, action: RocNumber, rank: int) -> None:
+            self._bonus = bonus
+            self._action = action
+            self._rank = rank
+
+        @property
+        def bonus(self) -> float:
+            return self._float
+
+        @property
+        def action(self) -> RocNumber:
+            return self._action
+
+        @property
+        def rank(self) -> int:
+            return self._rank
 
     def _parseaction(
             self, row: BeautifulSoup
@@ -141,22 +159,22 @@ class StatTable:
         action = RocNumber(row.contents[3].text)
         rank = int(row.contents[5].text[1:])
 
-        return (bonus, action, rank)
+        return StatTable.StatTableEntry(bonus, action, rank)
 
     @property
-    def strike(self) -> Tuple[float, RocNumber, int]:
+    def strike(self) -> StatTableEntry:
         return self._strike
 
     @property
-    def defense(self) -> Tuple[float, RocNumber, int]:
+    def defense(self) -> StatTableEntry:
         return self._defense
 
     @property
-    def spy(self) -> Tuple[float, RocNumber, int]:
+    def spy(self) -> StatTableEntry:
         return self._spy
 
     @property
-    def sentry(self) -> Tuple[float, RocNumber, int]:
+    def sentry(self) -> StatTableEntry:
         return self._sentry
 
     @property
