@@ -2,7 +2,7 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocPage, StatTable
+from rocalert.pages import RocPage, StatTable, WeaponTroopDistTable
 
 
 def _get_dir():
@@ -44,6 +44,7 @@ class PageLoggedInTest(unittest.TestCase):
 
 
 class StatsTableTest(unittest.TestCase):
+    # TODO Add seperate tests for bonus tables
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
@@ -131,4 +132,100 @@ class StatsTableTest(unittest.TestCase):
         self.assertEqual(
             entry.bonus, 1.0,
             'Invalid sentry bonus'
+        )
+
+
+class WeaponTroopDistTableTest(unittest.TestCase):
+    # TODO Add seperate tests for with untrained table
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+    def _get_untrained_table(self) -> WeaponTroopDistTable:
+        path = '/testpages/weapontrooptable/weapontrooptable_hasuntrained.html'
+        soup = _getsoup(path)
+        return WeaponTroopDistTable(soup)
+
+    def _get_no_untrained_table(self) -> WeaponTroopDistTable:
+        path = '/testpages/weapontrooptable/weapontrooptable_nountrained.html'
+        soup = _getsoup(path)
+        return WeaponTroopDistTable(soup)
+
+    def test_nountrained_attack(self):
+        table = self._get_no_untrained_table()
+        entry = table.attack_wt_dist
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count.value),
+            (2322121, 1234),
+            'Invalid attack weapon troop distribution'
+        )
+
+    def test_nountrained_defense(self):
+        table = self._get_no_untrained_table()
+        entry = table.defense_wt_dist
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count.value),
+            (360885, 36333),
+            'Invalid defense weapon troop distribution'
+        )
+
+    def test_nountrained_spy(self):
+        table = self._get_no_untrained_table()
+        entry = table.spy_wt_dist
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count.value),
+            (3221, 20),
+            'Invalid spy weapon troop distribution'
+        )
+
+    def test_nountrained_sentry(self):
+        table = self._get_no_untrained_table()
+        entry = table.sentry_wt_dist
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count.value),
+            (311483, 304814),
+            'Invalid sentry weapon troop distribution'
+        )
+
+    def test_nountrained_untrained(self):
+        table = self._get_no_untrained_table()
+        entry = table.untrained_soldiers
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count),
+            (0, None),
+            'Invalid untrained weapon troop distribution'
+        )
+
+    def test_nountrained_tff(self):
+        table = self._get_no_untrained_table()
+        entry = table.total_fighting_force
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count),
+            (1684268, None),
+            'Invalid tff weapon troop distribution'
+        )
+
+    def test_nountrained_tcf(self):
+        table = self._get_no_untrained_table()
+        entry = table.total_covert_force
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count),
+            (311503, None),
+            'Invalid tcf weapon troop distribution'
+        )
+
+    def test_untrained_untrained(self):
+        table = self._get_untrained_table()
+        entry = table.untrained_soldiers
+
+        self.assertTupleEqual(
+            (entry.soldiers.value, entry.weapon_count),
+            (1120, None),
+            'Invalid untrained soldier count (untrained)'
         )
