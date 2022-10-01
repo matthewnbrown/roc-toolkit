@@ -1,4 +1,4 @@
-from typing import Dict, Tuple, Union
+from typing import Dict, Optional, Tuple, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
 
@@ -186,29 +186,48 @@ class StatTable:
         return self._killratio
 
 
+class WeaponDistTableEntry:
+    def __init__(
+            self,
+            soldiers: RocNumber,
+            weaponcount: Optional[RocNumber] = None
+            ) -> None:
+        self._soldiers = soldiers
+        self._weaponcount = weaponcount
+
+    @property
+    def soldiers(self) -> RocNumber:
+        return self._soldiers
+
+    @property
+    def weapon_count(self) -> Optional[RocNumber]:
+        return self._weaponcount
+
+
 class WeaponTroopDistTable:
     def __init__(self, table: BeautifulSoup) -> None:
         rows = table.find_all('tr')
 
-        self._wtdist = {}
-        self._wtdist['attack'] = (
-            RocNumber(rows[2].contents[3].text),
-            RocNumber(rows[2].contents[5].text.split(' ')[0]))
+        self._att_wtdist = WeaponDistTableEntry(
+            RocNumber(rows[2].contents[5].text.split(' ')[0]),
+            RocNumber(rows[2].contents[3].text))
 
-        self._wtdist['defense'] = (
-            RocNumber(rows[3].contents[3].text),
-            RocNumber(rows[3].contents[5].text.split(' ')[0]))
+        self._def_wtdist = WeaponDistTableEntry(
+            RocNumber(rows[3].contents[5].text.split(' ')[0]),
+            RocNumber(rows[3].contents[3].text))
 
-        self._wtdist['spy'] = (
-            RocNumber(rows[4].contents[3].text),
-            RocNumber(rows[4].contents[5].text))
+        self._spy_wtdist = WeaponDistTableEntry(
+            RocNumber(rows[4].contents[5].text),
+            RocNumber(rows[4].contents[3].text))
 
-        self._wtdist['sentry'] = (
-            RocNumber(rows[5].contents[3].text),
-            RocNumber(rows[5].contents[5].text))
+        self._sentry_wtdist = WeaponDistTableEntry(
+            RocNumber(rows[5].contents[5].text),
+            RocNumber(rows[5].contents[3].text))
 
-        self._tff = RocNumber(rows[6].contents[4].text)
-        self._untrained = self._extract_untrained(rows[2].contents[5].text)
+        self._tff = WeaponDistTableEntry(RocNumber(rows[6].contents[4].text))
+        self._tcf = WeaponDistTableEntry(RocNumber(rows[7].contents[4].text))
+        self._untrained = WeaponDistTableEntry(
+            self._extract_untrained(rows[2].contents[5].text))
 
     def _extract_untrained(self, attacksoldiers: str) -> RocNumber:
         split = attacksoldiers.split(' ')
@@ -218,31 +237,31 @@ class WeaponTroopDistTable:
         return RocNumber(num.split('+', maxsplit=1)[1])
 
     @property
-    def attack_wt_dist(self) -> Tuple[RocNumber, RocNumber]:
-        return self._wtdist['attack']
+    def attack_wt_dist(self) -> WeaponDistTableEntry:
+        return self._att_wtdist
 
     @property
-    def defense_wt_dist(self) -> Tuple[RocNumber, RocNumber]:
-        return self._wtdist['defense']
+    def defense_wt_dist(self) -> WeaponDistTableEntry:
+        return self._def_wtdist
 
     @property
-    def spy_wt_dist(self) -> Tuple[RocNumber, RocNumber]:
-        return self._wtdist['spy']
+    def spy_wt_dist(self) -> WeaponDistTableEntry:
+        return self._spy_wtdist
 
     @property
-    def sentry_wt_dist(self) -> Tuple[RocNumber, RocNumber]:
-        return self._wtdist['sentry']
+    def sentry_wt_dist(self) -> WeaponDistTableEntry:
+        return self._sentry_wtdist
 
     @property
-    def total_covert_force(self) -> RocNumber:
-        return self._wtdist['spy'][0] + self._wtdist['sentry'][0]
+    def total_covert_force(self) -> WeaponDistTableEntry:
+        return self._tcf
 
     @property
-    def untrained_soldiers(self) -> RocNumber:
+    def untrained_soldiers(self) -> WeaponDistTableEntry:
         return self._untrained
 
     @property
-    def total_fighting_force(self) -> RocNumber:
+    def total_fighting_force(self) -> WeaponDistTableEntry:
         return self._tff
 
 
