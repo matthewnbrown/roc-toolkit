@@ -246,6 +246,20 @@ class WeaponTroopDistTable:
         return self._tff
 
 
+class RocTrainingTableEntry:
+    def __init__(self, count: RocNumber, cost: RocNumber) -> None:
+        self._count = count
+        self._cost = cost
+
+    @property
+    def cost(self) -> RocNumber:
+        return self._cost
+
+    @property
+    def count(self) -> RocNumber:
+        return self._count
+
+
 class RocTrainingPage(RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
@@ -278,8 +292,9 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._availmercs['untrained'] = RocNumber(untcountstr)
         self._merccost['defense'] = RocNumber(untspan[1].text)
 
-    def _parse_row(self, row: BeautifulSoup) -> Tuple:
-        return (RocNumber(row.contents[3].text),
+    def _parse_row(self, row: BeautifulSoup) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(
+                RocNumber(row.contents[3].text),
                 RocNumber(row.contents[5].text))
 
     def _get_troops_table(self, table: BeautifulSoup) -> None:
