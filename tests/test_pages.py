@@ -2,7 +2,8 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocPage, StatTable, WeaponTroopDistTable
+from rocalert.pages import RocPage, RocUserPage,\
+    StatTable, WeaponTroopDistTable
 
 
 def _get_dir():
@@ -29,14 +30,14 @@ class PageLoggedInTest(unittest.TestCase):
         super().__init__(methodName)
 
     def test_logged_in(self):
-        path = '/testpages/loginstatus/true.html'
+        path = '/testpages/simplepages/loginstatus/true.html'
         soup = _getsoup(path)
 
         page = RocPage(soup)
         self.assertTrue(page.logged_in, 'Page is not logged in.')
 
     def test_notlogged_in(self):
-        path = '/testpages/loginstatus/false.html'
+        path = '/testpages/simplepages/loginstatus/false.html'
         soup = _getsoup(path)
 
         page = RocPage(soup)
@@ -49,12 +50,12 @@ class StatsTableTest(unittest.TestCase):
         super().__init__(methodName)
 
     def _getnobonustable(self) -> StatTable:
-        filepath = 'testpages/statstable/statstable_nobonus.html'
+        filepath = 'testpages/simplepages/statstable/statstable_nobonus.html'
         soup = _getsoup(filepath)
         return StatTable(soup)
 
     def _getbonustable(self) -> StatTable:
-        filepath = 'testpages/statstable/statstable_allbonus.html'
+        filepath = 'testpages/simplepages/statstable/statstable_allbonus.html'
         soup = _getsoup(filepath)
         return StatTable(soup)
 
@@ -141,12 +142,14 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         super().__init__(methodName)
 
     def _get_untrained_table(self) -> WeaponTroopDistTable:
-        path = '/testpages/weapontrooptable/weapontrooptable_hasuntrained.html'
+        path = '/testpages/simplepages/weapontrooptable/' \
+            + 'weapontrooptable_hasuntrained.html'
         soup = _getsoup(path)
         return WeaponTroopDistTable(soup)
 
     def _get_no_untrained_table(self) -> WeaponTroopDistTable:
-        path = '/testpages/weapontrooptable/weapontrooptable_nountrained.html'
+        path = '/testpages/simplepages/weapontrooptable/' \
+            + 'weapontrooptable_nountrained.html'
         soup = _getsoup(path)
         return WeaponTroopDistTable(soup)
 
@@ -229,3 +232,86 @@ class WeaponTroopDistTableTest(unittest.TestCase):
             (1120, None),
             'Invalid untrained soldier count (untrained)'
         )
+
+
+class RocUserPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+    def _get_userpage(self) -> RocUserPage:
+        path = '/testpages/simplepages/userpage.html'
+        soup = _getsoup(path)
+        return RocUserPage(soup)
+
+    def test_userpage_loggedin(self):
+        page = self._get_userpage()
+        entry = page.logged_in
+
+        self.assertTrue(
+            entry,
+            'Invalid login status on user page')
+
+    def test_userpage_gold(self):
+        page = self._get_userpage()
+        entry = page.gold
+
+        self.assertEqual(
+            entry.value,
+            123456789,
+            'Invalid gold amount on user page'
+        )
+
+    def test_userpage_name(self):
+        page = self._get_userpage()
+        entry = page.name
+
+        self.assertEqual(
+            entry,
+            'usersname',
+            'Invalid user name on user page'
+        )
+
+    def test_userpage_rank(self):
+        page = self._get_userpage()
+        entry = page.rank
+
+        self.assertEqual(
+            entry,
+            32,
+            'Invalid user rank on user page'
+        )
+
+    def test_userpage_turns(self):
+        page = self._get_userpage()
+        entry = page.turns
+
+        self.assertEqual(
+            entry.value,
+            4333,
+            'Invalid user turns on user page'
+        )
+
+
+class RocImageCaptchaPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+
+class ArmoryPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+
+class RecruitPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+
+class KeepPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+
+
+class TrainingPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
