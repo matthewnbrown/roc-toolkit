@@ -44,9 +44,9 @@ class RocPage:
 class RocUserPage(RocPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
+        self._name = page.find(id='topnav_right').text.strip()
         clockbar = page.find(id='clock_bar')
-        self._name = clockbar.find(id='topnav_right').text.strip()
-        self._rank = clockbar.find(id='s_rank').text
+        self._rank = int(clockbar.find(id='s_rank').text)
         self._gold = RocNumber(clockbar.find(id='s_gold').text)
         self._turns = RocNumber(clockbar.find(id='s_turns').text)
 
@@ -55,7 +55,7 @@ class RocUserPage(RocPage):
         return self._name
 
     @property
-    def rank(self) -> str:
+    def rank(self) -> int:
         return self._rank
 
     @property
