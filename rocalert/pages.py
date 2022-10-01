@@ -137,7 +137,7 @@ class StatTable:
 
         @property
         def bonus(self) -> float:
-            return self._float
+            return self._bonus
 
         @property
         def action(self) -> RocNumber:
