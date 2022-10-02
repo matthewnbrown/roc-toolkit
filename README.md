@@ -46,13 +46,3 @@ All of the settings below must be a complete URL for identifying the webpage.
 **roc_home:** ENTER_HOME_URL  
 **roc_login:** ENTER_LOGIN_URL  
 **roc_recruit:** ENTER_RECRUIT_URL  
-
-Installation Notes:
-
-Ubuntu:
-
-Install pillow and ImageTK:
-`sudo apt-get install python3-pil python3-pil.imagetk`
-
-Install tkinter:
-`sudo apt-get install python3-tk`
