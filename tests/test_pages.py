@@ -311,7 +311,12 @@ class RecruitPageTest(unittest.TestCase):
         soup = _getsoup(path)
         return RocRecruitPage(soup)
 
-    def test_captcha_oncd_captcha_status(self):
+    def _get_captcha_page(self) -> RocRecruitPage:
+        path = '/testpages/recruit/recruit_captcha.html'
+        soup = _getsoup(path)
+        return RocRecruitPage(soup)
+
+    def test_nocaptcha_captcha_status(self):
         page = self._get_no_captcha_page()
 
         self.assertEqual(
@@ -319,12 +324,31 @@ class RecruitPageTest(unittest.TestCase):
             None,
             'Captcha hash on cooldown should be None')
 
-    def test_oncd_spm(self):
+    def test_nocaptcha_spm(self):
         page = self._get_no_captcha_page()
         spm = page.soldiers_per_minute
         self.assertEqual(
             spm,
             70,
+            'Soldiers per minute is not correct value'
+        )
+
+    def test_captcha_captcha_status(self):
+        page = self._get_captcha_page()
+
+        self.assertEqual(
+            page.captcha_hash,
+            '05537ef36072099afa7011808bdf40e3',
+            'Captcha hash was not expected value'
+        )
+
+    def test_captcha_spm(self):
+        page = self._get_captcha_page()
+        spm = page.soldiers_per_minute
+
+        self.assertEqual(
+            spm,
+            60,
             'Soldiers per minute is not correct value'
         )
 
