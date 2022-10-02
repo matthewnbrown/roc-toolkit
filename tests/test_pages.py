@@ -2,7 +2,7 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocPage, RocUserPage,\
+from rocalert.pages import RocPage, RocRecruitPage, RocUserPage,\
     StatTable, WeaponTroopDistTable
 
 
@@ -305,6 +305,19 @@ class ArmoryPageTest(unittest.TestCase):
 class RecruitPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+
+    def _get_no_cooldown_page(self) -> RocRecruitPage:
+        path = '/testpages/recruit/recruit_on_captcha_oncd.html'
+        soup = _getsoup(path)
+        return RocRecruitPage(soup)
+
+    def test_captcha_oncd_captcha_status(self):
+        page = self._get_no_cooldown_page()
+
+        self.assertEqual(
+            page.captcha_hash,
+            None,
+            'Captcha hash on cooldown should be None')
 
 
 class KeepPageTest(unittest.TestCase):
