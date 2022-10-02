@@ -229,12 +229,20 @@ class SpyEvent:
 
         return cap
 
-    def _delay(self) -> None:
-        time.sleep(max(0.2 + random.gauss(.1, .1), .2))
+    def _captcha_delay(self) -> None:
+        time.sleep(max(0.6 + random.gauss(.4, .1), .4))
+
+    def _nextuser_delay(self) -> None:
+        time.sleep(max(2 + random.gauss(.5, .3), 1))
 
     def _handle_spying(self) -> None:
+        last_user_skipped = False
+
         while len(self._battlefield) > 0:
             user = self._battlefield.popleft()
+            if not last_user_skipped:
+                self._nextuser_delay()
+            last_user_skipped = False
             cons_fails = 0
 
             count = 0
@@ -254,11 +262,13 @@ class SpyEvent:
                     count += 1
                 elif spyres == 'admin':
                     print(f'Detected untouchable admin account {user.name}.')
+                    last_user_skipped = True
                     break
                 elif spyres == 'maxed':
+                    last_user_skipped = True
                     break
 
-                self._delay()
+                self._captcha_delay()
 
             print(f'Finished spying user #{user.rank}: {user.name}')
         print('Battlefield has been cleared')
