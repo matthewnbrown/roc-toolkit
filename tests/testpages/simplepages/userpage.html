@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+    <meta charset="UTF-8">
+    <meta name="description" content="Massively Multi-player Bug-filled Experience">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://roc.com/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="https://roc.com/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://roc.com/favicon-16x16.png">
+    <link rel="manifest" href="https://roc.com/site.webmanifest">
+    <link rel="mask-icon" href="https://roc.com/safari-pinned-tab.svg" color="#c87a0d">
+    <meta name="apple-mobile-web-app-title" content="RoC">
+    <meta name="application-name" content="RoC">
+    <meta name="msapplication-TileColor" content="#c87a0d">
+    <meta name="theme-color" content="#c87a0d">
+    <script type="text/javascript" async="" src="rocbfpg4_files/recaptcha__en.js" crossorigin="anonymous"
+        integrity="sha384-vSvEygU4Vy/dw8ibjqPbIvSyyi53fYweNLkuW0i4f+CRq7c9xaGZF/VsRcqV17DR"></script>
+    <script src="rocbfpg4_files/api.js"></script>
+    <script>
+        try {
+            token = {};
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr',
+                    { action: 'load/battlefield' }).then(token);
+                {
+                    var recaptchaResponse = document.getElementById('recaptchaResponse');
+                    if (recaptchaResponse && recaptchaResponse.value) {
+                        recaptchaResponse.value = token;
+                    }
+                }
+
+            });
+        }
+        catch (err) {
+            console.log(err);
+        }
+
+        window.addEventListener("unhandledrejection", function (err) {
+            console.log(err);
+        });
+    </script>
+    <title>R o C: Battlefield</title>
+    <link rel="stylesheet" type="text/css" href="rocbfpg4_files/shared.css">
+    <link rel="stylesheet" type="text/css" href="rocbfpg4_files/beta.css">
+    <link rel="stylesheet" type="text/css" href="rocbfpg4_files/newage.css">
+    <style type="text/css">
+        #banner:not(.take-up-lots-of-space-even-while-logged-in) {
+            max-height: 8em;
+            margin-top: 1em
+        }
+    </style>
+    <script type="text/javascript" defer="defer" src="rocbfpg4_files/jquery-2.2.4.min.js"
+        crossorigin="anonymous"></script>
+    <script type="text/javascript" defer="defer" src="rocbfpg4_files/js.js"></script>
+    <script type="text/javascript" defer="defer" src="rocbfpg4_files/countdown.js"></script>
+    <script type="text/javascript" defer="defer" src="rocbfpg4_files/autosuggest.js"></script>
+</head>
+
+<body onload="startGame()">
+    <div id="page_container">
+        <div id="topnav" class="flex">
+            <div id="topnav_left">
+                <ul>
+                    <li><a href="https://roc.com/news.php">news</a></li>
+                    <li><a href="https://discord.gg/fsdafadf">chat</a></li>
+                    <li><a href="https://roc.com/rules.php">rules</a></li>
+                    <li><a href="https://roc.com/help.php">help</a></li>
+                </ul>
+            </div>
+            <div id="topnav_right">
+                <a href="https://roc.com/preferences.php">usersname</a>
+            </div>
+        </div>
+        <div id="banner">
+            <a href="https://roc.com/"></a>
+        </div>
+        <div id="notice_container" class="flex space column-if-mobile">
+            <div id="clock_bar">
+                <form method="get" action="battlefield.php" style="display: inline-block">
+                    <input type="text" name="search" id="search" placeholder="search..." autocomplete="off"> <input
+                        type="hidden" name="search_type" value="c">
+                </form>
+                <div id="turn_box">
+                    Next Turn: <span id="s_next">11:19</span>
+                </div>
+                <script language="javascript"
+                    type="text/javascript">var limboends_time = 0; turn_length = 30, s_next_sec = parseInt(document.getElementById("s_next").innerHTML.substring(3, 5), 10), s_next_min = parseInt(document.getElementById("s_next").innerHTML.substring(0, 2), 10), "Now" == document.getElementById("s_next").innerHTML && (s_next_sec = 1, s_next_min = 0);</script>
+                <div id="gameinfo_bar">
+                    <div class="itemdisplay">
+                        #<span id="s_rank">32</span>
+                    </div>
+                    <div class="itemdisplay">
+                        <span id="s_gold">123,456,789</span> Gold
+                    </div>
+                    <div class="itemdisplay">
+                        <span id="s_turns">4,333</span> Turns
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="menu" id="nav">
+            <div class="ingame_nav">
+                <div class="mainlink" id="base_links">
+                    <a href="https://roc.com/base.php">
+                        <div id="basebutton" class="navbutton">Base</div>
+                    </a>
+                    <div class="droplinks" id="basesublinks">
+                        <a href="https://roc.com/recruiter.php">Recruit Soldiers</a>
+                        <a href="https://roc.com/train.php">Training
+                            Center</a> <a href="https://roc.com/armory.php">Armory</a> <a
+                            href="https://roc.com/upgrades.php">Buildings &amp; Skills</a> <a
+                            href="https://roc.com/logview.php">Activity
+                            Log</a>
+                    </div>
+                </div>
+                <div class="mainlink" id="battle_links">
+                    <a href="https://roc.com/battlefield.php?do=mypage">
+                        <div id="battlebutton" class="navbutton">Battle</div>
+                    </a>
+                    <div class="droplinks" id="battlesublinks">
+                        <a href="https://roc.com/battlefield.php">Battlefield</a>
+                        <a href="https://roc.com/attacklog.php">Battle Log</a>
+                        <a href="https://roc.com/intel.php">Intel Files</a>
+                    </div>
+                </div>
+                <div class="mainlink" id="social_links">
+                    <a href="https://roc.com/mail.php">
+                        <div id="socialbutton" class="navbutton">Social</div>
+                    </a>
+                    <div class="droplinks" id="socialsublinks">
+                        <a href="https://roc.com/mail.php">Mail</a>
+                        <a href="https://roc.com/mail.php?tag=alliance">Alliance Discussion</a>
+                        <a href="https://roc.com/alliance.php?a=4686">Stomp Down Killaz</a> <a
+                            href="https://roc.com/alliances.php?do=listall">Browse Alliances</a>
+                        <a href="https://roc.com/buddylist.php">Friends</a>
+                    </div>
+                </div>
+                <div class="mainlink" id="market_links">
+                    <a href="https://roc.com/keep.php">
+                        <div id="marketbutton" class="navbutton">Keep</div>
+                    </a>
+                    <div class="droplinks" id="premiumsublinks">
+                        <a href="https://roc.com/services.php">Premium</a>
+                    </div>
+                </div>
+                <div class="mainlink doge" id="dogecoin_links">
+                    <a href="https://roc.com/dogecoin.php">
+                        <div id="dogecoinbutton" class="navbutton">&lt;</div>
+                    </a>
+                    <div class="droplinks" id="dogecoinsublinks">
+                        <a href="https://roc.com/dogecoin.php"><img src="rocbfpg4_files/dogecoin.png"
+                                style="max-height:16px"> Dogecoin</a>
+                        <a href="https://roc.com/dogefaucet.php">Faucet</a>
+                        <a href="https://roc.com/senddoge.php">Send Doge</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="ingame_nav">
+            <div class="mainlink" id="logout_link">
+                <a href="https://roc.com/logout.php">
+                    <div id="logoutbutton" class="navbutton">Sign out</div>
+                </a>
+            </div>
+            <div class="mainlink" id="top_link">
+                <a href="https://roc.com/top.php">
+                    <div id="topbutton" class="navbutton">Top</div>
+                </a>
+            </div>
+            <div class="mainlink" id="top_history_link">
+                <a href="https://roc.com/top_history.php">
+                    <div id="historybutton" class="navbutton">History</div>
+                </a>
+            </div>
+        </div>
+        <div id="bottom_nav" class="flexpanel_container">
+            <div id="socialmedia_links" class="bottomnav_container">
+                <div class="bottomnav_header">Social Media</div>
+                <div class="bottomnav_content">
+                    <a href="https://www.facebook.com/groups/22693920409/" target="_blank"><img
+                            src="rocbfpg4_files/facebook.png"></a>
+                    <a href="https://roc.com/chat.php"><img src="rocbfpg4_files/chat.png"></a>
+                </div>
+            </div>
+            <div id="legal_links" class="bottomnav_container">
+                <div class="bottomnav_header">Legal</div>
+                <div class="bottomnav_content">
+                    <a class="bottomnav_blocklink" href="https://roc.com/terms.php">Terms of Service</a>
+                    <a class="bottomnav_blocklink" href="https://roc.com/privacy.php">Privacy</a>
+                </div>
+            </div>
+            <div id="help_links" class="bottomnav_container">
+                <div class="bottomnav_header">Help</div>
+                <div class="bottomnav_content">
+                    <a class="bottomnav_blocklink" href="https://roc.com/help.php?do=aboutus">About</a>
+                    <a class="bottomnav_blocklink" href="https://roc.com/help.php?do=signup">Getting
+                        Started</a>
+                    <a class="bottomnav_blocklink" href="https://roc.com/help.php?do=strategy">Strategy</a>
+                    <a class="bottomnav_blocklink" href="https://roc.com/medals.php">Medals</a>
+                </div>
+            </div>
+            <div id="contact_links" class="bottomnav_container">
+                <div class="bottomnav_header">Contact</div>
+                <div class="bottomnav_content">
+                    <a class="bottomnav_blocklink" href="https://roc.com/staff.php#administrators">Game
+                        Mandem</a>
+                </div>
+            </div>
+        </div>
+        <div id="copyright_bar">
+            RoC - V1.11.0 | © 2013 — 2022 Gamefiar, LLC.
+        </div>
+
+
+    </div>
+    <div>
+        <div class="grecaptcha-badge" data-style="bottomright"
+            style="width: 256px; height: 60px; display: block; transition: right 0.3s ease 0s; position: fixed; bottom: 14px; right: -186px; box-shadow: gray 0px 0px 5px; border-radius: 2px; overflow: hidden;">
+            <div class="grecaptcha-logo"><iframe title="reCAPTCHA" src="rocbfpg4_files/anchor.html" role="presentation"
+                    name="a-sfzpoy8tvng0" scrolling="no"
+                    sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-top-navigation allow-modals allow-popups-to-escape-sandbox allow-storage-access-by-user-activation"
+                    width="256" height="60" frameborder="0"></iframe></div>
+            <div class="grecaptcha-error"></div><textarea id="g-recaptcha-response-100000" name="g-recaptcha-response"
+                class="g-recaptcha-response"
+                style="width: 250px; height: 40px; border: 1px solid rgb(193, 193, 193); margin: 10px 25px; padding: 0px; resize: none; display: none;"></textarea>
+        </div><iframe style="display: none;"></iframe>
+    </div>
+</body>
+
+</html>
