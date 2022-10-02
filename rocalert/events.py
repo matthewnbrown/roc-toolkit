@@ -229,6 +229,12 @@ class SpyEvent:
 
         return cap
 
+    def _get_captcha_buffersize(self) -> int:
+        self._captchaslock.acquire()
+        buffersize = len(self._captchas)
+        self._captchaslock.release()
+        return buffersize
+
     def _captcha_delay(self) -> None:
         time.sleep(max(0.6 + random.gauss(.4, .1), .4))
 
@@ -248,7 +254,8 @@ class SpyEvent:
             count = 0
             while count < 10:
                 if cons_fails > 3:
-                    print('Failed too many times, skipping user')
+                    print('Failed too many times, skipping user '
+                          + f'#{user.rank}: {user.name}')
                 captcha = self._pull_next_captcha()
                 spyres = self._spyuser(user, captcha)
                 self._log_captcha(captcha)
@@ -270,7 +277,9 @@ class SpyEvent:
 
                 self._captcha_delay()
 
-            print(f'Finished spying user #{user.rank}: {user.name}')
+            buffersize = self._get_captcha_buffersize()
+            print(f'Finished spying user #{user.rank}: {user.name}. ' 
+                    + f'Buffer size: {buffersize}')
         print('Battlefield has been cleared')
 
     def start_event(self) -> None:
