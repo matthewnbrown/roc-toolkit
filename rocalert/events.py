@@ -68,8 +68,11 @@ class SpyEvent:
 
         self._updatecaptchaslock = Lock()
         self._captchaslock = Lock()
+        self._roclock = Lock()
         self._newcaptchas = Event()
         self._captchas = deque()
+
+        self._guiexit = False
 
     def _save_captcha(self, captcha: Captcha) -> None:
         if self._captcha_save_path is None:
@@ -121,12 +124,15 @@ class SpyEvent:
         return 'Administrator account' in responsetext
 
     def _getcaptcha(self) -> Captcha:
-        return self._roc.get_img_captcha('roc_armory')
+        self._roclock.acquire()
+        cap = self._roc.get_img_captcha('roc_armory')
+        self._roclock.release()
+        return cap
 
     def _check_captcha_is_noimage(self, captcha: Captcha) -> bool:
         nparr = np.frombuffer(captcha.img, dtype=np.uint8)
         mean = np.mean(nparr)
-        return mean < 105
+        return mean < 110
 
     def _getnewcaptchas(self, num_captchas: int) -> List[Captcha]:
         result = []
@@ -135,8 +141,10 @@ class SpyEvent:
             if consfailures > 3:
                 return result
 
+            self._roclock.acquire()
             captype = self._roc.get_page_captcha_type(
                 self._roc.site_settings['roc_armory'])
+            self._roclock.release()
 
             if captype == Captcha.CaptchaType.EQUATION:
                 print('Warning: received equation captcha')
@@ -191,15 +199,19 @@ class SpyEvent:
             'reconspies': 1
         }
 
+        self._roclock.acquire()
         valid_captcha = self._roc.submit_captcha_url(
             captcha, targeturl, payload)
+
+        text = self._roc.r.text
+        self._roclock.release()
 
         captcha.ans_correct = valid_captcha
         if not valid_captcha:
             return 'error'
-        if self._hit_spy_limit(self._roc.r.text):
+        if self._hit_spy_limit(text):
             return 'maxed'
-        elif self._detect_admin(self._roc.r.text):
+        elif self._detect_admin(text):
             return 'admin'
 
         return 'success'
@@ -219,16 +231,46 @@ class SpyEvent:
 
         return cap
 
+    def _get_captcha_buffersize(self) -> int:
+        self._captchaslock.acquire()
+        buffersize = len(self._captchas)
+        self._captchaslock.release()
+        return buffersize
+
+    def _signalfinish(self) -> None:
+        self._guiexit = True
+        self._captchaslock.acquire()
+        self._captchas.append(Captcha(''))
+        self._captchaslock.release()
+        self._newcaptchas.set()
+
+    def _captcha_delay(self) -> None:
+        time.sleep(max(0.6 + random.gauss(.4, .1), .4))
+
+    def _nextuser_delay(self) -> None:
+        time.sleep(max(2 + random.gauss(.5, .3), 1))
+
     def _handle_spying(self) -> None:
+        last_user_skipped = False
+
         while len(self._battlefield) > 0:
             user = self._battlefield.popleft()
+            if not last_user_skipped:
+                self._nextuser_delay()
+            last_user_skipped = False
             cons_fails = 0
 
             count = 0
             while count < 10:
                 if cons_fails > 3:
-                    print('Failed too many times, skipping user')
+                    print('Failed too many times, skipping user '
+                          + f'#{user.rank}: {user.name}')
+
                 captcha = self._pull_next_captcha()
+
+                if self._guiexit:
+                    return
+
                 spyres = self._spyuser(user, captcha)
                 self._log_captcha(captcha)
 
@@ -241,11 +283,18 @@ class SpyEvent:
                     count += 1
                 elif spyres == 'admin':
                     print(f'Detected untouchable admin account {user.name}.')
+                    last_user_skipped = True
                     break
                 elif spyres == 'maxed':
+                    last_user_skipped = True
                     break
 
-            print(f'Finished spying user #{user.rank}: {user.name}')
+                self._captcha_delay()
+
+            buffersize = self._get_captcha_buffersize()
+            print(f'Finished spying user #{user.rank}: {user.name}. '
+                  + f'Buffer size: {buffersize}')
+
         print('Battlefield has been cleared')
 
     def start_event(self) -> None:
@@ -273,7 +322,11 @@ class SpyEvent:
 
         def eventthread():
             self._handle_spying()
-            self._gui.signal_end()
+            if not self._guiexit:
+                print('Event finished')
+                self._gui.signal_end()
+            else:
+                print('Detected clicker terminated, exiting.')
 
         xcount, ycount = 8, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
@@ -284,7 +337,5 @@ class SpyEvent:
         spyhandle = Thread(target=eventthread)
         spyhandle.start()
         self._gui.start()
-
+        self._signalfinish()
         spyhandle.join()
-
-        print("Spy event is completed.")
