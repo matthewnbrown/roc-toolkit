@@ -33,7 +33,7 @@ class RocPage:
         logform = page.find(id='login_form')
         self._loggedin = logform is None
 
-    def _timestamp_to_datetime(timestamp: int) -> datetime:
+    def _timestamp_to_datetime(self, timestamp: int) -> datetime:
         return datetime.fromtimestamp(timestamp)
 
     @property
@@ -78,9 +78,13 @@ class RocImageCaptchaPage(RocPage):
         captchasoup = page.find(id='captcha_image')
 
         if captchasoup is None:
-            self._captcha = None
+            self._captcha_hash = None
         else:
-            self._captcha = captchasoup.get('src').split('=')[1]
+            self._captcha_hash = captchasoup.get('src').split('=')[1]
+
+    @property
+    def captcha_hash(self) -> str:
+        return self._captcha_hash
 
 
 class RocRecruitPage(RocImageCaptchaPage):
@@ -88,10 +92,10 @@ class RocRecruitPage(RocImageCaptchaPage):
         super().__init__(page)
         recruit_form = page.find(id='spm_reset_form')
 
-        spmtext = recruit_form.find('div', {'class': 'td c'})
+        spmtext = recruit_form.find('div', {'class': 'td c'}).text
         self._spm = int(spmtext.split(':')[1].strip())
 
-        if self._captcha is None:
+        if self._captcha_hash is None:
             resettime = recruit_form.find(
                 'span', {'class': 'countdown'}).get('data-timestamp')
             self._nextcaptchatime = self._timestamp_to_datetime(int(resettime))
@@ -108,10 +112,6 @@ class RocRecruitPage(RocImageCaptchaPage):
             int: _description_ Soldiers per minute
         """
         return self._spm
-
-    @property
-    def captcha_hash(self) -> str:
-        return self._captcha
 
     @property
     def next_captcha_time(self) -> datetime:
