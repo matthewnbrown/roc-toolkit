@@ -306,18 +306,27 @@ class RecruitPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _get_no_cooldown_page(self) -> RocRecruitPage:
-        path = '/testpages/recruit/recruit_on_captcha_oncd.html'
+    def _get_no_captcha_page(self) -> RocRecruitPage:
+        path = '/testpages/recruit/recruit_no_captcha.html'
         soup = _getsoup(path)
         return RocRecruitPage(soup)
 
     def test_captcha_oncd_captcha_status(self):
-        page = self._get_no_cooldown_page()
+        page = self._get_no_captcha_page()
 
         self.assertEqual(
             page.captcha_hash,
             None,
             'Captcha hash on cooldown should be None')
+
+    def test_oncd_spm(self):
+        page = self._get_no_captcha_page()
+        spm = page.soldiers_per_minute
+        self.assertEqual(
+            spm,
+            70,
+            'Soldiers per minute is not correct value'
+        )
 
 
 class KeepPageTest(unittest.TestCase):
