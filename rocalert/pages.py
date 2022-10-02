@@ -100,7 +100,6 @@ class RocRecruitPage(RocImageCaptchaPage):
         else:
             self._nextcaptchatime = datetime.now()
 
-
     def _get_oncooldown(self, recruit_form: BeautifulSoup) -> None:
         no_refresh = recruit_form.find(id='spm_no_refresh')
         resettime = no_refresh.find(
@@ -108,12 +107,7 @@ class RocRecruitPage(RocImageCaptchaPage):
         self._nextcaptchatime = self._timestamp_to_datetime(int(resettime))
 
     @property
-    def spm(self) -> int:
-        """_summary_
-
-        Returns:
-            int: _description_ Soldiers per minute
-        """
+    def soldiers_per_minute(self) -> int:
         return self._spm
 
     @property
