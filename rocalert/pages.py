@@ -96,13 +96,16 @@ class RocRecruitPage(RocImageCaptchaPage):
         self._spm = int(spmtext.split(':')[1].strip())
 
         if self._captcha_hash is None:
-            resettime = recruit_form.find(
-                'span', {'class': 'countdown'}).get('data-timestamp')
-            self._nextcaptchatime = self._timestamp_to_datetime(int(resettime))
-            self._getnorefresh(recruit_form)
+            self._get_oncooldown(recruit_form)
         else:
             self._nextcaptchatime = datetime.now()
-            self._getrefresh(recruit_form)
+
+
+    def _get_oncooldown(self, recruit_form: BeautifulSoup) -> None:
+        no_refresh = recruit_form.find(id='spm_no_refresh')
+        resettime = no_refresh.find(
+                'span', {'class': 'countdown'}).get('data-timestamp')
+        self._nextcaptchatime = self._timestamp_to_datetime(int(resettime))
 
     @property
     def spm(self) -> int:
