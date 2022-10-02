@@ -72,6 +72,8 @@ class SpyEvent:
         self._newcaptchas = Event()
         self._captchas = deque()
 
+        self._guiexit = False
+
     def _save_captcha(self, captcha: Captcha) -> None:
         if self._captcha_save_path is None:
             return
@@ -235,6 +237,13 @@ class SpyEvent:
         self._captchaslock.release()
         return buffersize
 
+    def _signalfinish(self) -> None:
+        self._guiexit = True
+        self._captchaslock.acquire()
+        self._captchas.append(Captcha(''))
+        self._captchaslock.release()
+        self._newcaptchas.set()
+
     def _captcha_delay(self) -> None:
         time.sleep(max(0.6 + random.gauss(.4, .1), .4))
 
@@ -256,7 +265,12 @@ class SpyEvent:
                 if cons_fails > 3:
                     print('Failed too many times, skipping user '
                           + f'#{user.rank}: {user.name}')
+
                 captcha = self._pull_next_captcha()
+
+                if self._guiexit:
+                    return
+
                 spyres = self._spyuser(user, captcha)
                 self._log_captcha(captcha)
 
@@ -278,8 +292,9 @@ class SpyEvent:
                 self._captcha_delay()
 
             buffersize = self._get_captcha_buffersize()
-            print(f'Finished spying user #{user.rank}: {user.name}. ' 
-                    + f'Buffer size: {buffersize}')
+            print(f'Finished spying user #{user.rank}: {user.name}. '
+                  + f'Buffer size: {buffersize}')
+
         print('Battlefield has been cleared')
 
     def start_event(self) -> None:
@@ -307,7 +322,11 @@ class SpyEvent:
 
         def eventthread():
             self._handle_spying()
-            self._gui.signal_end()
+            if not self._guiexit:
+                print('Event finished')
+                self._gui.signal_end()
+            else:
+                print('Detected clicker terminated, exiting.')
 
         xcount, ycount = 8, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
@@ -318,7 +337,5 @@ class SpyEvent:
         spyhandle = Thread(target=eventthread)
         spyhandle.start()
         self._gui.start()
-
+        self._signalfinish()
         spyhandle.join()
-
-        print("Spy event is completed.")
