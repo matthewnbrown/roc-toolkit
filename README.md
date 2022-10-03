@@ -60,3 +60,13 @@ All of the settings below must be a complete URL for identifying the webpage.
 Gold is divided by the folloing formula for each weapon:
 
 (gold) * (weapon number) / (sum of all weapon numbers)
+
+Installation Notes:
+
+Ubuntu:
+
+Install pillow and ImageTK:
+`sudo apt-get install python3-pil python3-pil.imagetk`
+
+Install tkinter:
+`sudo apt-get install python3-tk`
