@@ -434,15 +434,17 @@ class RocKeepPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
         content = page.find(id='content')
+        keystatusarea = content.contents[5]
+        keyspan = keystatusarea.find('span')
 
-        keycounts = content.find_all('b')
-        keytypes = content.find_all('small')
+        keycounts = keyspan.find_all('b')
+        keytypes = keyspan.find_all('small')
 
         self._keycount = 0
         self._brokenkeycount = 0
 
-        for i in len(keycounts):
-            count = keycounts[i].text
+        for i in range(len(keycounts)):
+            count = int(keycounts[i].text)
             keytype = keytypes[i].text
 
             if 'broken' in keytype:
