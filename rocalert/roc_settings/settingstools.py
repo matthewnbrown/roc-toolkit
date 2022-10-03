@@ -413,12 +413,12 @@ class SettingsFileMaker:
             SettingsSaver.save_settings_toPath(usersettings_fp, settings)
             print('Created user settings file {}'.format(usersettings_fp))
 
-        if has_site_settings and not has_site_settings:
+        if sitesettings_fp and not has_site_settings:
             settings = SiteSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(sitesettings_fp, settings)
             print('Created site settings file {}'.format(sitesettings_fp))
 
-        if has_buy_settings and not has_buy_settings:
+        if buyersettings_fp and not has_buy_settings:
             settings = BuyerSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(buyersettings_fp, settings)
             print('Created buyer settings file {}'.format(buyersettings_fp))
