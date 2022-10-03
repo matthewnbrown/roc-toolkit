@@ -424,3 +424,27 @@ class TrainingPageTest(unittest.TestCase):
         path = self._pagepath + 'training0am.html'
         soup = _getsoup(path)
         return RocTrainingPage(soup)
+
+    def test_attmerc_allmercs(self):
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            page.attack_mercenaries,
+            2,
+            'Incorrect number of attack mercs, should be 2'
+        )
+
+    def test_defmerc_allmercs(self):
+        pass
+
+    def test_untmerc_allmercs(self):
+        pass
+
+    def test_attmerc_0am(self):
+        pass
+
+    def test_defmerc_0am(self):
+        pass
+
+    def test_untmerc_0am(self):
+        pass
