@@ -439,17 +439,32 @@ class TrainingPageTest(unittest.TestCase):
     def test_attmerc_allmercs(self):
         page = self._get_allmercs_page()
 
-        self.assertEqual(
-            page.attack_mercenaries.count.value,
-            2,
-            'Incorrect number of attack mercs, should be 2'
+        self.assertTupleEqual(
+            (page.attack_mercenaries.count.value,
+             page.attack_mercenaries.income.value),
+            (2, -20),
+            'Incorrect attack mercs pair'
         )
 
     def test_defmerc_allmercs(self):
-        pass
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            (page.defense_mercenaries.count.value,
+             page.defense_mercenaries.income.value),
+            (107630, -1076300),
+            'Inccorect defense merc pair'
+        )
 
     def test_untmerc_allmercs(self):
-        pass
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            (page.untrained_mercenaries.count.value,
+             page.untrained_mercenaries.income.value),
+            (69555, -347775),
+            'Inccorect defense merc pair'
+        )
 
     def test_attmerc_0am(self):
         pass
