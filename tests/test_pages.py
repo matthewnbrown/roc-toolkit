@@ -297,10 +297,14 @@ class RocImageCaptchaPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
+    # TODO add tests
+
 
 class ArmoryPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+
+    # TODO add tests
 
 
 class RecruitPageTest(unittest.TestCase):
@@ -354,6 +358,7 @@ class RecruitPageTest(unittest.TestCase):
         )
 
 
+
 class KeepPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
@@ -373,7 +378,7 @@ class KeepPageTest(unittest.TestCase):
             'Unbroken key count does not match expected value'
         )
 
-    def test_nobroken_keycount(self):
+    def test_6k_0b_rep(self):
         page = self._get_6k_0b_rep_page()
 
         self.assertEqual(
@@ -381,6 +386,29 @@ class KeepPageTest(unittest.TestCase):
             0,
             'Broken key count does not match expect value of zero'
         )
+
+    # TODO: Get test pages and implement test cases
+
+    def test_6k_0b_norep(self):
+        pass
+
+    def test_0k_1b_norep(self):
+        pass
+
+    def test_0k_1b_rep(self):
+        pass
+
+    def test_0k_0b_norep(self):
+        pass
+
+    def test_0k_0b_rep(self):
+        pass
+
+    def test_1k_1b_rep(self):
+        pass
+
+    def test_1k_1b_norep(self):
+        pass
 
 
 class TrainingPageTest(unittest.TestCase):
