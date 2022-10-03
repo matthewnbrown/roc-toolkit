@@ -203,6 +203,9 @@ class WeaponDistTableEntry:
 
 class WeaponTroopDistTable:
     def __init__(self, table: BeautifulSoup) -> None:
+        tbody = table.find('tbody')
+        table = tbody if tbody else table
+
         rows = table.find_all('tr')
 
         self._att_wtdist = WeaponDistTableEntry(
@@ -221,8 +224,10 @@ class WeaponTroopDistTable:
             RocNumber(rows[5].contents[5].text),
             RocNumber(rows[5].contents[3].text))
 
-        self._tff = WeaponDistTableEntry(RocNumber(rows[6].contents[4].text))
-        self._tcf = WeaponDistTableEntry(RocNumber(rows[7].contents[4].text))
+        tffeles = rows[6].find_all('td')
+        self._tff = WeaponDistTableEntry(RocNumber(tffeles[2].text))
+        tcfeles = rows[7].find_all('td')
+        self._tcf = WeaponDistTableEntry(RocNumber(tcfeles[2].text))
         self._untrained = WeaponDistTableEntry(
             self._extract_untrained(rows[2].contents[5].text))
 
