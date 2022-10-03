@@ -2,7 +2,7 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocPage, RocRecruitPage, RocUserPage,\
+from rocalert.pages import RocKeepPage, RocPage, RocRecruitPage, RocUserPage,\
     StatTable, WeaponTroopDistTable
 
 
@@ -356,6 +356,30 @@ class RecruitPageTest(unittest.TestCase):
 class KeepPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+        self._pagepath = '/testpages/simplepages/keep/'
+
+    def _get_6k_0b_rep_page(self) -> RocKeepPage:
+        path = self._pagepath + '6k0brep.html'
+        soup = _getsoup(path)
+        return RocKeepPage(soup)
+
+    def test_keycount(self):
+        page = self._get_6k_0b_rep_page()
+
+        self.assertEqual(
+            page.key_count,
+            6,
+            'Unbroken key count does not match expected value'
+        )
+
+    def test_nobroken_keycount(self):
+        page = self._get_6k_0b_rep_page()
+
+        self.assertEqual(
+            page.broken_key_count,
+            0,
+            'Broken key count does not match expect value of zero'
+        )
 
 
 class TrainingPageTest(unittest.TestCase):
