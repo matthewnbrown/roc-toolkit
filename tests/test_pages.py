@@ -22,7 +22,7 @@ def _getsoup(path):
 
     with open(filepath) as f:
         text = f.read()
-        soup = BeautifulSoup(text, 'html.parser')
+        soup = BeautifulSoup(text, 'lxml')
     return soup
 
 
@@ -142,8 +142,11 @@ class WeaponTroopDistTableTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
+    def _get_page_path(self):
+        return '/testpages/simplepages/weapontrooptable/'
+
     def _get_untrained_table(self) -> WeaponTroopDistTable:
-        path = '/testpages/simplepages/weapontrooptable/' \
+        path = self._get_page_path() \
             + 'weapontrooptable_hasuntrained.html'
         soup = _getsoup(path)
         return WeaponTroopDistTable(soup)
@@ -153,6 +156,14 @@ class WeaponTroopDistTableTest(unittest.TestCase):
             + 'weapontrooptable_nountrained.html'
         soup = _getsoup(path)
         return WeaponTroopDistTable(soup)
+
+    def _get_training_unt_table(self) -> WeaponTroopDistTable:
+        path = self._get_page_path() + 'weapontrooptable_training_unt.html'
+        soup = _getsoup(path)
+        return WeaponTroopDistTable(soup)
+
+    def test_load_training_table(self):
+        self._get_training_unt_table()
 
     def test_nountrained_attack(self):
         table = self._get_no_untrained_table()
@@ -429,7 +440,7 @@ class TrainingPageTest(unittest.TestCase):
         page = self._get_allmercs_page()
 
         self.assertEqual(
-            page.attack_mercenaries,
+            page.attack_mercenaries.count.value,
             2,
             'Incorrect number of attack mercs, should be 2'
         )
