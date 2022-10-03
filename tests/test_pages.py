@@ -7,7 +7,8 @@ from rocalert.pages import RocKeepPage, RocPage, RocRecruitPage, RocUserPage,\
 
 
 def _get_dir():
-    return __file__[:__file__.rfind('\\')+1]
+    lastslash = max(__file__.rfind('\\'), __file__.rfind('/'))
+    return __file__[:lastslash+1]
 
 
 def _check_tfile_exists(path):
@@ -30,14 +31,14 @@ class PageLoggedInTest(unittest.TestCase):
         super().__init__(methodName)
 
     def test_logged_in(self):
-        path = '/testpages/simplepages/loginstatus/true.html'
+        path = 'testpages/simplepages/loginstatus/true.html'
         soup = _getsoup(path)
 
         page = RocPage(soup)
         self.assertTrue(page.logged_in, 'Page is not logged in.')
 
     def test_notlogged_in(self):
-        path = '/testpages/simplepages/loginstatus/false.html'
+        path = 'testpages/simplepages/loginstatus/false.html'
         soup = _getsoup(path)
 
         page = RocPage(soup)
@@ -356,7 +357,7 @@ class RecruitPageTest(unittest.TestCase):
 class KeepPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
-        self._pagepath = '/testpages/simplepages/keep/'
+        self._pagepath = '/testpages/keep/'
 
     def _get_6k_0b_rep_page(self) -> RocKeepPage:
         path = self._pagepath + '6k0brep.html'
