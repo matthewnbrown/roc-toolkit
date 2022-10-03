@@ -2,8 +2,8 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocKeepPage, RocPage, RocRecruitPage, RocUserPage,\
-    StatTable, WeaponTroopDistTable
+from rocalert.pages import RocKeepPage, RocPage, RocUserPage,\
+     RocRecruitPage, RocTrainingPage, StatTable, WeaponTroopDistTable
 
 
 def _get_dir():
@@ -358,7 +358,6 @@ class RecruitPageTest(unittest.TestCase):
         )
 
 
-
 class KeepPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
@@ -414,3 +413,14 @@ class KeepPageTest(unittest.TestCase):
 class TrainingPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+        self._pagepath = '/testpages/training/'
+
+    def _get_allmercs_page(self) -> RocTrainingPage:
+        path = self._pagepath + 'trainingallmercs.html'
+        soup = _getsoup(path)
+        return RocTrainingPage(soup)
+
+    def _get_0am_page(self) -> RocTrainingPage:
+        path = self._pagepath + 'training0am.html'
+        soup = _getsoup(path)
+        return RocTrainingPage(soup)
