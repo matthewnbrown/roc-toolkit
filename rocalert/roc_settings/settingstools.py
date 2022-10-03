@@ -329,8 +329,8 @@ class UserSettings(Settings):
 
         savepath = self.get_value('captcha_save_path')
         if not os.path.exists(savepath):
-            print(f'Warning path {savepath} does not exist.'
-                  + 'Creating directories.')
+            print(f'Warning: path {savepath} does not exist.'
+                  + ' Creating directories.')
             os.makedirs(savepath)
 
     def auto_solve_captchas(self) -> bool:
@@ -579,22 +579,22 @@ class SettingsFileMaker:
         print('You are missing necessary settings files, '
               + 'generic files will be created if needed')
 
-        if not has_user_settings:
+        if usersettings_fp and not has_user_settings:
             settings = UserSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(usersettings_fp, settings)
             print('Created user settings file {}'.format(usersettings_fp))
 
-        if not has_site_settings:
+        if sitesettings_fp and not has_site_settings:
             settings = SiteSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(sitesettings_fp, settings)
             print('Created site settings file {}'.format(sitesettings_fp))
 
-        if not has_buy_settings:
+        if buyersettings_fp and not has_buy_settings:
             settings = BuyerSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(buyersettings_fp, settings)
             print('Created buyer settings file {}'.format(buyersettings_fp))
 
-        if not has_train_settings:
+        if trainsettings_fp and not has_train_settings:
             smap = TrainerSettings.setting_map
             settings = {id: setting.defaultval for id, setting in smap.items()}
             SettingsSaver.save_settings_toPath(trainsettings_fp, settings)
