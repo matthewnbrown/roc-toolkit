@@ -304,6 +304,12 @@ class RocUserPageTest(unittest.TestCase):
         )
 
 
+class RocCooldownPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+    # TODO add tests
+
+
 class RocImageCaptchaPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
