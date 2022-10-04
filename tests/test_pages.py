@@ -2,7 +2,7 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocKeepPage, RocPage, RocUserPage,\
+from rocalert.pages import RocArmoryPage, RocKeepPage, RocPage, RocUserPage,\
      RocRecruitPage, RocTrainingPage, StatTable, WeaponTroopDistTable
 
 
@@ -314,6 +314,18 @@ class RocImageCaptchaPageTest(unittest.TestCase):
 class ArmoryPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
+
+    def _get_page_path(self):
+        return '/testpages/armory/'
+
+    def _get_basic_armory(self) -> RocArmoryPage:
+        path = self._get_page_path() + 'armorybasic.html'
+        soup = _getsoup(path)
+        return RocArmoryPage(soup)
+
+    def test_weapons(self):
+        page = self._get_basic_armory()
+        print(page.get_weapons)
 
     # TODO add tests
 
