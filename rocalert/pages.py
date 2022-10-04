@@ -407,8 +407,6 @@ class RocArmoryPage(RocImageCaptchaPage):
         armory = content.find(id='armory')
         self._parseweapons(armory)
 
-        raise NotImplementedError
-
     def _parseweapons(self, armory: BeautifulSoup) -> None:
         self._weapons = {}
 
@@ -430,12 +428,71 @@ class RocArmoryPage(RocImageCaptchaPage):
         }
         for i in range(1, len(weaponmap)+1):
             weapon = armory.find(id=f'weapon{i}')
-            count = weapon.find('span', {'class': 'amount'})
+            count = weapon.find('span', {'class': 'amount'}).text
             self._weapons[weaponmap[i]] = RocNumber(count)
 
+    def get_weapon(self, name: str) -> RocNumber:
+        return self.weapons(name)
+
     @property
-    def get_weapons(self) -> Dict[str, RocNumber]:
+    def weapons(self) -> Dict[str, RocNumber]:
         return self._weapons
+
+    @property
+    def daggers(self) -> RocNumber:
+        return self.get_weapon('dagger')
+
+    @property
+    def mauls(self) -> RocNumber:
+        return self.get_weapon('maul')
+
+    @property
+    def blades(self) -> RocNumber:
+        return self.get_weapon('blade')
+
+    @property
+    def excaliburs(self) -> RocNumber:
+        return self.get_weapon('excalibur')
+
+    @property
+    def sais(self) -> RocNumber:
+        return self.get_weapon('sai')
+
+    @property
+    def shields(self) -> RocNumber:
+        return self.get_weapon('shield')
+
+    @property
+    def mithrils(self) -> RocNumber:
+        return self.get_weapon('mithril')
+
+    @property
+    def dragonskins(self) -> RocNumber:
+        return self.get_weapon('dragonskin')
+
+    @property
+    def horns(self) -> RocNumber:
+        return self.get_weapon('horn')
+
+    @property
+    def guard_dogs(self) -> RocNumber:
+        return self.get_weapon('guard_dog')
+
+    @property
+    def torches(self) -> RocNumber:
+        return self.get_weapon('torch')
+
+    @property
+    def cloaks(self) -> RocNumber:
+        return self.get_weapon('cloak')
+
+    @property
+    def hooks(self) -> RocNumber:
+        return self.get_weapon('hook')
+
+    @property
+    def pickaxes(self) -> RocNumber:
+        return self.get_weapon('pickaxe')
 
 
 class RocKeepPage(RocUserPage):
