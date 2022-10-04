@@ -23,6 +23,9 @@ class RocNumber:
     def __eq__(self, other):
         return self.value == other.value
 
+    def __str__(self) -> str:
+        return self.get_prettyvalue()
+
     @property
     def value(self) -> int:
         return self._value
