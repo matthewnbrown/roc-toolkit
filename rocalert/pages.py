@@ -20,6 +20,9 @@ class RocNumber:
     def __sub__(self, other):
         return RocNumber(self.value - other.value)
 
+    def __eq__(self, other):
+        return self.value == other.value
+
     @property
     def value(self) -> int:
         return self._value
