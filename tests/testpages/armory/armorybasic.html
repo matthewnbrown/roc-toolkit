@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Massively Multi-player Bug-filled Experience" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c87a0d">
+<meta name="apple-mobile-web-app-title" content="RoC">
+<meta name="application-name" content="RoC">
+<meta name="msapplication-TileColor" content="#c87a0d">
+<meta name="theme-color" content="#c87a0d">
+<script src="https://www.google.com/recaptcha/api.js?render=6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr"></script>
+<script>
+        try {
+            token = {};
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr',
+                    {action: 'load/armory'}).then(token);
+                {
+                    var recaptchaResponse = document.getElementById('recaptchaResponse');
+                    if (recaptchaResponse && recaptchaResponse.value) {
+                        recaptchaResponse.value = token;
+                    }
+                }
+
+            });
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
+
+        window.addEventListener("unhandledrejection", function(err) {
+            console.log(err);
+        });
+    </script>
+<title>R o C: Armory</title>
+<link rel="stylesheet" type="text/css" href="css/shared.css?1645730599">
+<link rel="stylesheet" type="text/css" href="css/beta.css?1648815905">
+<link rel="stylesheet" type="text/css" href="css/newage.css?1631469363">
+<style type="text/css">#banner:not(.take-up-lots-of-space-even-while-logged-in){max-height:8em;margin-top:1em}</style>
+<script type="text/javascript" defer src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="data/js.js?1641175828"></script>
+<script type="text/javascript" defer src="js/countdown.js?1622502090"></script>
+<script type="text/javascript" defer src="data/autosuggest.js?1622502049"></script>
+<script type="text/javascript" defer src="js/armory.js?1622502089"></script>
+</head>
+<body onload="startGame()">
+<div id="page_container">
+<div id="topnav" class="flex">
+<div id="topnav_left">
+<ul>
+<li><a href="news.php">news</a></li>
+<li><a href="https://discord.gg/TmPmM4J6BF">chat</a></li>
+<li><a href="rules.php">rules</a></li>
+<li><a href="help.php">help</a></li>
+</ul>
+</div>
+<div id="topnav_right">
+<a href="preferences.php">usersname</a>
+</div>
+</div>
+<div id="banner">
+<a href="/"></a>
+</div>
+<div id="notice_container" class="flex space column-if-mobile"> <div id="clock_bar">
+<form method="get" action="battlefield.php" style="display: inline-block">
+<input type="text" name="search" id="search" placeholder="search..."> <input type="hidden" name="search_type" value="c">
+</form>
+<div id="turn_box">
+Next Turn: <span id="s_next">26:47</span>
+</div>
+<script language="javascript" type="text/javascript">var limboends_time=0;turn_length=30,s_next_sec=parseInt(document.getElementById("s_next").innerHTML.substring(3,5),10),s_next_min=parseInt(document.getElementById("s_next").innerHTML.substring(0,2),10),"Now"==document.getElementById("s_next").innerHTML&&(s_next_sec=1,s_next_min=0);</script>
+<div id="gameinfo_bar">
+<div class="itemdisplay">
+#<span id="s_rank">49</span>
+</div>
+<div class="itemdisplay">
+<span id="s_gold">2,652</span> Gold
+</div>
+<div class="itemdisplay">
+<span id="s_turns">5,162</span> Turns
+</div>
+</div>
+</div>
+</div>
+<div class="menu" id="nav">
+<div class="ingame_nav">
+<div class="mainlink" id="base_links">
+<a href="base.php">
+<div id="basebutton" class="navbutton">Base</div>
+</a>
+<div class="droplinks" id="basesublinks">
+<a href="recruiter.php">Recruit Soldiers</a>
+<a href="train.php">Training
+Center</a> <a href="armory.php">Armory</a> <a href="upgrades.php">Buildings & Skills</a> <a href="logview.php">Activity
+Log</a>
+</div>
+</div>
+<div class="mainlink" id="battle_links">
+<a href="battlefield.php?do=mypage">
+<div id="battlebutton" class="navbutton">Battle</div>
+</a>
+<div class="droplinks" id="battlesublinks">
+<a href="battlefield.php">Battlefield</a>
+<a href="attacklog.php">Battle Log</a>
+<a href="intel.php">Intel Files</a>
+</div>
+</div>
+<div class="mainlink" id="social_links">
+<a href="mail.php">
+<div id="socialbutton" class="navbutton">Social</div>
+</a>
+<div class="droplinks" id="socialsublinks">
+<a href="mail.php">Mail</a>
+<a href="mail.php?tag=alliance">Alliance Discussion</a>
+<a href="alliance.php?a=4686">Stomp Down Killaz</a> <a href="alliances.php?do=listall">Browse Alliances</a>
+<a href="buddylist.php">Friends</a>
+</div>
+</div>
+<div class="mainlink" id="market_links">
+<a href="keep.php">
+<div id="marketbutton" class="navbutton">Keep</div>
+</a>
+<div class="droplinks" id="premiumsublinks">
+<a href="services.php">Premium</a>
+</div>
+</div>
+<div class="mainlink doge" id="dogecoin_links">
+<a href="dogecoin.php">
+<div id="dogecoinbutton" class="navbutton"><</div>
+</a>
+<div class="droplinks" id="dogecoinsublinks">
+<a href="dogecoin.php"><img src="/images/dogecoin.png" style="max-height:16px"> Dogecoin</a>
+<a href="dogefaucet.php">Faucet</a>
+<a href="senddoge.php">Send Doge</a>
+</div>
+</div>
+</div>
+</div>
+<div id="content">
+<div class="th c">
+Armory <span class="normal button inventoryshow" style="display: block;">View/Hide Inventory</span>
+</div>
+<script language="javascript" type="text/javascript">
+<!--
+var mygold = 2652;
+var tempgold = 2652;
+// -->
+</script>
+<form id="armory" action="/armory.php" method="post" novalidate>
+<ul id="inventory" class="inventory" style="display: none">
+<li class="typeheader">
+<h2 class="weapon">Inventory</h2>
+<h3 class="info">Value</h3>
+<h3 class="sell">Sell</h3>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon6">
+<div class="weapon flex space">
+<h3>Shield</h3>
+<span class="amount">1,144,166</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">11,250</span> Gold/each</span>
+<span class="strength">300 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell6" name="sell[6]" />
+<div class="autofillsell important button" id="autofillsell6">1,144,166</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon7">
+<div class="weapon flex space">
+<h3>Mithril</h3>
+<span class="amount">1,318,428</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">150,000</span> Gold/each</span>
+<span class="strength">3,000 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell7" name="sell[7]" />
+<div class="autofillsell important button" id="autofillsell7">1,318,428</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon8">
+<div class="weapon flex space">
+<h3>Dragonskin</h3>
+<span class="amount">20</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">750,000</span> Gold/each</span>
+<span class="strength">12,000 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell8" name="sell[8]" />
+<div class="autofillsell important button" id="autofillsell8">20</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon9">
+<div class="weapon flex space">
+<h3>Cloak</h3>
+<span class="amount">4,754</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">37,500</span> Gold/each</span>
+<span class="strength">30 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell9" name="sell[9]" />
+<div class="autofillsell important button" id="autofillsell9">4,754</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon10">
+<div class="weapon flex space">
+<h3>Hook</h3>
+<span class="amount">216,826</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">75,000</span> Gold/each</span>
+<span class="strength">50 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell10" name="sell[10]" />
+<div class="autofillsell important button" id="autofillsell10">216,826</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon11">
+<div class="weapon flex space">
+<h3>Pickaxe</h3>
+<span class="amount">24,032</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">225,000</span> Gold/each</span>
+<span class="strength">120 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell11" name="sell[11]" />
+<div class="autofillsell important button" id="autofillsell11">24,032</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon12">
+<div class="weapon flex space">
+<h3>Horn</h3>
+<span class="amount">9,387</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">37,500</span> Gold/each</span>
+<span class="strength">30 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell12" name="sell[12]" />
+<div class="autofillsell important button" id="autofillsell12">9,387</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon13">
+<div class="weapon flex space">
+<h3>Guard Dog</h3>
+<span class="amount">612,738</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">75,000</span> Gold/each</span>
+<span class="strength">50 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell13" name="sell[13]" />
+<div class="autofillsell important button" id="autofillsell13">612,738</div>
+</div>
+</div>
+</li>
+<li class="inventory flex column-if-mobile" id="inv_weapon14">
+<div class="weapon flex space">
+<h3>Torch</h3>
+<span class="amount">253,898</span>
+</div>
+<div class="info flex space">
+<span class="cost">sells for <span class="sellvalue">225,000</span> Gold/each</span>
+<span class="strength">120 Strength</span>
+</div>
+<div class="sell">
+<div class="flex space center">
+<input class="sellweapon" type="text" pattern="[0-9]*" id="sell14" name="sell[14]" />
+<div class="autofillsell important button" id="autofillsell14">253,898</div>
+</div>
+</div>
+</li>
+<li class="th">
+Total sell value: 335,932,905,000 Gold <span class="sellall important button">Sell All</span>
+</li>
+</ul>
+<div class="flexpanel_container">
+<div class="flexhalfnhalf">
+<ul class="weapons">
+<li class="typeheader" id="weapontype1">
+<h2 class="weapon">Attack</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon1">
+<div class="weapon flex space">
+<h3>Dagger</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">1,000 Gold</span>
+<span class="strength">30 Attack</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy1" name="buy[1]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy1"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon2">
+<div class="weapon flex space">
+<h3>Maul</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">15,000 Gold</span>
+<span class="strength">300 Attack</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy2" name="buy[2]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy2"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon3">
+<div class="weapon flex space">
+<h3>Blade</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">200,000 Gold</span>
+<span class="strength">3,000 Attack</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy3" name="buy[3]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy3"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon4">
+<div class="weapon flex space">
+<h3>Excalibur</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">1,000,000 Gold</span>
+<span class="strength">12,000 Attack</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy4" name="buy[4]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy4"></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="weapons">
+<li class="typeheader" id="weapontype2">
+<h2 class="weapon">Defense</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon5">
+<div class="weapon flex space">
+<h3>Sai</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">1,000 Gold</span>
+<span class="strength">30 Defense</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy5" name="buy[5]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy5"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon6">
+<div class="weapon flex space">
+<h3>Shield</h3>
+<span class="amount">1,144,166</span>
+</div>
+<div class="info flex space">
+<span class="cost">15,000 Gold</span>
+<span class="strength">300 Defense</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy6" name="buy[6]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy6"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon7">
+<div class="weapon flex space">
+<h3>Mithril</h3>
+<span class="amount">1,318,428</span>
+</div>
+<div class="info flex space">
+<span class="cost">200,000 Gold</span>
+<span class="strength">3,000 Defense</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy7" name="buy[7]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy7"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon8">
+<div class="weapon flex space">
+<h3>Dragonskin</h3>
+<span class="amount">20</span>
+</div>
+<div class="info flex space">
+<span class="cost">1,000,000 Gold</span>
+<span class="strength">12,000 Defense</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy8" name="buy[8]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy8"></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="weapons">
+<li class="typeheader" id="weapontype3">
+<h2 class="weapon">Spy</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon9">
+<div class="weapon flex space">
+<h3>Cloak</h3>
+<span class="amount">4,754</span>
+</div>
+<div class="info flex space">
+<span class="cost">50,000 Gold</span>
+<span class="strength">30 Spy</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy9" name="buy[9]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy9"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon10">
+<div class="weapon flex space">
+<h3>Hook</h3>
+<span class="amount">216,826</span>
+</div>
+<div class="info flex space">
+<span class="cost">100,000 Gold</span>
+<span class="strength">50 Spy</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy10" name="buy[10]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy10"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon11">
+<div class="weapon flex space">
+<h3>Pickaxe</h3>
+<span class="amount">24,032</span>
+</div>
+<div class="info flex space">
+<span class="cost">300,000 Gold</span>
+<span class="strength">120 Spy</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy11" name="buy[11]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy11"></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="weapons">
+<li class="typeheader" id="weapontype4">
+<h2 class="weapon">Sentry</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon12">
+<div class="weapon flex space">
+<h3>Horn</h3>
+<span class="amount">9,387</span>
+</div>
+<div class="info flex space">
+<span class="cost">50,000 Gold</span>
+<span class="strength">30 Sentry</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy12" name="buy[12]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy12"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon13">
+<div class="weapon flex space">
+<h3>Guard Dog</h3>
+<span class="amount">612,738</span>
+</div>
+<div class="info flex space">
+<span class="cost">100,000 Gold</span>
+<span class="strength">50 Sentry</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy13" name="buy[13]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy13"></div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="weapon14">
+<div class="weapon flex space">
+<h3>Torch</h3>
+<span class="amount">253,898</span>
+</div>
+<div class="info flex space">
+<span class="cost">300,000 Gold</span>
+<span class="strength">120 Sentry</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" type="text" pattern="[0-9]*" id="buy14" name="buy[14]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy14"></div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<p class="i" id="after" style="display: none;"></p>
+<div class="th c">Click the number to sell & buy</div>
+<div class="flexpanel_container column-if-mobile c-if-mobile">
+<div class="flexhalfnhalf r-unless-mobile"><img id="captcha_image" name="captcha_image" src="img.php?hash=74aef330ec62e03385cbfc6ad19e0ac6" alt="[click the correct number to proceed]" width="150" height="150" />
+</div>
+<div class="flexhalfnhalf"><div style="white-space: nowrap">
+<input type="hidden" id="captcha" name="captcha" value="74aef330ec62e03385cbfc6ad19e0ac6" />
+<input type="hidden" name="coordinates[x]" id="cx" value="0">
+<input type="hidden" name="coordinates[y]" id="cy" value="0">
+<div class="hidden-if-mobile">
+<input onkeydown="if(isNumber(event)) { this.value = isNumber(event); this.form.submit(); el('altsubmit').setAttribute('disabled', 'disabled'); return false; }" class="captcha" type="number" pattern="[0-9]*" id="manualcaptcha" name="manualcaptcha" alt="manual captcha input" title="type the number here and press enter" />
+<input class="captcha" type="submit" id="altsubmit" name="altsubmit" value="Go" style="width: 70px;" alt="Alternate captcha submission" title="Click here if you typed the number in yourself" /><br />
+</div>
+<input accesskey="1" class="captcha" type="submit" name="num" value="1" alt="1" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="2" class="captcha" type="submit" name="num" value="2" alt="2" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="3" class="captcha" type="submit" name="num" value="3" alt="3" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<br />
+<input accesskey="4" class="captcha" type="submit" name="num" value="4" alt="4" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="5" class="captcha" type="submit" name="num" value="5" alt="5" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="6" class="captcha" type="submit" name="num" value="6" alt="6" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<br />
+<input accesskey="7" class="captcha" type="submit" name="num" value="7" alt="7" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="8" class="captcha" type="submit" name="num" value="8" alt="8" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="9" class="captcha" type="submit" name="num" value="9" alt="9" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+</div>
+</div>
+</div>
+</form>
+<div class="flexpanel_container">
+<div class="flexhalfnhalf">
+<table class="sep f" cellspacing="0">
+<tr>
+<th class="l tlr">Your Stats</th>
+<th class="c">Action Points</th>
+<th class="c h trr">Rank</th>
+</tr>
+<tr>
+<td class="l"><b>Strike:
+(+3%) </b>
+</td>
+<td class="c">9,833,795</td> <td class="c h">#124</td>
+</tr>
+<tr>
+<td class="l"><b>Defense:
+(+3%) </b>
+</td>
+<td class="c">122,207,439,440</td> <td class="c h">#10</td>
+</tr>
+<tr>
+<td class="l"><b>Spy:
+(+3%) </b>
+</td>
+<td class="c">13,677,677,507</td> <td class="c h">#63</td>
+</tr>
+<tr>
+<td class="l"><b>Sentry:
+(+3%) </b>
+</td>
+<td class="c">60,165,023,629</td> <td class="c h">#26</td>
+</tr>
+<tr class="odd">
+<td class="l "><b>Kills: </b></td>
+<td class="c">16,924</td>
+
+<td />
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Kill Ratio: </b></td>
+<td class="c">0</td>
+
+<td />
+</tr>
+</table>
+</div>
+<div class="flexhalfnhalf">
+ <table class="sep f" cellspacing="0">
+<tr>
+<th colspan="3" class="topcap">Weapon And Troop Distribution</th>
+</tr>
+<tr>
+<th class="subh">&nbsp;</th>
+<th class="subh">Weapons</th>
+<th class="subh">Soldiers</th>
+</tr>
+<tr class="even">
+<td class="l"><b>Attack:</b></td>
+<td class="c">0</td>
+<td class="c h">1,544,823 (+69,715 Untrained)
+</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Defense:</b></td>
+<td class="c">2,462,614</td>
+<td class="c h">2,482,968 (+69,715 Untrained)
+</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Spy:</b></td>
+<td class="c">245,612</td>
+<td class="c h">356,061</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Sentry: </b></td>
+<td class="c">876,023</td>
+<td class="c h">976,747</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Total Fighting Force: </b></td>
+<td />
+<td class="c h">4,097,506</td>
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Total Covert Force: </b></td>
+<td />
+<td class="c h brr">1,332,808</td>
+</tr>
+</table>
+</div>
+</div>
+<br /> <br />
+</div>
+<div class="ingame_nav">
+<div class="mainlink" id="logout_link">
+<a href="logout.php">
+<div id="logoutbutton" class="navbutton">Sign out</div>
+</a>
+</div>
+<div class="mainlink" id="top_link">
+<a href="top.php"><div id="topbutton" class="navbutton">Top</div></a>
+</div>
+<div class="mainlink" id="top_history_link">
+<a href="top_history.php"><div id="historybutton" class="navbutton">History</div></a>
+</div>
+</div>
+<div id="bottom_nav" class="flexpanel_container">
+<div id="socialmedia_links" class="bottomnav_container">
+<div class="bottomnav_header">Social Media</div>
+<div class="bottomnav_content">
+<a href="https://www.facebook.com/groups/22693920409/" target="_blank"><img src="images/redesign/social/facebook.png" /></a>
+<a href="chat.php"><img src="images/redesign/social/chat.png" /></a>
+</div>
+</div>
+<div id="legal_links" class="bottomnav_container">
+<div class="bottomnav_header">Legal</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="terms.php">Terms of Service</a>
+<a class="bottomnav_blocklink" href="privacy.php">Privacy</a>
+</div>
+</div>
+<div id="help_links" class="bottomnav_container">
+<div class="bottomnav_header">Help</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="help.php?do=aboutus">About</a>
+<a class="bottomnav_blocklink" href="help.php?do=signup">Getting Started</a>
+<a class="bottomnav_blocklink" href="help.php?do=strategy">Strategy</a>
+<a class="bottomnav_blocklink" href="medals.php">Medals</a>
+</div>
+</div>
+<div id="contact_links" class="bottomnav_container">
+<div class="bottomnav_header">Contact</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="staff.php#administrators">Game Mandem</a>
+</div>
+</div>
+</div>
+<div id="copyright_bar">
+RoC - V1.11.0 | &copy; 2013 &mdash; 2022 Gf, LLC.
+</div>
+</body>
+</html>
