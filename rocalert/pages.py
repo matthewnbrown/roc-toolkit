@@ -3,7 +3,7 @@ from datetime import datetime
 from bs4 import BeautifulSoup
 
 
-def RocNum_to_int(num_as_str: str):
+def rocnum_to_int(num_as_str: str):
     value = num_as_str.strip().split(' ')[0].strip()
     value = value.replace(',', '')
     return int(value)
@@ -32,8 +32,8 @@ class RocUserPage(RocPage):
         self._name = page.find(id='topnav_right').text.strip()
         clockbar = page.find(id='clock_bar')
         self._rank = int(clockbar.find(id='s_rank').text)
-        self._gold = RocNum_to_int(clockbar.find(id='s_gold').text)
-        self._turns = RocNum_to_int(clockbar.find(id='s_turns').text)
+        self._gold = rocnum_to_int(clockbar.find(id='s_gold').text)
+        self._turns = rocnum_to_int(clockbar.find(id='s_turns').text)
 
     @property
     def name(self) -> str:
@@ -108,7 +108,7 @@ class StatTable:
         self._defense = self._parseaction(rows[2])
         self._spy = self._parseaction(rows[3])
         self._sentry = self._parseaction(rows[4])
-        self._kills = RocNum_to_int(rows[5].contents[3].text)
+        self._kills = rocnum_to_int(rows[5].contents[3].text)
         self._killratio = float(rows[6].contents[3].text)
 
     class StatTableEntry:
@@ -131,14 +131,14 @@ class StatTable:
 
     def _parseaction(
             self, row: BeautifulSoup
-            ) -> Tuple[float, RocNum_to_int, int]:
+            ) -> Tuple[float, rocnum_to_int, int]:
 
         label = row.contents[1].text
         if '+' in label:
             bonus = float(label[label.index('+')+1: label.index('%')])
         else:
             bonus = 0.0
-        action = RocNum_to_int(row.contents[3].text)
+        action = rocnum_to_int(row.contents[3].text)
         rank = int(row.contents[5].text[1:])
 
         return StatTable.StatTableEntry(bonus, action, rank)
@@ -194,25 +194,25 @@ class WeaponTroopDistTable:
         rows = table.find_all('tr')
 
         self._att_wtdist = WeaponDistTableEntry(
-            RocNum_to_int(rows[2].contents[5].text.split(' ')[0]),
-            RocNum_to_int(rows[2].contents[3].text))
+            rocnum_to_int(rows[2].contents[5].text.split(' ')[0]),
+            rocnum_to_int(rows[2].contents[3].text))
 
         self._def_wtdist = WeaponDistTableEntry(
-            RocNum_to_int(rows[3].contents[5].text.split(' ')[0]),
-            RocNum_to_int(rows[3].contents[3].text))
+            rocnum_to_int(rows[3].contents[5].text.split(' ')[0]),
+            rocnum_to_int(rows[3].contents[3].text))
 
         self._spy_wtdist = WeaponDistTableEntry(
-            RocNum_to_int(rows[4].contents[5].text),
-            RocNum_to_int(rows[4].contents[3].text))
+            rocnum_to_int(rows[4].contents[5].text),
+            rocnum_to_int(rows[4].contents[3].text))
 
         self._sentry_wtdist = WeaponDistTableEntry(
-            RocNum_to_int(rows[5].contents[5].text),
-            RocNum_to_int(rows[5].contents[3].text))
+            rocnum_to_int(rows[5].contents[5].text),
+            rocnum_to_int(rows[5].contents[3].text))
 
         tffeles = rows[6].find_all('td')
-        self._tff = WeaponDistTableEntry(RocNum_to_int(tffeles[2].text))
+        self._tff = WeaponDistTableEntry(rocnum_to_int(tffeles[2].text))
         tcfeles = rows[7].find_all('td')
-        self._tcf = WeaponDistTableEntry(RocNum_to_int(tcfeles[2].text))
+        self._tcf = WeaponDistTableEntry(rocnum_to_int(tcfeles[2].text))
         self._untrained = WeaponDistTableEntry(
             self._extract_untrained(rows[2].contents[5].text))
 
@@ -221,7 +221,7 @@ class WeaponTroopDistTable:
         if len(split) != 3:
             return 0
         num = split[1]
-        return RocNum_to_int(num.split('+', maxsplit=1)[1])
+        return rocnum_to_int(num.split('+', maxsplit=1)[1])
 
     @property
     def attack_wt_dist(self) -> WeaponDistTableEntry:
@@ -253,7 +253,7 @@ class WeaponTroopDistTable:
 
 
 class RocTrainingTableEntry:
-    def __init__(self, count: int, cost: RocNum_to_int) -> None:
+    def __init__(self, count: int, cost: rocnum_to_int) -> None:
         self._count = count
         self._cost = cost
 
@@ -284,22 +284,22 @@ class RocTrainingPage(RocImageCaptchaPage):
         attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
         attcountstr = attspans[0].text.split(' ')[1]
         self._availattmercs = RocTrainingTableEntry(
-            RocNum_to_int(attcountstr), RocNum_to_int(attspans[1].text))
+            rocnum_to_int(attcountstr), rocnum_to_int(attspans[1].text))
 
         defspans = content.find(id='cell_merc_defense_mercs').find_all('span')
         defcountstr = defspans[0].text.split(' ')[1]
         self._availdefmercs = RocTrainingTableEntry(
-            RocNum_to_int(defcountstr), RocNum_to_int(defspans[1].text))
+            rocnum_to_int(defcountstr), rocnum_to_int(defspans[1].text))
 
         untspan = content.find(id='cell_merc_untrained_mercs').find_all('span')
         untcountstr = untspan[0].text.split(' ')[1]
         self._availuntmercs = RocTrainingTableEntry(
-            RocNum_to_int(untcountstr), RocNum_to_int(untspan[1].text))
+            rocnum_to_int(untcountstr), rocnum_to_int(untspan[1].text))
 
     def _parse_row(self, row: BeautifulSoup) -> RocTrainingTableEntry:
         return RocTrainingTableEntry(
-                RocNum_to_int(row.contents[3].text),
-                RocNum_to_int(row.contents[5].text))
+                rocnum_to_int(row.contents[3].text),
+                rocnum_to_int(row.contents[5].text))
 
     def _get_troops_table(self, table: BeautifulSoup) -> None:
         rows = table.find_all('tr')
@@ -411,7 +411,7 @@ class RocArmoryPage(RocImageCaptchaPage):
         for i in range(1, len(weaponmap)+1):
             weapon = armory.find(id=f'weapon{i}')
             count = weapon.find('span', {'class': 'amount'}).text
-            self._weapons[weaponmap[i]] = RocNum_to_int(count)
+            self._weapons[weaponmap[i]] = rocnum_to_int(count)
 
     def _get_weapon(self, name: str) -> int:
         return self._weapons(name)
