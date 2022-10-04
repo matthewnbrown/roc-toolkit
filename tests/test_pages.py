@@ -63,7 +63,7 @@ class StatsTableTest(unittest.TestCase):
         table = self._getnobonustable()
         entry = table.strike
         self.assertTupleEqual(
-            (entry.bonus, entry.action.value, entry.rank),
+            (entry.bonus, entry.action, entry.rank),
             (0, 10000000, 109),
             'Invalid strike tuple')
 
@@ -71,7 +71,7 @@ class StatsTableTest(unittest.TestCase):
         table = self._getnobonustable()
         entry = table.defense
         self.assertTupleEqual(
-            (entry.bonus, entry.action.value, entry.rank),
+            (entry.bonus, entry.action, entry.rank),
             (0, 420690, 1),
             'Invalid defense tuple')
 
@@ -79,7 +79,7 @@ class StatsTableTest(unittest.TestCase):
         table = self._getnobonustable()
         entry = table.spy
         self.assertTupleEqual(
-            (entry.bonus, entry.action.value, entry.rank),
+            (entry.bonus, entry.action, entry.rank),
             (0, 100001, 63),
             'Invalid strike tuple')
 
@@ -87,14 +87,14 @@ class StatsTableTest(unittest.TestCase):
         table = self._getnobonustable()
         entry = table.sentry
         self.assertTupleEqual(
-            (entry.bonus, entry.action.value, entry.rank),
+            (entry.bonus, entry.action, entry.rank),
             (0, 24232122, 11),
             'Invalid sentry tuple')
 
     def test_simple_table_kills(self):
         table = self._getnobonustable()
         self.assertEqual(
-            table.kills.value, 322432,
+            table.kills, 322432,
             'Invalid kill count')
 
     def test_simple_table_killratio(self):
@@ -169,7 +169,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.attack_wt_dist
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count.value),
+            (entry.soldiers, entry.weapon_count),
             (2322121, 1234),
             'Invalid attack weapon troop distribution'
         )
@@ -179,7 +179,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.defense_wt_dist
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count.value),
+            (entry.soldiers, entry.weapon_count),
             (360885, 36333),
             'Invalid defense weapon troop distribution'
         )
@@ -189,7 +189,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.spy_wt_dist
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count.value),
+            (entry.soldiers, entry.weapon_count),
             (3221, 20),
             'Invalid spy weapon troop distribution'
         )
@@ -199,7 +199,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.sentry_wt_dist
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count.value),
+            (entry.soldiers, entry.weapon_count),
             (311483, 304814),
             'Invalid sentry weapon troop distribution'
         )
@@ -209,7 +209,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.untrained_soldiers
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count),
+            (entry.soldiers, entry.weapon_count),
             (0, None),
             'Invalid untrained weapon troop distribution'
         )
@@ -219,7 +219,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.total_fighting_force
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count),
+            (entry.soldiers, entry.weapon_count),
             (1684268, None),
             'Invalid tff weapon troop distribution'
         )
@@ -229,7 +229,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.total_covert_force
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count),
+            (entry.soldiers, entry.weapon_count),
             (311503, None),
             'Invalid tcf weapon troop distribution'
         )
@@ -239,7 +239,7 @@ class WeaponTroopDistTableTest(unittest.TestCase):
         entry = table.untrained_soldiers
 
         self.assertTupleEqual(
-            (entry.soldiers.value, entry.weapon_count),
+            (entry.soldiers, entry.weapon_count),
             (1120, None),
             'Invalid untrained soldier count (untrained)'
         )
@@ -267,7 +267,7 @@ class RocUserPageTest(unittest.TestCase):
         entry = page.gold
 
         self.assertEqual(
-            entry.value,
+            entry,
             123456789,
             'Invalid gold amount on user page'
         )
@@ -297,7 +297,7 @@ class RocUserPageTest(unittest.TestCase):
         entry = page.turns
 
         self.assertEqual(
-            entry.value,
+            entry,
             4333,
             'Invalid user turns on user page'
         )
@@ -453,22 +453,22 @@ class TrainingPageTest(unittest.TestCase):
         page = self._get_allmercs_page()
 
         self.assertTupleEqual(
-            (page.attack_mercenaries.count.value,
-             page.attack_mercenaries.income.value),
+            (page.attack_mercenaries.count,
+             page.attack_mercenaries.income),
             (2, -20),
             'Incorrect attack mercs pair'
         )
 
         self.assertTupleEqual(
-            (page.defense_mercenaries.count.value,
-             page.defense_mercenaries.income.value),
+            (page.defense_mercenaries.count,
+             page.defense_mercenaries.income),
             (107630, -1076300),
             'Incorrect defense merc pair'
         )
 
         self.assertTupleEqual(
-            (page.untrained_mercenaries.count.value,
-             page.untrained_mercenaries.income.value),
+            (page.untrained_mercenaries.count,
+             page.untrained_mercenaries.income),
             (69555, -347775),
             'Inccorect defense merc pair'
         )
@@ -477,22 +477,22 @@ class TrainingPageTest(unittest.TestCase):
         page = self._get_0am_page()
 
         self.assertTupleEqual(
-            (page.attack_mercenaries.count.value,
-             page.attack_mercenaries.income.value),
+            (page.attack_mercenaries.count,
+             page.attack_mercenaries.income),
             (0, 0),
             'Incorrect attack mercs pair'
         )
 
         self.assertTupleEqual(
-            (page.defense_mercenaries.count.value,
-             page.defense_mercenaries.income.value),
+            (page.defense_mercenaries.count,
+             page.defense_mercenaries.income),
             (107630, -1076300),
             'Incorrect defense merc pair'
         )
 
         self.assertTupleEqual(
-            (page.untrained_mercenaries.count.value,
-             page.untrained_mercenaries.income.value),
+            (page.untrained_mercenaries.count,
+             page.untrained_mercenaries.income),
             (69555, -347775),
             'Incorrect defense merc pair'
         )
@@ -501,22 +501,22 @@ class TrainingPageTest(unittest.TestCase):
         page = self._get_allmercs_page()
 
         self.assertTupleEqual(
-            (page.avail_attack_mercs.count.value,
-             page.avail_attack_mercs.income.value),
+            (page.avail_attack_mercs.count,
+             page.avail_attack_mercs.income),
             (104653, 2500),
             'Incorrect number/cost of attack mercenaries'
         )
 
         self.assertTupleEqual(
-            (page.avail_defense_mercs.count.value,
-             page.avail_defense_mercs.income.value),
+            (page.avail_defense_mercs.count,
+             page.avail_defense_mercs.income),
             (114653, 2500),
             'Incorrect number/cost of defense mercenaries'
         )
 
         self.assertTupleEqual(
-            (page.avail_untrained_mercs.count.value,
-             page.avail_untrained_mercs.income.value),
+            (page.avail_untrained_mercs.count,
+             page.avail_untrained_mercs.income),
             (114653, 2000),
             'Incorrect number/cost of untrained mercenaries'
         )

@@ -1,37 +1,16 @@
-from typing import Dict, Optional, Tuple, Union
+from typing import Optional, Tuple
 from datetime import datetime
 from bs4 import BeautifulSoup
 
 
-class RocNumber:
-    def __init__(self, value: Union[int, str] = 0) -> None:
-        if type(value) == int:
-            self._value = value
-        elif type(value) == str:
-            value = value.strip().split(' ')[0].strip()
-            value = value.replace(',', '')
-            self._value = int(value)
-        else:
-            raise ValueError("Value must be a string or integer!")
+def RocNum_to_int(num_as_str: str):
+    value = num_as_str.strip().split(' ')[0].strip()
+    value = value.replace(',', '')
+    return int(value)
 
-    def __add__(self, other):
-        return RocNumber(self.value + other.value)
 
-    def __sub__(self, other):
-        return RocNumber(self.value - other.value)
-
-    def __eq__(self, other):
-        return self.value == other.value
-
-    def __str__(self) -> str:
-        return self.get_prettyvalue()
-
-    @property
-    def value(self) -> int:
-        return self._value
-
-    def get_prettyvalue(self) -> str:
-        return f'{self._value:,}'
+def int_to_rocnum(num: int):
+    return f'{num:,}'
 
 
 class RocPage:
@@ -53,8 +32,8 @@ class RocUserPage(RocPage):
         self._name = page.find(id='topnav_right').text.strip()
         clockbar = page.find(id='clock_bar')
         self._rank = int(clockbar.find(id='s_rank').text)
-        self._gold = RocNumber(clockbar.find(id='s_gold').text)
-        self._turns = RocNumber(clockbar.find(id='s_turns').text)
+        self._gold = RocNum_to_int(clockbar.find(id='s_gold').text)
+        self._turns = RocNum_to_int(clockbar.find(id='s_turns').text)
 
     @property
     def name(self) -> str:
@@ -65,11 +44,11 @@ class RocUserPage(RocPage):
         return self._rank
 
     @property
-    def gold(self) -> RocNumber:
+    def gold(self) -> int:
         return self._gold
 
     @property
-    def turns(self) -> RocNumber:
+    def turns(self) -> int:
         return self._turns
 
     @property
@@ -129,11 +108,11 @@ class StatTable:
         self._defense = self._parseaction(rows[2])
         self._spy = self._parseaction(rows[3])
         self._sentry = self._parseaction(rows[4])
-        self._kills = RocNumber(rows[5].contents[3].text)
+        self._kills = RocNum_to_int(rows[5].contents[3].text)
         self._killratio = float(rows[6].contents[3].text)
 
     class StatTableEntry:
-        def __init__(self, bonus: float, action: RocNumber, rank: int) -> None:
+        def __init__(self, bonus: float, action: int, rank: int) -> None:
             self._bonus = bonus
             self._action = action
             self._rank = rank
@@ -143,7 +122,7 @@ class StatTable:
             return self._bonus
 
         @property
-        def action(self) -> RocNumber:
+        def action(self) -> int:
             return self._action
 
         @property
@@ -152,14 +131,14 @@ class StatTable:
 
     def _parseaction(
             self, row: BeautifulSoup
-            ) -> Tuple[float, RocNumber, int]:
+            ) -> Tuple[float, RocNum_to_int, int]:
 
         label = row.contents[1].text
         if '+' in label:
             bonus = float(label[label.index('+')+1: label.index('%')])
         else:
             bonus = 0.0
-        action = RocNumber(row.contents[3].text)
+        action = RocNum_to_int(row.contents[3].text)
         rank = int(row.contents[5].text[1:])
 
         return StatTable.StatTableEntry(bonus, action, rank)
@@ -181,7 +160,7 @@ class StatTable:
         return self._sentry
 
     @property
-    def kills(self) -> RocNumber:
+    def kills(self) -> int:
         return self._kills
 
     @property
@@ -192,18 +171,18 @@ class StatTable:
 class WeaponDistTableEntry:
     def __init__(
             self,
-            soldiers: RocNumber,
-            weaponcount: Optional[RocNumber] = None
+            soldiers: int,
+            weaponcount: Optional[int] = None
             ) -> None:
         self._soldiers = soldiers
         self._weaponcount = weaponcount
 
     @property
-    def soldiers(self) -> RocNumber:
+    def soldiers(self) -> int:
         return self._soldiers
 
     @property
-    def weapon_count(self) -> Optional[RocNumber]:
+    def weapon_count(self) -> Optional[int]:
         return self._weaponcount
 
 
@@ -215,34 +194,34 @@ class WeaponTroopDistTable:
         rows = table.find_all('tr')
 
         self._att_wtdist = WeaponDistTableEntry(
-            RocNumber(rows[2].contents[5].text.split(' ')[0]),
-            RocNumber(rows[2].contents[3].text))
+            RocNum_to_int(rows[2].contents[5].text.split(' ')[0]),
+            RocNum_to_int(rows[2].contents[3].text))
 
         self._def_wtdist = WeaponDistTableEntry(
-            RocNumber(rows[3].contents[5].text.split(' ')[0]),
-            RocNumber(rows[3].contents[3].text))
+            RocNum_to_int(rows[3].contents[5].text.split(' ')[0]),
+            RocNum_to_int(rows[3].contents[3].text))
 
         self._spy_wtdist = WeaponDistTableEntry(
-            RocNumber(rows[4].contents[5].text),
-            RocNumber(rows[4].contents[3].text))
+            RocNum_to_int(rows[4].contents[5].text),
+            RocNum_to_int(rows[4].contents[3].text))
 
         self._sentry_wtdist = WeaponDistTableEntry(
-            RocNumber(rows[5].contents[5].text),
-            RocNumber(rows[5].contents[3].text))
+            RocNum_to_int(rows[5].contents[5].text),
+            RocNum_to_int(rows[5].contents[3].text))
 
         tffeles = rows[6].find_all('td')
-        self._tff = WeaponDistTableEntry(RocNumber(tffeles[2].text))
+        self._tff = WeaponDistTableEntry(RocNum_to_int(tffeles[2].text))
         tcfeles = rows[7].find_all('td')
-        self._tcf = WeaponDistTableEntry(RocNumber(tcfeles[2].text))
+        self._tcf = WeaponDistTableEntry(RocNum_to_int(tcfeles[2].text))
         self._untrained = WeaponDistTableEntry(
             self._extract_untrained(rows[2].contents[5].text))
 
-    def _extract_untrained(self, attacksoldiers: str) -> RocNumber:
+    def _extract_untrained(self, attacksoldiers: str) -> int:
         split = attacksoldiers.split(' ')
         if len(split) != 3:
-            return RocNumber(0)
+            return 0
         num = split[1]
-        return RocNumber(num.split('+', maxsplit=1)[1])
+        return RocNum_to_int(num.split('+', maxsplit=1)[1])
 
     @property
     def attack_wt_dist(self) -> WeaponDistTableEntry:
@@ -274,16 +253,16 @@ class WeaponTroopDistTable:
 
 
 class RocTrainingTableEntry:
-    def __init__(self, count: RocNumber, cost: RocNumber) -> None:
+    def __init__(self, count: int, cost: RocNum_to_int) -> None:
         self._count = count
         self._cost = cost
 
     @property
-    def income(self) -> RocNumber:
+    def income(self) -> int:
         return self._cost
 
     @property
-    def count(self) -> RocNumber:
+    def count(self) -> int:
         return self._count
 
 
@@ -305,22 +284,22 @@ class RocTrainingPage(RocImageCaptchaPage):
         attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
         attcountstr = attspans[0].text.split(' ')[1]
         self._availattmercs = RocTrainingTableEntry(
-            RocNumber(attcountstr), RocNumber(attspans[1].text))
+            RocNum_to_int(attcountstr), RocNum_to_int(attspans[1].text))
 
         defspans = content.find(id='cell_merc_defense_mercs').find_all('span')
         defcountstr = defspans[0].text.split(' ')[1]
         self._availdefmercs = RocTrainingTableEntry(
-            RocNumber(defcountstr), RocNumber(defspans[1].text))
+            RocNum_to_int(defcountstr), RocNum_to_int(defspans[1].text))
 
         untspan = content.find(id='cell_merc_untrained_mercs').find_all('span')
         untcountstr = untspan[0].text.split(' ')[1]
         self._availuntmercs = RocTrainingTableEntry(
-            RocNumber(untcountstr), RocNumber(untspan[1].text))
+            RocNum_to_int(untcountstr), RocNum_to_int(untspan[1].text))
 
     def _parse_row(self, row: BeautifulSoup) -> RocTrainingTableEntry:
         return RocTrainingTableEntry(
-                RocNumber(row.contents[3].text),
-                RocNumber(row.contents[5].text))
+                RocNum_to_int(row.contents[3].text),
+                RocNum_to_int(row.contents[5].text))
 
     def _get_troops_table(self, table: BeautifulSoup) -> None:
         rows = table.find_all('tr')
@@ -432,70 +411,66 @@ class RocArmoryPage(RocImageCaptchaPage):
         for i in range(1, len(weaponmap)+1):
             weapon = armory.find(id=f'weapon{i}')
             count = weapon.find('span', {'class': 'amount'}).text
-            self._weapons[weaponmap[i]] = RocNumber(count)
+            self._weapons[weaponmap[i]] = RocNum_to_int(count)
 
-    def get_weapon(self, name: str) -> RocNumber:
-        return self.weapons(name)
-
-    @property
-    def weapons(self) -> Dict[str, RocNumber]:
-        return self._weapons
+    def _get_weapon(self, name: str) -> int:
+        return self._weapons(name)
 
     @property
-    def daggers(self) -> RocNumber:
-        return self.get_weapon('dagger')
+    def daggers(self) -> int:
+        return self._get_weapon('dagger')
 
     @property
-    def mauls(self) -> RocNumber:
-        return self.get_weapon('maul')
+    def mauls(self) -> int:
+        return self._get_weapon('maul')
 
     @property
-    def blades(self) -> RocNumber:
-        return self.get_weapon('blade')
+    def blades(self) -> int:
+        return self._get_weapon('blade')
 
     @property
-    def excaliburs(self) -> RocNumber:
-        return self.get_weapon('excalibur')
+    def excaliburs(self) -> int:
+        return self._get_weapon('excalibur')
 
     @property
-    def sais(self) -> RocNumber:
-        return self.get_weapon('sai')
+    def sais(self) -> int:
+        return self._get_weapon('sai')
 
     @property
-    def shields(self) -> RocNumber:
-        return self.get_weapon('shield')
+    def shields(self) -> int:
+        return self._get_weapon('shield')
 
     @property
-    def mithrils(self) -> RocNumber:
-        return self.get_weapon('mithril')
+    def mithrils(self) -> int:
+        return self._get_weapon('mithril')
 
     @property
-    def dragonskins(self) -> RocNumber:
-        return self.get_weapon('dragonskin')
+    def dragonskins(self) -> int:
+        return self._get_weapon('dragonskin')
 
     @property
-    def horns(self) -> RocNumber:
-        return self.get_weapon('horn')
+    def horns(self) -> int:
+        return self._get_weapon('horn')
 
     @property
-    def guard_dogs(self) -> RocNumber:
-        return self.get_weapon('guard_dog')
+    def guard_dogs(self) -> int:
+        return self._get_weapon('guard_dog')
 
     @property
-    def torches(self) -> RocNumber:
-        return self.get_weapon('torch')
+    def torches(self) -> int:
+        return self._get_weapon('torch')
 
     @property
-    def cloaks(self) -> RocNumber:
-        return self.get_weapon('cloak')
+    def cloaks(self) -> int:
+        return self._get_weapon('cloak')
 
     @property
-    def hooks(self) -> RocNumber:
-        return self.get_weapon('hook')
+    def hooks(self) -> int:
+        return self._get_weapon('hook')
 
     @property
-    def pickaxes(self) -> RocNumber:
-        return self.get_weapon('pickaxe')
+    def pickaxes(self) -> int:
+        return self._get_weapon('pickaxe')
 
 
 class RocKeepPage(RocUserPage):
