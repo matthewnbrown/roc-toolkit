@@ -449,7 +449,7 @@ class TrainingPageTest(unittest.TestCase):
     def test_defmerc_allmercs(self):
         page = self._get_allmercs_page()
 
-        self.assertEqual(
+        self.assertTupleEqual(
             (page.defense_mercenaries.count.value,
              page.defense_mercenaries.income.value),
             (107630, -1076300),
@@ -459,7 +459,7 @@ class TrainingPageTest(unittest.TestCase):
     def test_untmerc_allmercs(self):
         page = self._get_allmercs_page()
 
-        self.assertEqual(
+        self.assertTupleEqual(
             (page.untrained_mercenaries.count.value,
              page.untrained_mercenaries.income.value),
             (69555, -347775),
