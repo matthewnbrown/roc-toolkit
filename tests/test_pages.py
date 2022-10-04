@@ -436,7 +436,7 @@ class TrainingPageTest(unittest.TestCase):
         soup = _getsoup(path)
         return RocTrainingPage(soup)
 
-    def test_attmerc_allmercs(self):
+    def test_allmercs_values(self):
         page = self._get_allmercs_page()
 
         self.assertTupleEqual(
@@ -446,18 +446,12 @@ class TrainingPageTest(unittest.TestCase):
             'Incorrect attack mercs pair'
         )
 
-    def test_defmerc_allmercs(self):
-        page = self._get_allmercs_page()
-
         self.assertTupleEqual(
             (page.defense_mercenaries.count.value,
              page.defense_mercenaries.income.value),
             (107630, -1076300),
-            'Inccorect defense merc pair'
+            'Incorrect defense merc pair'
         )
-
-    def test_untmerc_allmercs(self):
-        page = self._get_allmercs_page()
 
         self.assertTupleEqual(
             (page.untrained_mercenaries.count.value,
@@ -466,11 +460,50 @@ class TrainingPageTest(unittest.TestCase):
             'Inccorect defense merc pair'
         )
 
-    def test_attmerc_0am(self):
-        pass
+    def test_0am_values(self):
+        page = self._get_0am_page()
 
-    def test_defmerc_0am(self):
-        pass
+        self.assertTupleEqual(
+            (page.attack_mercenaries.count.value,
+             page.attack_mercenaries.income.value),
+            (0, 0),
+            'Incorrect attack mercs pair'
+        )
 
-    def test_untmerc_0am(self):
-        pass
+        self.assertTupleEqual(
+            (page.defense_mercenaries.count.value,
+             page.defense_mercenaries.income.value),
+            (107630, -1076300),
+            'Incorrect defense merc pair'
+        )
+
+        self.assertTupleEqual(
+            (page.untrained_mercenaries.count.value,
+             page.untrained_mercenaries.income.value),
+            (69555, -347775),
+            'Incorrect defense merc pair'
+        )
+
+    def test_allmercs_availmercs(self):
+        page = self._get_allmercs_page()
+
+        self.assertTupleEqual(
+            (page.avail_attack_mercs.count.value,
+             page.avail_attack_mercs.income.value),
+            (104653, 2500),
+            'Incorrect number/cost of attack mercenaries'
+        )
+
+        self.assertTupleEqual(
+            (page.avail_defense_mercs.count.value,
+             page.avail_defense_mercs.income.value),
+            (114653, 2500),
+            'Incorrect number/cost of defense mercenaries'
+        )
+
+        self.assertTupleEqual(
+            (page.avail_untrained_mercs.count.value,
+             page.avail_untrained_mercs.income.value),
+            (114653, 2000),
+            'Incorrect number/cost of untrained mercenaries'
+        )
