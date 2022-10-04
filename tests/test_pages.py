@@ -2,8 +2,7 @@ import os
 import unittest
 from bs4 import BeautifulSoup
 
-from rocalert.pages import RocArmoryPage, RocKeepPage, RocPage, RocUserPage,\
-     RocRecruitPage, RocTrainingPage, StatTable, WeaponTroopDistTable
+import rocalert.pages as pages
 
 
 def _get_dir():
@@ -34,14 +33,14 @@ class PageLoggedInTest(unittest.TestCase):
         path = 'testpages/simplepages/loginstatus/true.html'
         soup = _getsoup(path)
 
-        page = RocPage(soup)
+        page = pages.RocPage(soup)
         self.assertTrue(page.logged_in, 'Page is not logged in.')
 
     def test_notlogged_in(self):
         path = 'testpages/simplepages/loginstatus/false.html'
         soup = _getsoup(path)
 
-        page = RocPage(soup)
+        page = pages.RocPage(soup)
         self.assertFalse(page.logged_in, 'Page is logged in.')
 
 
@@ -50,15 +49,15 @@ class StatsTableTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _getnobonustable(self) -> StatTable:
+    def _getnobonustable(self) -> pages.StatTable:
         filepath = 'testpages/simplepages/statstable/statstable_nobonus.html'
         soup = _getsoup(filepath)
-        return StatTable(soup)
+        return pages.StatTable(soup)
 
-    def _getbonustable(self) -> StatTable:
+    def _getbonustable(self) -> pages.StatTable:
         filepath = 'testpages/simplepages/statstable/statstable_allbonus.html'
         soup = _getsoup(filepath)
-        return StatTable(soup)
+        return pages.StatTable(soup)
 
     def test_simple_table_strike_val(self):
         table = self._getnobonustable()
@@ -145,22 +144,22 @@ class WeaponTroopDistTableTest(unittest.TestCase):
     def _get_page_path(self):
         return '/testpages/simplepages/weapontrooptable/'
 
-    def _get_untrained_table(self) -> WeaponTroopDistTable:
+    def _get_untrained_table(self) -> pages.WeaponTroopDistTable:
         path = self._get_page_path() \
             + 'weapontrooptable_hasuntrained.html'
         soup = _getsoup(path)
-        return WeaponTroopDistTable(soup)
+        return pages.WeaponTroopDistTable(soup)
 
-    def _get_no_untrained_table(self) -> WeaponTroopDistTable:
+    def _get_no_untrained_table(self) -> pages.WeaponTroopDistTable:
         path = '/testpages/simplepages/weapontrooptable/' \
             + 'weapontrooptable_nountrained.html'
         soup = _getsoup(path)
-        return WeaponTroopDistTable(soup)
+        return pages.WeaponTroopDistTable(soup)
 
-    def _get_training_unt_table(self) -> WeaponTroopDistTable:
+    def _get_training_unt_table(self) -> pages.WeaponTroopDistTable:
         path = self._get_page_path() + 'weapontrooptable_training_unt.html'
         soup = _getsoup(path)
-        return WeaponTroopDistTable(soup)
+        return pages.WeaponTroopDistTable(soup)
 
     def test_load_training_table(self):
         self._get_training_unt_table()
@@ -250,10 +249,10 @@ class RocUserPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _get_userpage(self) -> RocUserPage:
+    def _get_userpage(self) -> pages.RocUserPage:
         path = '/testpages/simplepages/userpage.html'
         soup = _getsoup(path)
-        return RocUserPage(soup)
+        return pages.RocUserPage(soup)
 
     def test_userpage_loggedin(self):
         page = self._get_userpage()
@@ -324,14 +323,10 @@ class ArmoryPageTest(unittest.TestCase):
     def _get_page_path(self):
         return '/testpages/armory/'
 
-    def _get_basic_armory(self) -> RocArmoryPage:
+    def _get_basic_armory(self) -> pages.RocArmoryPage:
         path = self._get_page_path() + 'armorybasic.html'
         soup = _getsoup(path)
-        return RocArmoryPage(soup)
-
-    def test_weapons(self):
-        page = self._get_basic_armory()
-        print(page.get_weapons)
+        return pages.RocArmoryPage(soup)
 
     # TODO add tests
 
@@ -340,15 +335,15 @@ class RecruitPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _get_no_captcha_page(self) -> RocRecruitPage:
+    def _get_no_captcha_page(self) -> pages.RocRecruitPage:
         path = '/testpages/recruit/recruit_no_captcha.html'
         soup = _getsoup(path)
-        return RocRecruitPage(soup)
+        return pages.RocRecruitPage(soup)
 
-    def _get_captcha_page(self) -> RocRecruitPage:
+    def _get_captcha_page(self) -> pages.RocRecruitPage:
         path = '/testpages/recruit/recruit_captcha.html'
         soup = _getsoup(path)
-        return RocRecruitPage(soup)
+        return pages.RocRecruitPage(soup)
 
     def test_nocaptcha_captcha_status(self):
         page = self._get_no_captcha_page()
@@ -392,10 +387,10 @@ class KeepPageTest(unittest.TestCase):
         super().__init__(methodName)
         self._pagepath = '/testpages/keep/'
 
-    def _get_6k_0b_rep_page(self) -> RocKeepPage:
+    def _get_6k_0b_rep_page(self) -> pages.RocKeepPage:
         path = self._pagepath + '6k0brep.html'
         soup = _getsoup(path)
-        return RocKeepPage(soup)
+        return pages.RocKeepPage(soup)
 
     def test_keycount(self):
         page = self._get_6k_0b_rep_page()
@@ -444,15 +439,15 @@ class TrainingPageTest(unittest.TestCase):
         super().__init__(methodName)
         self._pagepath = '/testpages/training/'
 
-    def _get_allmercs_page(self) -> RocTrainingPage:
+    def _get_allmercs_page(self) -> pages.RocTrainingPage:
         path = self._pagepath + 'trainingallmercs.html'
         soup = _getsoup(path)
-        return RocTrainingPage(soup)
+        return pages.RocTrainingPage(soup)
 
-    def _get_0am_page(self) -> RocTrainingPage:
+    def _get_0am_page(self) -> pages.RocTrainingPage:
         path = self._pagepath + 'training0am.html'
         soup = _getsoup(path)
-        return RocTrainingPage(soup)
+        return pages.RocTrainingPage(soup)
 
     def test_allmercs_values(self):
         page = self._get_allmercs_page()
