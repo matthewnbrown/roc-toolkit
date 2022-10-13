@@ -85,8 +85,14 @@ class Settings:
 
             print('{} : {}'.format(setting, value))
 
-    def get_settings(self) -> dict:
+    def get_settings(self) -> dict[str, Setting]:
         return self.settings
+
+    def get_settings_old(self) -> dict:
+        res = {}
+        for setting in self.settings:
+            res[setting] = self.settings[setting].value
+        return res
 
 
 class BuyerSettings(Settings):
