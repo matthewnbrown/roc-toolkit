@@ -173,7 +173,7 @@ class BuyerSettings(Settings):
 
 
 class TrainerSettings(Settings):
-    setting_map = {
+    DEFAULT_SETTINGS = {
         'train_soldiers': Setting(
             'Train Soldiers',
             'train_soldiers',
@@ -595,8 +595,7 @@ class SettingsFileMaker:
             print('Created buyer settings file {}'.format(buyersettings_fp))
 
         if trainsettings_fp and not has_train_settings:
-            smap = TrainerSettings.setting_map
-            settings = {id: setting.defaultval for id, setting in smap.items()}
+            settings = TrainerSettings.DEFAULT_SETTINGS
             SettingsSaver.save_settings_toPath(trainsettings_fp, settings)
             print(f'Created trainer settings file {trainsettings_fp}')
 
