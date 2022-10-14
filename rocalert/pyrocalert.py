@@ -392,6 +392,9 @@ class RocAlert:
 
         return res_captcha.ans_correct
 
+    def _get_events(self) -> None:
+        pass
+
     def start(self) -> None:
         self.__init_cookie_loading()
         self.consecutive_login_failures = 0
@@ -423,6 +426,8 @@ class RocAlert:
 
             if not self.__recruitCheck():
                 continue
+
+            self._get_events()
 
             self.__sleep()
         self.__log("Main loop exited.")
