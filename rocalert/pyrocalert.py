@@ -333,7 +333,7 @@ class RocAlert:
         captchaType = self.roc.recruit_has_captcha()
         if captchaType == Captcha.CaptchaType.TEXT:
             self.__log('Detected text captcha in recruit')
-            self.__failure_timeout = True
+            self.__cooldown = True
             return False
 
         if captchaType is not None:
