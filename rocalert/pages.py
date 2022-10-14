@@ -522,3 +522,14 @@ class RocKeepPage(RocUserPage):
 class RocBasePage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
+
+        events_table = page.find(id='events')
+        events = events_table.find_all('li')
+        self._events = []
+
+        for event in events:
+            self._events.append(event.text)
+
+    @property
+    def events(self) -> list:
+        return self._events
