@@ -517,3 +517,8 @@ class RocKeepPage(RocUserPage):
     @property
     def broken_key_count(self) -> int:
         return self._brokenkeycount
+
+
+class RocBasePage(RocUserPage):
+    def __init__(self, page: BeautifulSoup) -> None:
+        super().__init__(page)
