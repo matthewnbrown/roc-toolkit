@@ -147,7 +147,7 @@ class RocWebHandler:
 
     def __get_captcha_image(self, hash):
         imgurl = (self.site_settings.get_home()
-                  + 'img.php?hash=' + hash)
+                  + '/img.php?hash=' + hash)
 
         img = self.__go_to_page(imgurl).content
         return img
@@ -244,7 +244,8 @@ class RocWebHandler:
         payload['manualcaptcha'] = ''
         payload['num'] = ans
 
-        self.r = self.session.post(self.site_settings[page], payload)
+        self.r = self.session.post(
+            self.site_settings.get_setting(page).value, payload)
 
         return self._check_incorrect_captcha()
 
