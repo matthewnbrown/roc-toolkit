@@ -56,7 +56,7 @@ class RocUserPage(RocPage):
         return self._nextturn
 
 
-class RocImageCaptchaPage(RocPage):
+class RocImageCaptchaPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
 
