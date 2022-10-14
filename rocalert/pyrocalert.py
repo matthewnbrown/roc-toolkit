@@ -396,6 +396,11 @@ class RocAlert:
 
     def _get_events(self) -> None:
         # TODO: Make this code better
+
+        a = random.randint(1, 2)
+        if a != 1:
+            return
+
         url = self.roc.site_settings.get_home() + '/base.php'
         self.roc.go_to_page(url)
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
