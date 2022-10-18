@@ -531,5 +531,75 @@ class RocBasePage(RocUserPage):
             self._events.append(event.text)
 
     @property
-    def events(self) -> list:
-        return self._events
+    def alliance(self) -> Tuple[str, str]:
+        """_summary_
+
+        Returns:
+            Tuple[str, str]: _description_
+            Tuple of alliance name and link to alliance page
+        """
+        return self._alliance
+
+    @property
+    def commander(self) -> Tuple[str, str]:
+        """_summary_
+
+        Returns:
+            Tuple[str, str]: _description_
+            Tuple of commander name and link to their page
+        """
+        return self._commander
+
+    @property
+    def current_events(self) -> list:
+        return self._current_events
+
+    @property
+    def upcoming_events(self) -> list:
+        return self._upcoming_events
+
+    @property
+    def recenty_activity(self) -> list:
+        return self._recent_activity
+
+    @property
+    def server_datetime(self) -> str:
+        return self._serverdatetime
+
+    @property
+    def personal_totals_table(self):
+        # TODO: Type this properly
+        return self._personaltotals
+
+    @property
+    def soldier_source_table(self):
+        # TODO: Type this properly
+        return self._soldiersources
+
+    @property
+    def keys_found(self) -> int:
+        return self._keysfound
+
+    @property
+    def loot_found(self) -> int:
+        return self._lootfound
+
+    @property
+    def last_active(self) -> datetime:
+        return self._lastactive
+
+    @property
+    def best_rank(self) -> Tuple[int, datetime]:
+        return self._bestrank
+
+    @property
+    def army(self) -> str:
+        return self._army
+
+    @property
+    def race_bonuses(self) -> list[str]:
+        return self._racebonuses
+
+    @property
+    def turn_based_gold(self) -> int:
+        return self._tbg
