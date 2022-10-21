@@ -341,6 +341,8 @@ class SettingsSaver:
 class SettingsValidator:
     def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
         if key not in setdic:
+            print(f"Warning: setting {key} not in settings."
+                  + f" Set to default value: {default}")
             setdic[key] = default
         else:
             setdic[key] = callback(setdic[key])
