@@ -523,12 +523,32 @@ class RocBasePage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
 
-        events_table = page.find(id='events')
-        events = events_table.find_all('li')
-        self._events = []
+        base_container = page.find(id='base_container')
 
-        for event in events:
-            self._events.append(event.text)
+        self._get_base_details(base_container)
+        self._get_events(base_container)
+        self._get_personal_totals_table(base_container)
+        self._get_recent_events(base_container)
+        self._get_soldier_source_table(base_container)
+
+    def _get_base_details(self, base_container: BeautifulSoup) -> None:
+        pass
+
+    def _get_events(self, base_container: BeautifulSoup) -> None:
+        pass
+
+    def _get_soldier_source_table(self, base_container: BeautifulSoup) -> None:
+        pass
+
+    def _get_recent_events(self, base_container: BeautifulSoup) -> None:
+        pass
+
+    def _get_personal_totals_table(
+            self, base_container: BeautifulSoup) -> None:
+        pass
+
+    def _get_officers(self, base_container: BeautifulSoup) -> None:
+        pass
 
     @property
     def alliance(self) -> Tuple[str, str]:
@@ -549,6 +569,10 @@ class RocBasePage(RocUserPage):
             Tuple of commander name and link to their page
         """
         return self._commander
+
+    @property
+    def officers(self) -> list[Tuple[str, str]]:
+        return self._officers
 
     @property
     def current_events(self) -> list:
