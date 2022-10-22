@@ -522,6 +522,34 @@ class SettingsSaver:
 
 
 class SettingsValidator:
+    def __check_dict_generic(setdic, key, default, callback: Callable) -> None:
+        if key not in setdic:
+            print(f"Warning: setting {key} not in settings."
+                  + f" Set to default value: {default}")
+            setdic[key] = default
+        else:
+            setdic[key] = callback(setdic[key])
+
+    def validate_set(settings: dict,
+                     settings_to_validate,
+                     validationfunc: Callable
+                     ) -> bool:
+        for item in settings_to_validate:
+            if item not in settings or not validationfunc(settings[item]):
+                return False
+        return True
+
+    def set_defaults_ifnotset(settings: dict,
+                              defaults: dict,
+                              callback: callable
+                              ) -> None:
+        if settings is None or defaults is None or callback is None:
+            return
+
+        for key, val in defaults.items():
+            SettingsValidator.__check_dict_generic(
+                settings, key, val, callback)
+
     # Return true if all mandatories are set
     def check_mandatories(settings: dict[str, Setting],
                           mandatories,

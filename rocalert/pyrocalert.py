@@ -61,10 +61,12 @@ class RocAlert:
             print(message, end=end)
 
     def __get_waittime(self) -> int:
-        if not self.__check_nightmode():
+        inNightMode = self.__check_nightmode()
+        if not inNightMode:
             min = self.user_settings['min_checktime_secs']
             max = self.user_settings['max_checktime_secs']
         else:
+            # TODO: Modify so user doesn't sleep way past nightmode wake time
             min = self.user_settings['nightmode_minwait_mins'] * 60
             max = self.user_settings['nightmode_maxwait_mins'] * 60
 
