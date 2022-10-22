@@ -408,8 +408,12 @@ class RocAlert:
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
         base = RocBasePage(soup)
 
-        for event in base.events:
-            print(event, end='\n')
+        print('Current Events')
+        for event in base.current_events:
+            print(event)
+        print('Upcoming Events')
+        for event in base.upcoming_events:
+            print(event)
 
     def start(self) -> None:
         self.__init_cookie_loading()
