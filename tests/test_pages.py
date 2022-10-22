@@ -526,3 +526,28 @@ class BasePageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
         self._pagepath = '/testpages/base/'
+
+    def _get_dubtrub_page(self) -> pages.RocBasePage:
+        path = self._pagepath + 'dubtrub.html'
+        soup = _getsoup(path)
+        return pages.RocBasePage(soup)
+
+    def _get_stoleturn_page(self) -> pages.RocBasePage:
+        path = self._pagepath + 'stoleturn.html'
+        soup = _getsoup(path)
+        return pages.RocBasePage(soup)
+
+    def _get_basewithofficers_page(self) -> pages.RocBasePage:
+        path = self._pagepath + 'basewithofficers.html'
+        soup = _getsoup(path)
+        return pages.RocBasePage(soup)
+
+    def _get_basefoundbrokenkey_page(self) -> pages.RocBasePage:
+        path = self._pagepath + 'basefoundbrokenkey.html'
+        soup = _getsoup(path)
+        return pages.RocBasePage(soup)
+
+    def _get_noactive_events_page(self) -> pages.RocBasePage:
+        path = self._pagepath + 'base_noactive_events.html'
+        soup = _getsoup(path)
+        return pages.RocBasePage(soup)
