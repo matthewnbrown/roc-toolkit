@@ -520,3 +520,9 @@ class TrainingPageTest(unittest.TestCase):
             (114653, 2000),
             'Incorrect number/cost of untrained mercenaries'
         )
+
+
+class BasePageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self._pagepath = '/testpages/base/'
