@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Massively Multi-player Bug-filled Experience" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c87a0d">
+<meta name="apple-mobile-web-app-title" content="RoC">
+<meta name="application-name" content="RoC">
+<meta name="msapplication-TileColor" content="#c87a0d">
+<meta name="theme-color" content="#c87a0d">
+<script src="https://www.google.com/recaptcha/api.js?render=6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr"></script>
+<script>
+        try {
+            token = {};
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr',
+                    {action: 'load/inteldetail'}).then(token);
+                {
+                    var recaptchaResponse = document.getElementById('recaptchaResponse');
+                    if (recaptchaResponse && recaptchaResponse.value) {
+                        recaptchaResponse.value = token;
+                    }
+                }
+
+            });
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
+
+        window.addEventListener("unhandledrejection", function(err) {
+            console.log(err);
+        });
+    </script>
+<title>R o C: Covert Action Report</title>
+<link rel="stylesheet" type="text/css" href="css/shared.css?1645730599">
+<link rel="stylesheet" type="text/css" href="css/beta.css?1648815905">
+<link rel="stylesheet" type="text/css" href="css/newage.css?1631469363">
+<style type="text/css">#banner:not(.take-up-lots-of-space-even-while-logged-in){max-height:8em;margin-top:1em}</style>
+<script type="text/javascript" defer src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="data/js.js?1641175828"></script>
+<script type="text/javascript" defer src="js/countdown.js?1622502090"></script>
+<script type="text/javascript" defer src="data/autosuggest.js?1622502049"></script>
+<script type="text/javascript" defer src="js/copy.js?1622502090"></script>
+</head>
+<body onload="startGame()">
+<div id="page_container">
+<div id="topnav" class="flex">
+<div id="topnav_left">
+<ul>
+<li><a href="news.php">news</a></li>
+<li><a href="https://discord.gg/TmPmM4J6BF">chat</a></li>
+<li><a href="rules.php">rules</a></li>
+<li><a href="help.php">help</a></li>
+</ul>
+</div>
+<div id="topnav_right">
+<a href="preferences.php">usersname</a>
+</div>
+</div>
+<div id="banner">
+<a href="/"></a>
+</div>
+<div id="notice_container" class="flex space column-if-mobile"> <div class="notice_container">
+<div class="notice eoa">Age 44 ends in <b class="countdown" id="eoa" data-timestamp="1665172800" data-format="long"><span data-timestamp="1665172800" class="countdown" id="timestamp146004" data-format="long">15 hours 23 minutes 3 seconds</span></b></div> </div> <div id="clock_bar">
+<form method="get" action="battlefield.php" style="display: inline-block">
+<input type="text" name="search" id="search" placeholder="search..."> <input type="hidden" name="search_type" value="c">
+</form>
+<div id="turn_box">
+Next Turn: <span id="s_next">23:03</span>
+</div>
+<script language="javascript" type="text/javascript">var limboends_time=0;turn_length=30,s_next_sec=parseInt(document.getElementById("s_next").innerHTML.substring(3,5),10),s_next_min=parseInt(document.getElementById("s_next").innerHTML.substring(0,2),10),"Now"==document.getElementById("s_next").innerHTML&&(s_next_sec=1,s_next_min=0);</script>
+<div id="gameinfo_bar">
+<div class="itemdisplay">
+#<span id="s_rank">77</span>
+</div>
+<div class="itemdisplay">
+<span id="s_gold">14</span> Gold
+</div>
+<div class="itemdisplay">
+<span id="s_turns">5,235</span> Turns
+</div>
+</div>
+</div>
+</div>
+<div class="menu" id="nav">
+<div class="ingame_nav">
+<div class="mainlink" id="base_links">
+<a href="base.php">
+<div id="basebutton" class="navbutton">Base</div>
+</a>
+<div class="droplinks" id="basesublinks">
+<a href="recruiter.php">Recruit Soldiers</a>
+<a href="train.php">Training
+Center</a> <a href="armory.php">Armory</a> <a href="upgrades.php">Buildings & Skills</a> <a href="logview.php">Activity
+Log</a>
+</div>
+</div>
+<div class="mainlink" id="battle_links">
+<a href="battlefield.php?do=mypage">
+<div id="battlebutton" class="navbutton">Battle</div>
+</a>
+<div class="droplinks" id="battlesublinks">
+<a href="battlefield.php">Battlefield</a>
+<a href="attacklog.php">Battle Log</a>
+<a href="intel.php">Intel Files</a>
+</div>
+</div>
+<div class="mainlink" id="social_links">
+<a href="mail.php">
+<div id="socialbutton" class="navbutton">Social</div>
+</a>
+<div class="droplinks" id="socialsublinks">
+<a href="mail.php">Mail</a>
+<a href="mail.php?tag=alliance">Alliance Discussion</a>
+<a href="alliance.php?a=4686">Stomp Down Killaz</a> <a href="alliances.php?do=listall">Browse Alliances</a>
+<a href="buddylist.php">Friends</a>
+</div>
+</div>
+<div class="mainlink" id="market_links">
+<a href="keep.php">
+<div id="marketbutton" class="navbutton">Keep</div>
+</a>
+<div class="droplinks" id="premiumsublinks">
+<a href="services.php">Premium</a>
+</div>
+</div>
+<div class="mainlink doge" id="dogecoin_links">
+<a href="dogecoin.php">
+<div id="dogecoinbutton" class="navbutton"><</div>
+</a>
+<div class="droplinks" id="dogecoinsublinks">
+<a href="dogecoin.php"><img src="/images/dogecoin.png" style="max-height:16px"> Dogecoin</a>
+<a href="dogefaucet.php">Faucet</a>
+<a href="senddoge.php">Send Doge</a>
+</div>
+</div>
+</div>
+</div>
+<div id="content">
+<div class="c">
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="submit" accesskey="a" value="Attack">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="probe"> <input type="submit" accesskey="p" value="Probe">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="recon"> <input type="submit" accesskey="r" value="Recon">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="sabotage"> <input type="submit" accesskey="s" value="Sabotage">
+</form>
+</div>
+<br />
+<div class="th"><span data-timestamp="1665072136">12 hours 34 minutes 41 seconds ago</span></div>
+<div class="td c">
+Your covert operations center orders 25 spies to attempt to sabotage 1,288 Hooks.<br />
+<br />
+Your spies sneak into <a href="stats.php?id=19932">Xeolex</a>'s command center, and sabotage 1,288 Hooks.<br />
+<br />
+Your intelligence division estimates the cost for <a href="stats.php?id=19932">Xeolex</a> to recover: 128,800,000 Gold
+<br /> <br />
+Your weapon damage cost: 0 Gold
+<br />
+<div class="th c lg">Your spies believe they will not be able to enter this target safely just yet. You have already made 10 sabotages on this target today.</div>
+<div class="td c">
+<span class="lg green">2</span> successes and 0 captures (<span data-timestamp="1665151313" class="countdown" id="timestamp183673" data-format="long">9 hours 24 minutes 56 seconds</span> til you can sab again)</div>
+<div class="subh c">Share</div>
+<div class="td c">
+<textarea readonly id="grouped" class="bigcopypastabox">
+Your spies sneak into Xeolex's command center, and sabotage 1,288 Hooks. x2</textarea><br>
+<span id="copygrouped" class="translucent-pill" onclick="copyButton('grouped','copygrouped')">
+<span class="clipboard"></span>Copy</span>
+</div>
+<br />
+&nbsp;
+<p>Your damage report:
+<b>Spies</b>
+<span class="red lg">5</span> spies were killed<br />
+<b>Cloaks</b>
+<span class="green lg">None</span> were found to be sabotaged<br />
+Damage: <span class="green lg">none</span>
+<b>Hooks</b>
+<span class="green lg">None</span> were found to be sabotaged<br />
+Damage: <span class="green lg">none</span>
+<b>Pickaxes</b>
+<span class="green lg">None</span> were found to be sabotaged<br />
+Damage: <span class="green lg">none</span>
+<br />
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="submit" value="Attack">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="probe"> <input type="submit" value="Probe">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="recon"> <input type="submit" value="Recon">
+</form>
+<form method="get" action="attack.php" style="display: inline;">
+<input type="hidden" name="id" value="19932"> <input type="hidden" name="mission_type" value="sabotage"> <input type="submit" value="Sabotage">
+</form>
+</div>
+<div class="ingame_nav">
+<div class="mainlink" id="logout_link">
+<a href="logout.php">
+<div id="logoutbutton" class="navbutton">Sign out</div>
+</a>
+</div>
+<div class="mainlink" id="top_link">
+<a href="top.php"><div id="topbutton" class="navbutton">Top</div></a>
+</div>
+<div class="mainlink" id="top_history_link">
+<a href="top_history.php"><div id="historybutton" class="navbutton">History</div></a>
+</div>
+</div>
+<div id="bottom_nav" class="flexpanel_container">
+<div id="socialmedia_links" class="bottomnav_container">
+<div class="bottomnav_header">Social Media</div>
+<div class="bottomnav_content">
+<a href="https://www.facebook.com/groups/22693920409/" target="_blank"><img src="images/redesign/social/facebook.png" /></a>
+<a href="chat.php"><img src="images/redesign/social/chat.png" /></a>
+</div>
+</div>
+<div id="legal_links" class="bottomnav_container">
+<div class="bottomnav_header">Legal</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="terms.php">Terms of Service</a>
+<a class="bottomnav_blocklink" href="privacy.php">Privacy</a>
+</div>
+</div>
+<div id="help_links" class="bottomnav_container">
+<div class="bottomnav_header">Help</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="help.php?do=aboutus">About</a>
+<a class="bottomnav_blocklink" href="help.php?do=signup">Getting Started</a>
+<a class="bottomnav_blocklink" href="help.php?do=strategy">Strategy</a>
+<a class="bottomnav_blocklink" href="medals.php">Medals</a>
+</div>
+</div>
+<div id="contact_links" class="bottomnav_container">
+<div class="bottomnav_header">Contact</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="staff.php#administrators">Game Mandem</a>
+</div>
+</div>
+</div>
+<div id="copyright_bar">
+RoC - V1.11.0 | &copy; 2013 &mdash; 2022 Gf, LLC.
+</div>
+</body>
+</html>

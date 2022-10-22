@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Massively Multi-player Bug-filled Experience" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c87a0d">
+<meta name="apple-mobile-web-app-title" content="RoC">
+<meta name="application-name" content="RoC">
+<meta name="msapplication-TileColor" content="#c87a0d">
+<meta name="theme-color" content="#c87a0d">
+<script src="https://www.google.com/recaptcha/api.js?render=6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr"></script>
+<script>
+        try {
+            token = {};
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr',
+                    {action: 'load/base'}).then(token);
+                {
+                    var recaptchaResponse = document.getElementById('recaptchaResponse');
+                    if (recaptchaResponse && recaptchaResponse.value) {
+                        recaptchaResponse.value = token;
+                    }
+                }
+
+            });
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
+
+        window.addEventListener("unhandledrejection", function(err) {
+            console.log(err);
+        });
+    </script>
+<title>R o C: usersname's Castle Walls</title>
+<link rel="stylesheet" type="text/css" href="css/shared.css?1645730599">
+<link rel="stylesheet" type="text/css" href="css/base.css?1622502044">
+<link rel="stylesheet" type="text/css" href="css/beta.css?1648815905">
+<link rel="stylesheet" type="text/css" href="css/newage.css?1631469363">
+<style type="text/css">#banner:not(.take-up-lots-of-space-even-while-logged-in){max-height:8em;margin-top:1em}</style>
+<script type="text/javascript" defer src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="data/js.js?1641175828"></script>
+<script type="text/javascript" defer src="js/countdown.js?1622502090"></script>
+<script type="text/javascript" defer src="data/autosuggest.js?1622502049"></script>
+</head>
+<body onload="startGame()">
+<div id="page_container">
+<div id="topnav" class="flex">
+<div id="topnav_left">
+<ul>
+<li><a href="news.php">news</a></li>
+<li><a href="https://discord.gg/TmPmM4J6BF">chat</a></li>
+<li><a href="rules.php">rules</a></li>
+<li><a href="help.php">help</a></li>
+</ul>
+</div>
+<div id="topnav_right">
+<a href="preferences.php">usersname</a>
+</div>
+</div>
+<div id="banner">
+<a href="/"></a>
+</div>
+<div id="notice_container" class="flex space column-if-mobile"> <div id="clock_bar">
+<form method="get" action="battlefield.php" style="display: inline-block">
+<input type="text" name="search" id="search" placeholder="search..."> <input type="hidden" name="search_type" value="c">
+</form>
+<div id="turn_box">
+Next Turn: <span id="s_next">20:58</span>
+</div>
+<script language="javascript" type="text/javascript">var limboends_time=0;turn_length=30,s_next_sec=parseInt(document.getElementById("s_next").innerHTML.substring(3,5),10),s_next_min=parseInt(document.getElementById("s_next").innerHTML.substring(0,2),10),"Now"==document.getElementById("s_next").innerHTML&&(s_next_sec=1,s_next_min=0);</script>
+<div id="gameinfo_bar">
+<div class="itemdisplay">
+#<span id="s_rank">23</span>
+</div>
+<div class="itemdisplay">
+<span id="s_gold">714,400</span> Gold
+</div>
+<div class="itemdisplay">
+<span id="s_turns">200</span> Turns
+</div>
+</div>
+</div>
+</div>
+<div class="menu" id="nav">
+<div class="ingame_nav">
+<div class="mainlink" id="base_links">
+<a href="base.php">
+<div id="basebutton" class="navbutton">Base</div>
+</a>
+<div class="droplinks" id="basesublinks">
+<a href="recruiter.php">Recruit Soldiers</a>
+<a href="train.php">Training
+Center</a> <a href="armory.php">Armory</a> <a href="upgrades.php">Buildings & Skills</a> <a href="logview.php">Activity
+Log</a>
+</div>
+</div>
+<div class="mainlink" id="battle_links">
+<a href="battlefield.php?do=mypage">
+<div id="battlebutton" class="navbutton">Battle</div>
+</a>
+<div class="droplinks" id="battlesublinks">
+<a href="battlefield.php">Battlefield</a>
+<a href="attacklog.php">Battle Log</a>
+<a href="intel.php">Intel Files</a>
+</div>
+</div>
+<div class="mainlink" id="social_links">
+<a href="mail.php">
+<div id="socialbutton" class="navbutton">Social</div>
+</a>
+<div class="droplinks" id="socialsublinks">
+<a href="mail.php">Mail</a>
+<a href="mail.php?tag=alliance">Alliance Discussion</a>
+<a href="alliance.php?a=49514">Alliance Name</a> <a href="alliances.php?do=listall">Browse Alliances</a>
+<a href="buddylist.php">Friends</a>
+</div>
+</div>
+<div class="mainlink" id="market_links">
+<a href="keep.php">
+<div id="marketbutton" class="navbutton">Keep</div>
+</a>
+<div class="droplinks" id="premiumsublinks">
+<a href="services.php">Premium</a>
+<a href="smartstats.php">Smart Stats</a>
+</div>
+</div>
+<div class="mainlink doge" id="dogecoin_links">
+<a href="dogecoin.php">
+<div id="dogecoinbutton" class="navbutton"><</div>
+</a>
+<div class="droplinks" id="dogecoinsublinks">
+<a href="dogecoin.php"><img src="/images/dogecoin.png" style="max-height:16px"> Dogecoin</a>
+<a href="dogefaucet.php">Faucet</a>
+<a href="senddoge.php">Send Doge</a>
+</div>
+</div>
+</div>
+</div>
+<div id="content">
+<div class="flexpanel_container" id="base_container">
+<div class="flexhalfnhalf flexpanel_content" id="usersummary_panel">
+<div class="flexpanel_header"><a href="stats.php?id=26953">usersname's</a> Castle Walls</div>
+<div class="info_container flexpanel_container">
+<div class="info_title lh3em"><a href="keep.php">Keys</a> Found:</div>
+<div class="info_value lh3em">5 / 5</div>
+<div class="info_title lh3em">Loot Found:</div>
+<div class="info_value lh3em">0 / 5</div>
+</div>
+<div class="info_container">
+<div class="info_title">Last active:</div>
+<div class="info_value"><span data-timestamp="1666301746">3 minutes 16 seconds ago</span> (online)</div>
+</div>
+<div class="info_container">
+<div class="info_title">Rank:</div>
+<div class="info_value">#23</div>
+</div>
+<div class="info_container">
+<div class="info_title">Highest Rank:</div>
+<div class="info_value">#11 / <span data-timestamp="1665905730">4 days 14 hours ago</span></div>
+</div>
+<div class="info_container">
+<div class="info_title">Army:</div>
+<div class="info_value">4,164 Pixies</div>
+</div>
+<div class="info_container">
+<div class="info_title">Race Bonuses:</div>
+<div class="info_value">
+<div class="race_bonus_item">12.5% Covert Ops Success</div>
+<div class="race_bonus_item">15% Sentry Bonus</div>
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">Turn-Based Gold: </div>
+<div class="info_value">
+<span id="base_tbg">3,160,850</span> Gold	</div>
+</div>
+<br />
+<div class="flexpanel_header th collapsible">Notepad (private)</div>
+<div class="collapsible_content">
+<table class="sep" width="100%" cellspacing="0" cellpadding="6" border="0" id="notepadbox">
+<tr>
+<td align="center" class="odd">Note: only <b>YOU</b> can see this.</td>
+</tr>
+<tr class="botcap">
+<td align="center">
+<form method="post" action="base.php">
+<textarea name="notepad" style="width: 100%; height: 100px;"></textarea>
+<br /> <input type="hidden" value="blah" name="unotepad" />
+<input type="submit" value="Update" />
+</form>
+</td>
+</tr>
+</table>
+</div>
+<br />
+<div class="th c collapsible">Profile (public)</div>
+<div class="collapsible_content">
+<table class="sep" width="100%" cellspacing="0" cellpadding="6" border="0" id="profilebox">
+<tr>
+<td align="center" class="odd">Note: publicly visible on your stats page.<br /><br />You can use the following to populate your profile: <b>{credits}</b>, <b>{strike_rank}</b>, <b>{strike}</b>, <b>{defense_rank}</b>, <b>{defense}</b>, <b>{spy_rank}</b>, <b>{spy}</b>, <b>{sentry_rank}</b>, <b>{sentry}</b>, <b>{tbg}</b>, <b>{totalgoldlost}</b>, <b>{totaltbgearned}</b>, <b>{turns}</b> and <b>{zombies}</b>.</td>
+</tr>
+<tr class="botcap">
+<td align="center">
+<form method="post" action="base.php">
+<textarea name="profile" style="width: 100%; height: 100px;"></textarea>
+<br />
+<input type="hidden" value="blah" name="uprofile" />
+<input type="submit" value="Update" />
+</form>
+</td>
+</tr>
+</table>
+</div>
+<br />
+<div class="th c collapsible">Get More Soldiers</div>
+<div class="collapsible_content">
+<div class="td c even">
+<a href="https://ruinsof.ch/aos/715e">https://ruinsof.ch/aos/715e</a>
+</div>
+<div class="td c odd">Send this to your friends to call for help. If they click it, you'll get soldiers. If they sign up or reactivate an existing account from your link, you'll get more bonus soldiers!<br>
+<br>
+Plus, for all purchases made by your officers, you'll receive a 10% bonus in gems.<br>
+<a class="normal button" href="referrals.php">New Referral Status</a>
+</div>
+</div>
+<br />
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="activitylog_panel">
+<div class="flexpanel_header">Recent Activity</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_1">[<span data-timestamp="1666301846">1m36s ago</span>]</div>
+<div class="info_value" id="activity_text_1">You activated a subscription to the Smart Stats service for 28 days!</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_2">[<span data-timestamp="1666301746">3m16s ago</span>]</div>
+<div class="info_value" id="activity_text_2">You tried to spy <a href="stats.php?id=20474">bantrai</a> with 10 spies and <a href="inteldetail.php?report_id=16322">BROKE IN</a>. Your Spy is now 203,009,100 (lost 700)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_3">[<span data-timestamp="1666301734">3m28s ago</span>]</div>
+<div class="info_value" id="activity_text_3">You tried to spy <a href="stats.php?id=71711">bantrai</a> with 10 spies and <a href="inteldetail.php?report_id=7083">BROKE IN</a>. Your Spy is now 203,009,800 (lost 700)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_4">[<span data-timestamp="1666301701">4m1s ago</span>]</div>
+<div class="info_value" id="activity_text_4">You bought 7 Excaliburs for 7,000,000 Gold. Your Strike is now 378,771,739 (gained 1,814,249)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_5">[<span data-timestamp="1666301698">4m4s ago</span>]</div>
+<div class="info_value" id="activity_text_5">You trained 943 Spies for 1,886,000 Gold. Your Strike is now 376,957,303 (lost 13,579), Defense is now 396,000 (lost 8,298), Spy is now 203,010,500 (gained 660,100)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_6">[<span data-timestamp="1666298711">53m51s ago</span>]</div>
+<div class="info_value" id="activity_text_6">You trained 1,543 Spies for 3,086,000 Gold. Your Strike is now 376,957,303 (lost 22,219), Defense is now 396,000 (lost 13,578), Spy is now 202,350,400 (gained 1,080,100)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_7">[<span data-timestamp="1666295525">1h46m57s ago</span>]</div>
+<div class="info_value" id="activity_text_7">You tried to spy <a href="stats.php?id=30454">littletrole</a> with 10 spies and <a href="inteldetail.php?report_id=52087">BROKE IN</a>. Your Spy is now 201,270,300 (lost 1,400)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_8">[<span data-timestamp="1666294931">1h56m51s ago</span>]</div>
+<div class="info_value" id="activity_text_8">You trained 282 Spies for 564,000 Gold. Your Strike is now 376,957,303 (lost 4,061), Defense is now 396,000 (lost 2,482), Spy is now 201,271,700 (gained 197,400)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_9">[<span data-timestamp="1666294282">2h7m40s ago</span>]</div>
+<div class="info_value" id="activity_text_9">You bought 22 Excaliburs for 22,000,000 Gold. Your Strike is now 376,957,303 (gained 5,701,925)</div>
+</div>
+<div class="info_container flexpanel_container">
+<div class="info_title" id="activity_time_10">[<span data-timestamp="1666294279">2h7m43s ago</span>]</div>
+<div class="info_value" id="activity_text_10">You repaired 2.269 points on your Blades, 9.076 points on your Excaliburs for 145,758 Gold. Your Strike is now 371,255,378 (gained 280,781)</div>
+</div>
+<div class="td c">
+<a href="logview.php" class="normal button">Show All</a>
+</div>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="events_panel">
+<ul id="events">
+<li class="subh">Current Events</li>
+<li class="td"><b>None</b></li> <li class="subh">Upcoming Events</li>
+<li class="td"><b>Scavengers</b> in <b><span data-timestamp="1666302193" class="countdown" id="timestamp181085" data-format="long">4 minutes 11 seconds</span></b><br /><small>Get lucky and find extra gold and/or broken keys when attacking!</small></li> <li class="td"><b>Banzai!</b> in <b><span data-timestamp="1666308000" class="countdown" id="timestamp11264" data-format="long">1 hour 40 minutes</span></b><br /><small>You gain +10% Strike Action; enemy casualties increased by 100%.</small></li>
+</ul>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="gametimers_panel">
+<div class="flexpanel_header">Server Date/Time</div>
+<div class="info_container">
+<div class="info_value">
+<center>October 20, 2022, 9:39pm</center>
+</div>
+</div>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="militaryeffectiveness_panel">
+<table class="sep f" cellspacing="0">
+<tr>
+<th class="l tlr">Your Stats</th>
+<th class="c">Action Points</th>
+<th class="c h trr">Rank</th>
+</tr>
+<tr>
+<td class="l"><b>Strike:
+</b>
+</td>
+<td class="c">378,771,739</td> <td class="c h">#11</td>
+</tr>
+<tr>
+<td class="l"><b>Defense:
+</b>
+</td>
+<td class="c">396,114</td> <td class="c h">#95</td>
+</tr>
+<tr>
+<td class="l"><b>Spy:
+</b>
+</td>
+<td class="c">203,009,100</td> <td class="c h">#10</td>
+</tr>
+<tr>
+<td class="l"><b>Sentry:
+(+15%) </b>
+</td>
+<td class="c">200,490,885</td> <td class="c h">#18</td>
+</tr>
+<tr class="odd">
+<td class="l "><b>Kills: </b></td>
+<td class="c">77,663</td>
+
+<td />
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Kill Ratio: </b></td>
+<td class="c">13</td>
+
+<td />
+</tr>
+</table>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="weaponsandtroops_panel">
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="3" class="topcap">Weapon And Troop Distribution</th>
+</tr>
+<tr>
+<th class="subh">&nbsp;</th>
+<th class="subh">Weapons</th>
+<th class="subh">Soldiers</th>
+</tr>
+<tr class="even">
+<td class="l"><b>Attack:</b></td>
+<td class="c">3,280</td>
+<td class="c h">4,000 (+64 Untrained)
+</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Defense:</b></td>
+<td class="c">100</td>
+<td class="c h">100 (+64 Untrained)
+</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Spy:</b></td>
+<td class="c">4,382</td>
+<td class="c h">145,395</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Sentry: </b></td>
+<td class="c">3,063</td>
+<td class="c h">160,230</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Total Fighting Force: </b></td>
+<td />
+<td class="c h">4,164</td>
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Total Covert Force: </b></td>
+<td />
+<td class="c h brr">305,625</td>
+</tr>
+</table>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="personaltotals_panel">
+<div class="flexpanel_header">Totals</div>
+<div class="info_container">
+<div class="info_title">Gold Generated:</div>
+<div class="info_value">
+<span id="gold_generated">885,647,169</span>
+Gold
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">Pillaged:</div>
+<div class="info_value">
+<span id="gold_pillaged">1,834,563,827</span>
+Gold
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">Gold Lost to Attacks:</div>
+<div class="info_value">
+<span id="gold_lost_to_attacks">63,153,050</span>
+Gold
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">Gold Lost to Sabotage:</div>
+<div class="info_value">
+<span id="gold_lost_to_sab">0</span>
+Gold
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">
+Sabotage Damage (<a href="allsab2.php">condensed</a>):
+</div>
+<div class="info_value">
+<a href="allsab.php"><span id="gold_sabbed">0</span>
+Gold</a>
+</div>
+</div>
+<div class="info_container">
+<div class="info_title">Sabotage Cost:</div>
+<div class="info_value">
+<span id="gold_cost_to_sab">0</span>
+Gold
+</div>
+</div>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="soldiersource_panel">
+<div class="flexpanel_header">Where'd dem soldiers come from?</div>
+<div class="info_container">
+<div class="info_title">Unit Production:</div>
+<div class="info_value" id="soldiers_up">32,020</div>
+</div>
+<div class="info_container">
+<div class="info_title">Recruiter:</div>
+<div class="info_value" id="soldiers_recruited">247,417</div>
+</div>
+<div class="info_container">
+<div class="info_title">Calls for Help:</div>
+<div class="info_value" id="soldiers_recruited_ext">0</div>
+</div>
+<div class="info_container">
+<div class="info_title">Officers:</div>
+<div class="info_value" id="soldiers_trickled">19,022</div>
+</div>
+<div class="info_container">
+<div class="info_title">Events:</div>
+<div class="info_value" id="soldiers_events">0</div>
+</div>
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="alliance_panel">
+<div class="flexpanel_header">Alliance</div>
+<div class="td c even"><a href="alliance.php?a=69519">Alliance Name</a> - Admin</div>
+<div class="c">
+<a class="normal button" href="sendcredits.php?only=alliance">Send credits</a>
+<a class="normal button" href="base.php?submitstatstoalliance=ayeayecaptain">Submit your stats</a>
+</div>
+<br />
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="commander_panel">
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="2" class="topcap" align="center">Command Chain</th>
+</tr>
+<tr class="even">
+<td><b>Your Commander: </b></td>
+<td>[<span class="smalltag"><a href="alliance.php?a=51220">§</a></span>] <a class="online" href="stats.php?id=99923">usercom</a></td>
+</tr>
+<tr>
+<td class="c" colspan="2"><a class="normal button" href="commander_change.php?new_commander_id=0">Leave Commander</a>
+</td>
+</tr>
+</table>
+<br />
+</div>
+<div class="flexhalfnhalf flexpanel_content" id="officers_panel">
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="5" class="topcap" align="center">1 Officer</th>
+</tr>
+<tr>
+<td class="c">&nbsp;</td>
+<td><a href="stats.php?id=2271">userofficer</a></td>
+<td class="r">35,014</td>
+<td>Pixies</td>
+<td class="r">#130</td>
+</tr>
+<tr>
+<td colspan="5" class="c"><a class="normal button" href="officers.php">Manage Officers</a></td>
+</tr>
+</table>
+<br />
+</div>
+</div>
+</div>
+<div class="ingame_nav">
+<div class="mainlink" id="logout_link">
+<a href="logout.php">
+<div id="logoutbutton" class="navbutton">Sign out</div>
+</a>
+</div>
+<div class="mainlink" id="top_link">
+<a href="top.php"><div id="topbutton" class="navbutton">Top</div></a>
+</div>
+<div class="mainlink" id="top_history_link">
+<a href="top_history.php"><div id="historybutton" class="navbutton">History</div></a>
+</div>
+</div>
+<div id="bottom_nav" class="flexpanel_container">
+<div id="socialmedia_links" class="bottomnav_container">
+<div class="bottomnav_header">Social Media</div>
+<div class="bottomnav_content">
+<a href="https://www.facebook.com/groups/22693920409/" target="_blank"><img src="images/redesign/social/facebook.png" /></a>
+<a href="chat.php"><img src="images/redesign/social/chat.png" /></a>
+</div>
+</div>
+<div id="legal_links" class="bottomnav_container">
+<div class="bottomnav_header">Legal</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="terms.php">Terms of Service</a>
+<a class="bottomnav_blocklink" href="privacy.php">Privacy</a>
+</div>
+</div>
+<div id="help_links" class="bottomnav_container">
+<div class="bottomnav_header">Help</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="help.php?do=aboutus">About</a>
+<a class="bottomnav_blocklink" href="help.php?do=signup">Getting Started</a>
+<a class="bottomnav_blocklink" href="help.php?do=strategy">Strategy</a>
+<a class="bottomnav_blocklink" href="medals.php">Medals</a>
+</div>
+</div>
+<div id="contact_links" class="bottomnav_container">
+<div class="bottomnav_header">Contact</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="staff.php#administrators">Game Mandem</a>
+</div>
+</div>
+</div>
+<div id="copyright_bar">
+RoC - V1.11.0 | &copy; 2013 &mdash; 2022 Gf, LLC.
+</div>
+</body>
+</html>
