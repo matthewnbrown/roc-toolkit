@@ -473,6 +473,8 @@ class SettingsLoader:
             line = SettingsLoader.__split_comment(line)
 
             if ':' not in line:
+                if warnings:
+                    print(f'Warning: found non-setting line {line}')
                 continue
 
             setting_name, value = line.split(':', maxsplit=1)
@@ -583,7 +585,8 @@ class SettingsValidator:
         valid = True
         for settingid, setting in settings.items():
             curvalid = True
-            curvalid = type(setting.value) == setting.valtype
+            if setting.valtype:
+                curvalid = type(setting.value) == setting.valtype
             if setting.validation_func:
                 curvalid &= setting.validation_func(setting.value)
 
