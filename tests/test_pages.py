@@ -551,3 +551,24 @@ class BasePageTest(unittest.TestCase):
         path = self._pagepath + 'base_noactive_events.html'
         soup = _getsoup(path)
         return pages.RocBasePage(soup)
+
+    def test_dubtrub(self):
+        page = self._get_dubtrub_page()
+
+        self.assertEqual(
+            len(page.current_events),
+            1,
+            'Incorrect number of current events on dubtrub page'
+        )
+
+        self.assertEqual(
+            len(page.upcoming_events),
+            2,
+            'Incorrect number of upcoming events on dubtrub page'
+        )
+
+        self.assertEqual(
+            page.current_events[0].name,
+            'Double Trouble',
+            'Incorrect current event name on dubtrub page'
+        )
