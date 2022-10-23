@@ -399,7 +399,7 @@ class RocAlert:
     def _get_events(self) -> None:
         # TODO: Make this code better
 
-        a = random.randint(1, 2)
+        a = random.randint(1, 1)
         if a != 1:
             return
 
@@ -408,12 +408,30 @@ class RocAlert:
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
         base = RocBasePage(soup)
 
-        print('Current Events')
+        self.__log('')
+        if len(base.current_events) > 0:
+            self.__log('!! Current Events !!')
+        else:
+            self.__log('No events currently running')
+
         for event in base.current_events:
-            print(event)
-        print('Upcoming Events')
+            self.__log(
+                f'{event.name} | '
+                + f'Ends at {event.date.strftime("%H:%M:%S")} |'
+                + f'{event.description}')
+
+        self.__log('')
+        if len(base.upcoming_events) > 0:
+            self.__log('-- Upcoming Events --')
+        else:
+            self.__log('No upcoming events')
+
         for event in base.upcoming_events:
-            print(event)
+            self.__log(
+                f'{event.name} | '
+                + f'Ends at {event.date.strftime("%H:%M:%S")} |'
+                + f'{event.description}')
+        self.__log('')
 
     def start(self) -> None:
         self.__init_cookie_loading()
