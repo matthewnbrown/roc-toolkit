@@ -408,7 +408,7 @@ class RocAlert:
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
         base = RocBasePage(soup)
 
-        self.__log('')
+        self.__log('-------------Event Status--------------')
         if len(base.current_events) > 0:
             self.__log('!! Current Events !!')
         else:
@@ -429,9 +429,9 @@ class RocAlert:
         for event in base.upcoming_events:
             self.__log(
                 f'{event.name} | '
-                + f'Ends at {event.date.strftime("%H:%M:%S")} |'
+                + f' Ends at {event.date.strftime("%H:%M:%S")} |'
                 + f'{ event.description}')
-        self.__log('')
+        self.__log('---------------------------------------')
 
     def start(self) -> None:
         self.__init_cookie_loading()
