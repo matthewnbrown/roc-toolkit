@@ -1,3 +1,4 @@
+from dataclasses import dataclass
 from typing import Optional, Tuple
 from datetime import datetime
 from bs4 import BeautifulSoup
@@ -519,6 +520,14 @@ class RocKeepPage(RocUserPage):
         return self._brokenkeycount
 
 
+@dataclass(frozen=True)
+class RocEvent:
+    name: str
+    description: str
+    date: datetime
+    is_active: bool
+
+
 class RocBasePage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
@@ -528,19 +537,50 @@ class RocBasePage(RocUserPage):
         self._get_base_details(base_container)
         self._get_events(base_container)
         self._get_personal_totals_table(base_container)
-        self._get_recent_events(base_container)
+        self._get_recent_activity(base_container)
         self._get_soldier_source_table(base_container)
 
     def _get_base_details(self, base_container: BeautifulSoup) -> None:
         pass
 
     def _get_events(self, base_container: BeautifulSoup) -> None:
-        pass
+        eventlist = base_container.find(id='events')
+        listitems = eventlist.findChildren(
+            'li', {'class', 'td'}, recursive=False)
+        self._events = []
+
+        def is_event(eventsoup: BeautifulSoup) -> bool:
+            isevent = eventsoup.find('span', {'class': 'countdown'})
+            return isevent is not None
+
+        def is_current(eventsoup: BeautifulSoup) -> bool:
+            return 'ends in' in eventsoup.text
+
+        def get_name(eventsoup: BeautifulSoup) -> str:
+            return eventsoup.find('b').text
+
+        def get_desc(eventsoup: BeautifulSoup) -> str:
+            return eventsoup.find('small').text
+
+        def get_date(eventsoup: BeautifulSoup) -> datetime:
+            cdspan = eventsoup.find('span', {'class': 'countdown'})
+            timestamp = cdspan.get('data-timestamp')
+            return self._timestamp_to_datetime(int(timestamp))
+
+        for event in listitems:
+            if not is_event(event):
+                continue
+
+            self._events.append(
+                RocEvent(
+                    get_name(event), get_desc(event),
+                    get_date(event), is_current(event))
+            )
 
     def _get_soldier_source_table(self, base_container: BeautifulSoup) -> None:
         pass
 
-    def _get_recent_events(self, base_container: BeautifulSoup) -> None:
+    def _get_recent_activity(self, base_container: BeautifulSoup) -> None:
         pass
 
     def _get_personal_totals_table(
@@ -575,12 +615,16 @@ class RocBasePage(RocUserPage):
         return self._officers
 
     @property
-    def current_events(self) -> list:
-        return self._current_events
+    def current_events(self) -> list[RocEvent]:
+        return [event for event in self._events if event.is_active]
 
     @property
-    def upcoming_events(self) -> list:
-        return self._upcoming_events
+    def upcoming_events(self) -> list[RocEvent]:
+        return [event for event in self._events if not event.is_active]
+
+    @property
+    def events(self) -> list[RocEvent]:
+        return self._events
 
     @property
     def recenty_activity(self) -> list:
