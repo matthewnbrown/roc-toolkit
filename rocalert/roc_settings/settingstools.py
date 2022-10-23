@@ -37,14 +37,18 @@ class Settings:
 
     def __init__(self, name: str = None, filepath=None) -> None:
         if not hasattr(self, 'settings'):
-            self.settings = copy.deepcopy(Settings.DEFAULT_SETTINGS)
+            self.settings = {}
+            # self.settings = copy.deepcopy(Settings.DEFAULT_SETTINGS)
         if name is None:
             name = 'Settings'
         self.name = name
         self.mandatory = set()
         if filepath is not None:
             SettingsLoader.load_settings_from_path(
-                filepath, settings=self.settings, warnings=True)
+                filepath, settings=self.settings,
+                default_settings=self.DEFAULT_SETTINGS, warnings=True)
+            SettingsValidator.set_defaults_ifnotset(
+                self.settings, self.DEFAULT_SETTINGS)
 
     def load_settings_from_path(self, filepath) -> None:
         SettingsLoader.load_settings_from_path(
@@ -144,8 +148,6 @@ class BuyerSettings(Settings):
     def __init__(self, name: str = None, filepath=None) -> None:
         if name is None:
             name = "Buyer Settings"
-
-        self.settings = BuyerSettings.DEFAULT_SETTINGS
 
         super().__init__(name, filepath)
 
@@ -310,8 +312,6 @@ class UserSettings(Settings):
         if name is None:
             name = 'User Settings'
 
-        self.settings = copy.deepcopy(UserSettings.DEFAULT_SETTINGS)
-
         super().__init__(name, filepath)
 
         self.mandatory = {'email', 'password'}
@@ -382,8 +382,6 @@ class SiteSettings(Settings):
         if name is None:
             name = 'Site Settings'
 
-        self.settings = copy.deepcopy(SiteSettings.DEFAULT_SETTINGS)
-
         super().__init__(name, filepath)
 
         self.mandatory = {'roc_home', 'roc_recruit'}
@@ -398,7 +396,7 @@ class SiteSettings(Settings):
                     continue
                 url = setting.value
 
-                validurl = setting.validation_func(url)
+                validurl = self.DEFAULT_SETTINGS[id].validation_func(url)
                 if not validurl:
                     print(f'{setting.pname} is invalid')
 
@@ -459,7 +457,8 @@ class SettingsConverter:
 
 class SettingsLoader:
     def load_settings_from_path(filepath,
-                                settings: dict[str, Setting] = None,
+                                settings: dict[str, Setting],
+                                default_settings: dict[str, Setting],
                                 warnings: bool = False
                                 ) -> dict:
         if settings is None:
@@ -485,17 +484,17 @@ class SettingsLoader:
             if warnings and len(value) == 0:
                 print("Warning: setting {} has no value".format(setting_name))
                 continue
-            if setting_name not in settings:
+            if setting_name not in default_settings:
                 settings[setting_name] = Setting(
                     setting_name, setting_name)
                 if warnings:
                     print(f"Warning: Setting {setting_name} found "
                           + "that is not in defaults")
-
-            if setting_name in settings:
-                setting = settings[setting_name]
             else:
-                setting = Setting(setting_name, setting_name, value=value)
+                settings[setting_name] = copy.copy(
+                    default_settings[setting_name])
+
+            setting = settings[setting_name]
             setting.value = SettingsConverter.convert(value, setting.valtype)
 
         return settings
@@ -530,9 +529,9 @@ class SettingsValidator:
             ) -> None:
         if key not in setdic:
             print(f"Warning: setting {key} not in settings."
-                  + f" Set to default value: {default}")
-            setdic[key] = copy(default)
-        else:
+                  + f" Set to default value: {default.value}")
+            setdic[key] = copy.copy(default)
+        elif callback:
             setdic[key] = callback(setdic[key])
 
     def validate_set(settings: dict,
@@ -546,9 +545,9 @@ class SettingsValidator:
 
     def set_defaults_ifnotset(settings: dict[str, Setting],
                               defaults: dict[str, Setting],
-                              callback: callable
+                              callback: callable = None
                               ) -> None:
-        if settings is None or defaults is None or callback is None:
+        if settings is None or defaults is None:
             return
 
         for key, val in defaults.items():
