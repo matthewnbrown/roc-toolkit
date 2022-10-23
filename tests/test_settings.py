@@ -28,7 +28,7 @@ class SettingsSaverTest(unittest.TestCase):
 
     def settings_saveload(self, settings) -> dict:
         SettingsSaver.save_settings_toPath(self.filename, settings)
-        res = SettingsLoader.load_settings_from_path(self.filename, {})
+        res = SettingsLoader.load_settings_from_path(self.filename, {}, {})
         os.remove(self.filename)
         return res
 
