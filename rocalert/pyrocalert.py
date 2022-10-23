@@ -418,7 +418,7 @@ class RocAlert:
             self.__log(
                 f'{event.name} | '
                 + f'Ends at {event.date.strftime("%H:%M:%S")} |'
-                + f'{ event.description}')
+                + f' {event.description}')
 
         self.__log('')
         if len(base.upcoming_events) > 0:
@@ -429,8 +429,8 @@ class RocAlert:
         for event in base.upcoming_events:
             self.__log(
                 f'{event.name} | '
-                + f' Ends at {event.date.strftime("%H:%M:%S")} |'
-                + f'{ event.description}')
+                + f'Ends at {event.date.strftime("%H:%M:%S")} |'
+                + f' {event.description}')
         self.__log('---------------------------------------')
 
     def start(self) -> None:
