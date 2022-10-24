@@ -299,6 +299,14 @@ class RocTrainingPage(RocImageCaptchaPage):
         self._tff = self._parse_row(rows[14])
 
     @property
+    def weapon_distribution_table(self) -> WeaponTroopDistTable:
+        return self._weapondisttable
+
+    @property
+    def stats_table(self) -> StatTable:
+        return self.stats_table
+
+    @property
     def attack_soldiers(self) -> RocTrainingTableEntry:
         return self._attacksold
 
@@ -567,7 +575,16 @@ class RocBasePage(RocUserPage):
         pass
 
     def _get_recent_activity(self, base_container: BeautifulSoup) -> None:
-        pass
+        self._recent_activity = []
+        alog = base_container.find(id='activitylog_panel')
+        acts = alog.findChildren('div', {'class': 'info_container'})
+
+        for act in acts:
+            children = act.findChildren(recursive=False)
+            timestamp = children[0].find('span').get('data-timestamp')
+            act_date = self._timestamp_to_datetime(int(timestamp))
+            act_text = children[1].text
+            self._recent_activity.append(RocActivity(act_date, act_text))
 
     def _get_personal_totals_table(
             self, base_container: BeautifulSoup) -> None:
