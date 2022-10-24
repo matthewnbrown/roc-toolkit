@@ -254,7 +254,7 @@ class WeaponTroopDistTable:
 
 
 class RocTrainingTableEntry:
-    def __init__(self, count: int, cost: rocnum_to_int) -> None:
+    def __init__(self, count: int, cost: int) -> None:
         self._count = count
         self._cost = cost
 
@@ -528,6 +528,12 @@ class RocEvent:
     is_active: bool
 
 
+@dataclass(frozen=True)
+class RocActivity:
+    date: datetime
+    activity_text: str
+
+
 class RocBasePage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
@@ -627,7 +633,7 @@ class RocBasePage(RocUserPage):
         return self._events
 
     @property
-    def recenty_activity(self) -> list:
+    def recenty_activity(self) -> list[RocActivity]:
         return self._recent_activity
 
     @property
