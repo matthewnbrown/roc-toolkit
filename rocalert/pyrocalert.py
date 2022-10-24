@@ -397,7 +397,7 @@ class RocAlert:
         return res_captcha.ans_correct
 
     def _get_events(self) -> None:
-        a = random.randint(1, 3)
+        a = random.randint(1, 2)
         if not self.__in_nightmode and a != 1:
             return
 
