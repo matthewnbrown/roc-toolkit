@@ -534,6 +534,12 @@ class RocBasePage(RocUserPage):
         self._get_recent_activity(base_container)
         self._get_soldier_source_table(base_container)
 
+        wtsoup = base_container.find(id='weaponsandtroops_panel').find('table')
+        self._weapondisttable = WeaponTroopDistTable(wtsoup)
+        stsoup = base_container.find(
+            id='militaryeffectiveness_panel').find('table')
+        self._stattable = StatTable(stsoup)
+
     def _get_base_details(self, base_container: BeautifulSoup) -> None:
         pass
 
@@ -674,3 +680,11 @@ class RocBasePage(RocUserPage):
     @property
     def turn_based_gold(self) -> int:
         return self._tbg
+
+    @property
+    def weapon_distribution_table(self) -> WeaponTroopDistTable:
+        return self._weapondisttable
+
+    @property
+    def stats_table(self) -> StatTable:
+        return self._stattable
