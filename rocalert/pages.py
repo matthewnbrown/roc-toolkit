@@ -304,7 +304,7 @@ class RocTrainingPage(RocImageCaptchaPage):
 
     @property
     def stats_table(self) -> StatTable:
-        return self.stats_table
+        return self._stattable
 
     @property
     def attack_soldiers(self) -> RocTrainingTableEntry:
