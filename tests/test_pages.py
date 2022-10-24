@@ -472,7 +472,7 @@ class TrainingPageTest(unittest.TestCase):
 
         self.assertEqual(
             page.weapon_distribution_table.untrained_soldiers.soldiers,
-            71771 
+            71771
         )
 
     def test_allmercs_values(self):
@@ -616,3 +616,27 @@ class BasePageTest(unittest.TestCase):
             True,
             '7th activity text should be user stealing turns.'
         )
+
+    def test_dist_table(self):
+        pass
+
+    def test_stats_table(self):
+        pass
+
+    def test_totals_table(self):
+        pass
+
+    def test_alliance(self):
+        pass
+
+    def test_officers(self):
+        pass
+
+    def test_commandchain(self):
+        pass
+
+    def test_serverdate(self):
+        pass
+
+    def test_soldier_source(self):
+        pass
