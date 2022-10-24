@@ -618,10 +618,18 @@ class BasePageTest(unittest.TestCase):
         )
 
     def test_dist_table(self):
-        pass
+        page = self._get_basewithofficers_page()
+
+        self.assertIsNotNone(
+            page.weapon_distribution_table
+        )
 
     def test_stats_table(self):
-        pass
+        page = self._get_dubtrub_page()
+
+        self.assertIsNotNone(
+            page.stats_table
+        )
 
     def test_totals_table(self):
         pass
