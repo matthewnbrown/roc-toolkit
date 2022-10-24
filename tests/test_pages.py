@@ -572,3 +572,21 @@ class BasePageTest(unittest.TestCase):
             'Double Trouble',
             'Incorrect current event name on dubtrub page'
         )
+
+    def test_stoleturns(self):
+        page = self._get_stoleturn_page()
+
+        self.assertIsNotNone(
+            page.recenty_activity,
+            'Recent activity should not be none'
+        )
+        self.assertEqual(
+            len(page.recenty_activity),
+            10,
+            'Recenty activity list is not correct length'
+        )
+        self.assertEqual(
+            'stole' in page.recenty_activity[7].activity_text,
+            True,
+            '7th activity text should be user stealing turns.'
+        )
