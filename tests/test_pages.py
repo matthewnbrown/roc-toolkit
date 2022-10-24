@@ -624,11 +624,36 @@ class BasePageTest(unittest.TestCase):
             page.weapon_distribution_table
         )
 
+        self.assertEqual(
+            page.weapon_distribution_table.untrained_soldiers.soldiers,
+            2818
+        )
+
+        self.assertEqual(
+            page.weapon_distribution_table.total_fighting_force.soldiers,
+            6918
+        )
+
     def test_stats_table(self):
         page = self._get_dubtrub_page()
 
         self.assertIsNotNone(
             page.stats_table
+        )
+
+        self.assertEqual(
+            page.stats_table.strike.action,
+            12630025
+        )
+
+        self.assertEqual(
+            page.stats_table.sentry.bonus,
+            15
+        )
+
+        self.assertEqual(
+            page.stats_table.spy.rank,
+            10
         )
 
     def test_totals_table(self):
