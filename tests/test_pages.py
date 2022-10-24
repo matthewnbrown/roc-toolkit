@@ -449,6 +449,22 @@ class TrainingPageTest(unittest.TestCase):
         soup = _getsoup(path)
         return pages.RocTrainingPage(soup)
 
+    def test_stats_table(self):
+        page = self._get_allmercs_page()
+
+        self.assertIsNotNone(
+            page.stats_table,
+            "Training page stat table should not be none"
+        )
+
+    def test_weapondist_table(self):
+        page = self._get_0am_page()
+
+        self.assertIsNotNone(
+            page.weapon_distribution_table,
+            "Training page weapon dist table should not be none"
+        )
+
     def test_allmercs_values(self):
         page = self._get_allmercs_page()
 
