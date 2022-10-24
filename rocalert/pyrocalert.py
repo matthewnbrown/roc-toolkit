@@ -427,7 +427,7 @@ class RocAlert:
         for event in base.upcoming_events:
             self.__log(
                 f'{event.name} | '
-                + f'Ends at {event.date.strftime("%H:%M:%S")} |'
+                + f'Starts at {event.date.strftime("%H:%M:%S")} |'
                 + f' {event.description}')
         self.__log('---------------------------------------')
 
