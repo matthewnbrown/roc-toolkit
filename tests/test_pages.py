@@ -457,12 +457,22 @@ class TrainingPageTest(unittest.TestCase):
             "Training page stat table should not be none"
         )
 
+        self.assertEqual(
+            page.stats_table.kills,
+            16921,
+        )
+
     def test_weapondist_table(self):
         page = self._get_0am_page()
 
         self.assertIsNotNone(
             page.weapon_distribution_table,
             "Training page weapon dist table should not be none"
+        )
+
+        self.assertEqual(
+            page.weapon_distribution_table.untrained_soldiers.soldiers,
+            71771 
         )
 
     def test_allmercs_values(self):
