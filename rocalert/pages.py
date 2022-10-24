@@ -253,18 +253,10 @@ class WeaponTroopDistTable:
         return self._tff
 
 
+@dataclass
 class RocTrainingTableEntry:
-    def __init__(self, count: int, cost: int) -> None:
-        self._count = count
-        self._cost = cost
-
-    @property
-    def income(self) -> int:
-        return self._cost
-
-    @property
-    def count(self) -> int:
-        return self._count
+    count: int
+    income: int
 
 
 class RocTrainingPage(RocImageCaptchaPage):
