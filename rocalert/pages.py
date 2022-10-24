@@ -169,22 +169,10 @@ class StatTable:
         return self._killratio
 
 
+@dataclass(frozen=True)
 class WeaponDistTableEntry:
-    def __init__(
-            self,
-            soldiers: int,
-            weaponcount: Optional[int] = None
-            ) -> None:
-        self._soldiers = soldiers
-        self._weaponcount = weaponcount
-
-    @property
-    def soldiers(self) -> int:
-        return self._soldiers
-
-    @property
-    def weapon_count(self) -> Optional[int]:
-        return self._weaponcount
+    soldiers: int
+    weapon_count: Optional[int] = None
 
 
 class WeaponTroopDistTable:
