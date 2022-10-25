@@ -342,10 +342,14 @@ class RocAlert:
             self.__log('Attempting recruit captcha...')
             captcha = self.__handle_captcha(captchaType)
 
-            self.__captcha_final(captcha)  # Log/Report
             if captcha is None or not captcha.ans_correct:
                 self.__log('Bad captcha answer...')
+                self.__captcha_final(captcha)
                 return False
+            if self.roc.recruit_has_captcha():
+                self.__log('Recruit attempt failed')
+                return False
+            self.__captcha_final(captcha)  # Log/Report
         else:
             self.__log("No captcha needed")
         return True
@@ -392,6 +396,7 @@ class RocAlert:
             return False
 
         if not res_captcha.ans_correct:
+            self.__captcha_final(res_captcha)
             self.__log('Bad captcha answer')
             return False
         purchase_success = self._check_purchase_success()
