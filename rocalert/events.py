@@ -245,10 +245,10 @@ class SpyEvent:
         self._newcaptchas.set()
 
     def _captcha_delay(self) -> None:
-        time.sleep(max(0.6 + random.gauss(.4, .1), .4))
+        time.sleep(max(0.4 + random.gauss(.4, .1), .35))
 
     def _nextuser_delay(self) -> None:
-        time.sleep(max(2 + random.gauss(.5, .3), 1))
+        time.sleep(max(1.5 + random.gauss(.5, .3), 1))
 
     def _handle_spying(self) -> None:
         last_user_skipped = False
