@@ -1,8 +1,6 @@
 # pyroc specific
 cookies
-site.settings
-user.settings
-buyer.settings
+*.settings
 logs
 
 # Byte-compiled / optimized / DLL files
