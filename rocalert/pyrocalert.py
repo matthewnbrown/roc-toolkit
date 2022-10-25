@@ -368,7 +368,12 @@ class RocAlert:
         self.__log("Attempting to purchase...")
         payload = self.buyer.create_order_payload()
 
-        itemcount = sum(payload.values())
+        itemcount = 0
+
+        for ic in payload.values():
+            if len(ic) > 0:
+                itemcount += int(ic)
+
         if itemcount == 0:
             self.__log('Purchase payload is only 0 items.')
             return True
