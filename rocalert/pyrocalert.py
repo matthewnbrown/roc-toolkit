@@ -1,6 +1,5 @@
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.captcha.roc_auto_solve import ROCAutoSolver
-from rocalert.pages import RocBasePage
 from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import UserSettings
@@ -10,6 +9,7 @@ from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.cookiehelper import save_cookies_to_path, \
     load_cookies_from_path, load_cookies_from_browser
 
+import rocalert.pages as pages
 import bs4
 import io
 import PIL.Image
@@ -404,7 +404,7 @@ class RocAlert:
         url = self.roc.site_settings.get_home() + '/base.php'
         self.roc.go_to_page(url)
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
-        base = RocBasePage(soup)
+        base = pages.RocBasePage(soup)
 
         self.__log('-------------Event Status--------------')
         if len(base.current_events) > 0:

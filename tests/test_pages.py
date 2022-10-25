@@ -3,6 +3,7 @@ import unittest
 from bs4 import BeautifulSoup
 
 import rocalert.pages as pages
+import rocalert.pages.genericpages as gp
 
 
 def _get_dir():
@@ -33,14 +34,14 @@ class PageLoggedInTest(unittest.TestCase):
         path = 'testpages/simplepages/loginstatus/true.html'
         soup = _getsoup(path)
 
-        page = pages.RocPage(soup)
+        page = gp.RocPage(soup)
         self.assertTrue(page.logged_in, 'Page is not logged in.')
 
     def test_notlogged_in(self):
         path = 'testpages/simplepages/loginstatus/false.html'
         soup = _getsoup(path)
 
-        page = pages.RocPage(soup)
+        page = gp.RocPage(soup)
         self.assertFalse(page.logged_in, 'Page is logged in.')
 
 
@@ -49,15 +50,15 @@ class StatsTableTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _getnobonustable(self) -> pages.StatTable:
+    def _getnobonustable(self) -> gp.StatTable:
         filepath = 'testpages/simplepages/statstable/statstable_nobonus.html'
         soup = _getsoup(filepath)
-        return pages.StatTable(soup)
+        return gp.StatTable(soup)
 
-    def _getbonustable(self) -> pages.StatTable:
+    def _getbonustable(self) -> gp.StatTable:
         filepath = 'testpages/simplepages/statstable/statstable_allbonus.html'
         soup = _getsoup(filepath)
-        return pages.StatTable(soup)
+        return gp.StatTable(soup)
 
     def test_simple_table_strike_val(self):
         table = self._getnobonustable()
@@ -144,22 +145,22 @@ class WeaponTroopDistTableTest(unittest.TestCase):
     def _get_page_path(self):
         return '/testpages/simplepages/weapontrooptable/'
 
-    def _get_untrained_table(self) -> pages.WeaponTroopDistTable:
+    def _get_untrained_table(self) -> gp.WeaponTroopDistTable:
         path = self._get_page_path() \
             + 'weapontrooptable_hasuntrained.html'
         soup = _getsoup(path)
-        return pages.WeaponTroopDistTable(soup)
+        return gp.WeaponTroopDistTable(soup)
 
-    def _get_no_untrained_table(self) -> pages.WeaponTroopDistTable:
+    def _get_no_untrained_table(self) -> gp.WeaponTroopDistTable:
         path = '/testpages/simplepages/weapontrooptable/' \
             + 'weapontrooptable_nountrained.html'
         soup = _getsoup(path)
-        return pages.WeaponTroopDistTable(soup)
+        return gp.WeaponTroopDistTable(soup)
 
-    def _get_training_unt_table(self) -> pages.WeaponTroopDistTable:
+    def _get_training_unt_table(self) -> gp.WeaponTroopDistTable:
         path = self._get_page_path() + 'weapontrooptable_training_unt.html'
         soup = _getsoup(path)
-        return pages.WeaponTroopDistTable(soup)
+        return gp.WeaponTroopDistTable(soup)
 
     def test_load_training_table(self):
         self._get_training_unt_table()
@@ -249,10 +250,10 @@ class RocUserPageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
-    def _get_userpage(self) -> pages.RocUserPage:
+    def _get_userpage(self) -> gp.RocUserPage:
         path = '/testpages/simplepages/userpage.html'
         soup = _getsoup(path)
-        return pages.RocUserPage(soup)
+        return gp.RocUserPage(soup)
 
     def test_userpage_loggedin(self):
         page = self._get_userpage()
