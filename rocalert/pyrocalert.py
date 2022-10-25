@@ -350,6 +350,9 @@ class RocAlert:
             self.__log("No captcha needed")
         return True
 
+    def _check_purchase_success(self) -> bool:
+        return self.__check_buy_needed()
+
     def __armoryCheck(self) -> bool:
         buy_needed = self.__check_buy_needed()
 
@@ -388,19 +391,19 @@ class RocAlert:
             self.__log('Detected text captcha in armory')
             return False
 
-        self.__captcha_final(res_captcha)
-
         if not res_captcha.ans_correct:
             self.__log('Bad captcha answer')
             return False
+        purchase_success = self._check_purchase_success()
+
+        if purchase_success:
+            self.__log('Failure purchasing')
         else:
-            self.__log('Purchase successful')
+            self.__log('Purchase was successful')
 
-        for item in payload:
-            if payload[item] == 0:
-                continue
+        self.__captcha_final(res_captcha)
 
-        return res_captcha.ans_correct
+        return res_captcha.ans_correct and purchase_success
 
     def start(self) -> None:
         self.__init_cookie_loading()
