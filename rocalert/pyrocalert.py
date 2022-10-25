@@ -358,6 +358,14 @@ class RocAlert:
 
         self.__log("Attempting to purchase...")
         payload = self.buyer.create_order_payload()
+
+        itemcount = sum(payload.values())
+        if itemcount == 0:
+            self.__log('Purchase payload is only 0 items.')
+            return True
+
+        self.__log(f'Purchasing {itemcount} items')
+
         res_captcha = self.__handle_img_captcha('roc_armory', payload)
 
         curtime = datetime.datetime.now()
