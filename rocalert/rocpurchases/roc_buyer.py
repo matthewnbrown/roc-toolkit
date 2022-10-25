@@ -102,7 +102,7 @@ class ROCBuyer():
         payload = BASE_ARMORY_PAYLOAD.copy()
 
         for item, count in order.items():
-            payload[f"buy[{ITEM_DETAILS[item].code}]"] = str(count)
+            payload[f"buy[{ITEM_DETAILS[item].code}]"] = count
 
         return payload
 
