@@ -309,7 +309,7 @@ class RocAlert:
             self.__log('Not purchasing due to prior purchasing errors')
             return False
 
-        return self.buyer.check_purchase_required()
+        return self.__in_nightmode or self.buyer.check_purchase_required()
 
     def failuretimeout(self) -> None:
         timeout_len = self.user_settings['captcha_failure_timeout']
