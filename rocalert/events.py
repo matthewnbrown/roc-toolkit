@@ -91,7 +91,7 @@ class SpyEvent:
         return 'You cannot recon this person' in responsetext
 
     def _get_spy_url(self, user: BattlefieldTarget) -> str:
-        return self._roc.site_settings['roc_home'] \
+        return self._roc.site_settings.get_home() \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
     def _filterusers(
@@ -143,7 +143,7 @@ class SpyEvent:
 
             self._roclock.acquire()
             captype = self._roc.get_page_captcha_type(
-                self._roc.site_settings['roc_armory'])
+                self._roc.site_settings.get_armory())
             self._roclock.release()
 
             if captype == Captcha.CaptchaType.EQUATION:

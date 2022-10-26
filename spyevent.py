@@ -48,8 +48,8 @@ def user_filter(user: BattlefieldTarget) -> bool:
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
     if us.get_setting('load_cookies_from_browser'):
         cookies = load_cookies_from_browser(
-            us.get_setting('browser'),
-            roc.site_settings['roc_home']
+            us.get_setting('browser').value,
+            roc.site_settings.get_home()
             )
         roc.add_cookies(cookies)
         return True
@@ -76,7 +76,7 @@ def login(roc: RocWebHandler, us: UserSettings):
 
     if __load_browser_cookies(roc, us) and roc.is_logged_in():
         __log('Successfully pulled cookie from {}'.format(
-            us.get_setting('browser')))
+            us.get_setting('browser').value))
         save_cookies_to_path(roc.get_cookies(), cookie_filename)
         return True
 

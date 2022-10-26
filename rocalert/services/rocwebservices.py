@@ -14,7 +14,7 @@ class BattlefieldPageService():
 
     @classmethod
     def run_service(cls, roc: RocWebHandler, pagenum: int) -> Dict:
-        pageurl = roc.site_settings['roc_home'] + \
+        pageurl = roc.site_settings.get_home() + \
             f'/battlefield.php?p={pagenum}'
 
         roc.go_to_page(pageurl)
@@ -39,7 +39,7 @@ class BattlefieldPageService():
 
     @classmethod
     def get_page_range(cls, roc: RocWebHandler) -> Tuple[int, int]:
-        pageurl = roc.site_settings['roc_home'] + \
+        pageurl = roc.site_settings.get_home() + \
             f'/battlefield.php?p={1}'
 
         roc.go_to_page(pageurl)
@@ -128,7 +128,7 @@ class SpyService():
         self._targets = deque(targets)
 
     def _get_spy_url(self, user: BattlefieldTarget) -> str:
-        return self._roc.site_settings['roc_home'] \
+        return self._roc.site_settings.get_home() \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
     def _get_result(self, resp: Response) -> SpyResult:
