@@ -356,8 +356,8 @@ class RocAlert:
             self.__log("No captcha needed")
         return True
 
-    def _check_purchase_success(self) -> bool:
-        return self.__check_buy_needed()
+    def _is_purchase_successful(self) -> bool:
+        return not self.__check_buy_needed()
 
     def __armoryCheck(self) -> bool:
         buy_needed = self.__check_buy_needed()
@@ -406,9 +406,9 @@ class RocAlert:
             self.__captcha_final(res_captcha)
             self.__log('Bad captcha answer')
             return False
-        purchase_success = self._check_purchase_success()
+        purchase_success = self._is_purchase_successful()
 
-        if purchase_success:
+        if not purchase_success:
             self.__log('Failure purchasing')
         else:
             self.__log('Purchase was successful')
