@@ -471,6 +471,7 @@ class RocAlert:
                 self.failuretimeout()
 
             if self.handlecooldown():
+                time.sleep(self.consecutive_cooldowns * 15)
                 continue
 
             # if not logged in and login attempt fails, retry after a bit
