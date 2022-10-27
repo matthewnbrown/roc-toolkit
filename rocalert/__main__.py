@@ -1,3 +1,6 @@
+from datetime import datetime, timedelta
+import random
+import time
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases.roc_buyer import ROCBuyer
@@ -46,8 +49,39 @@ def run():
     a.start()
 
 
+def _error_nap(errorcount, timebetweenerrors) -> None:
+    muiltiplier = 1
+    if timebetweenerrors < timedelta(minutes=5):
+        print('Very recent error, increasing sleep time')
+        muiltiplier = 2
+
+    base = 10*(1 + errorcount % 4)
+    sleeptime = muiltiplier * (base + random.uniform(0, 15))
+    print(f'Sleeping for {sleeptime} minutes')
+    time.sleep(sleeptime*60)
+
+
 def main():
-    run()
+    errorcount = 0
+    lasterrortime = datetime.now()
+    keeprunning = True
+    while keeprunning:
+        try:
+            run()
+            keeprunning = False
+        except KeyboardInterrupt as e:
+            print('Detected keyboard interrupt')
+            raise e
+        except Exception as e:
+            # TODO: Collect specific exceptions and handle them
+            # ConnectionResetError
+            errorcount += 1
+            timebetweenerrors = datetime.now() - lasterrortime
+            lasterrortime = datetime.now()
+            print(e)
+            print(f"\nWarning: Detected exception #{errorcount}")
+            _error_nap(errorcount, timebetweenerrors)
+            print('\n\nRestarting...')
 
 
 if __name__ == '__main__':
