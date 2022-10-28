@@ -1,7 +1,6 @@
 from datetime import datetime, timedelta
 import random
 import time
-import os
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases import ROCBuyer, ROCTrainer
