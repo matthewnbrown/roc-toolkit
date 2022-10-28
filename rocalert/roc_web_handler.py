@@ -3,11 +3,12 @@ from http.client import RemoteDisconnected
 from urllib3 import Retry
 from rocalert.roc_settings.settingstools import SiteSettings
 from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
+from bs4 import BeautifulSoup
 
 import requests
 
 from rocalert.roc_settings.settingstools import SiteSettings
-
+from pages import RocTrainingPage
 
 def __generate_useragent():
     pass
@@ -286,3 +287,8 @@ class RocWebHandler:
 
     def send_armory_order(self, payload: dict):
         pass
+
+    def get_training_page(self) -> RocTrainingPage:
+        self.go_to_training()
+        soup = BeautifulSoup(self.r.text)
+        return RocTrainingPage(soup)
