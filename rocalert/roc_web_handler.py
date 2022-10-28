@@ -8,6 +8,9 @@ from bs4 import BeautifulSoup
 import requests
 
 
+_BS_PARSER = 'lxml'
+
+
 def __generate_useragent():
     pass
 
@@ -288,5 +291,5 @@ class RocWebHandler:
 
     def get_training_page(self) -> RocTrainingPage:
         self.go_to_training()
-        soup = BeautifulSoup(self.r.text)
+        soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return RocTrainingPage(soup)
