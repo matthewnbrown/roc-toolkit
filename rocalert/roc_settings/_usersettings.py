@@ -16,9 +16,6 @@ class UserSettings(Settings):
         'auto_captcha_key': Setting('Autosolve Captcha API Key',
                                     'auto_captcha_key', None, str,
                                     'API key for captcha solving service'),
-        'notify_soldier_amt': Setting('Notify soldier amount',
-                                      'notify_soldier_amt',
-                                      None, int, 'Unused'),
         'min_checktime_secs':
             Setting('Minimum check time', 'min_checktime_secs', 1000, int,
                     'Minimum seconds to wait before an account status check'),
