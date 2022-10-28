@@ -1,5 +1,6 @@
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.captcha.roc_auto_solve import ROCAutoSolver
+from rocalert.pages.training import RocTrainingPage
 from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases.roc_buyer import ROCBuyer
 from rocalert.roc_settings.settingstools import UserSettings
@@ -417,6 +418,19 @@ class RocAlert:
 
         return res_captcha.ans_correct and purchase_success
 
+    def _is_training_required(self, trainingpage: RocTrainingPage) -> bool:
+        pass
+
+    def __trainingCheck(self) -> bool:
+        page = self.roc.get_training_page()
+
+        if not self._is_training_required(page):
+            return True
+
+
+
+        return True
+
     def _get_events(self) -> None:
         a = random.randint(1, 2)
         if not self.__in_nightmode and a != 1:
@@ -477,6 +491,9 @@ class RocAlert:
             # if not logged in and login attempt fails, retry after a bit
             if not self.roc.is_logged_in():
                 self.__attempt_login()
+                continue
+
+            if not self.__trainingCheck():
                 continue
 
             if not self.__armoryCheck():
