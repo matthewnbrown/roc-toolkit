@@ -70,7 +70,7 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
         print('Very recent error, increasing sleep time')
         muiltiplier = 2
 
-    base = 10*(max(1, errorcount % 4))
+    base = 5*(max(1, errorcount % 4))
     sleeptime = muiltiplier * (base + random.uniform(0, 15))
     print(f'Sleeping for {sleeptime} minutes')
     time.sleep(sleeptime*60)
@@ -78,7 +78,7 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
 
 def main():
     errorcount = 0
-    lasterrortime = datetime.now()
+    lasterrortime = datetime.now() - timedelta(minutes=5)
     keeprunning = True
     while keeprunning:
         try:
