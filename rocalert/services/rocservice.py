@@ -1,5 +1,5 @@
 from abc import abstractmethod
-from rocalert.roc_settings.settingstools import UserSettings
+from rocalert.roc_settings import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 
 

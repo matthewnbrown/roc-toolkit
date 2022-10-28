@@ -1,5 +1,5 @@
 import copy
-from datetime import datetime as dt, time
+from datetime import datetime as dt
 from typing import Callable
 from urllib.parse import urlparse
 import os
@@ -221,7 +221,7 @@ class TrainerSettings(Settings):
             self.__check_valid_settings()
 
     def training_enabled(self):
-        return self.get_setting['train_soldiers'].value
+        return self.set_setting['train_soldiers'].value
 
     def match_soldiers_to_weapons(self):
         return self.get_setting['soldier_weapon_match'].value
@@ -439,7 +439,7 @@ class SettingsConverter:
     def __toint__(value: str) -> int:
         return int(value.replace(',', '').replace(' ', ''))
 
-    def __totime__(value: str) -> time:
+    def __totime__(value: str) -> dt:
         return time_conv(value)
 
     def __tobool__(value: str) -> bool:
@@ -450,7 +450,7 @@ class SettingsConverter:
     __convmap__ = {
         str: __tostr__,
         int: __toint__,
-        time: __totime__,
+        dt: __totime__,
         bool: __tobool__
         }
 

@@ -1,32 +1,43 @@
 from datetime import datetime, timedelta
 import random
 import time
+import os
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
-from rocalert.rocpurchases.roc_buyer import ROCBuyer
-from rocalert.roc_settings.settingstools import BuyerSettings,\
-        SettingsFileMaker, SiteSettings, UserSettings
+from rocalert.rocpurchases import ROCBuyer, ROCTrainer
+from rocalert.roc_settings import BuyerSettings,\
+        SettingsSetupHelper, SiteSettings, UserSettings, TrainerSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
 
 
 def run():
-    user_settings_fp = 'user.settings'
-    site_settings_fp = 'site.settings'
-    buyer_settings_fp = 'buyer.settings'
-    trainer_settings_fp = 'trainer.settings'
+    filepaths = {
+        'trainer': ('trainer.settings', TrainerSettings),
+        'site': ('site.settings', SiteSettings),
+        'user': ('user.settings', UserSettings),
+        'buyer': ('buyer.settings', BuyerSettings)
+    }
 
-    if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp,
-            buyer_settings_fp, trainer_settings_fp):
+    settings_file_error = False
+
+    for settype, infotuple in filepaths.items():
+        path, settingtype = infotuple
+        if SettingsSetupHelper.needs_setup(path):
+            settings_file_error = True
+            SettingsSetupHelper.create_default_file(
+                path, settingtype.DEFAULT_SETTINGS)
+            print(f"Created settings file {path}.")
+
+    if settings_file_error:
         print("Exiting. Please fill out settings files")
-        quit()
+        return
 
     gen_log = CaptchaLogger('logs/captcha_answers.log', timestamp=True)
     correct_log = CaptchaLogger('logs/correct_ans.log', log_correctness=False)
 
-    rochandler = RocWebHandler(SiteSettings(filepath=site_settings_fp))
-    user_settings = UserSettings(filepath=user_settings_fp)
+    rochandler = RocWebHandler(SiteSettings(filepath=filepaths['site'][0]))
+    user_settings = UserSettings(filepath=filepaths['user'][0])
 
     remoteCaptcha = RemoteCaptcha(
         user_settings.get_value('remote_captcha_add'),
@@ -34,13 +45,18 @@ def run():
 
     buyer = ROCBuyer(
         rochandler,
-        BuyerSettings(filepath=buyer_settings_fp),
+        BuyerSettings(filepath=filepaths['buyer'][0]),
         )
 
+    trainer = ROCTrainer(
+        rochandler,
+        TrainerSettings(filepath=filepaths['trainer'][0])
+    )
     a = RocAlert(
         rochandler,
         user_settings,
         buyer,
+        trainer,
         correct_log,
         gen_log,
         remoteCaptcha
@@ -55,7 +71,7 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
         print('Very recent error, increasing sleep time')
         muiltiplier = 2
 
-    base = 10*(1 + errorcount % 4)
+    base = 10*(max(1, errorcount % 4))
     sleeptime = muiltiplier * (base + random.uniform(0, 15))
     print(f'Sleeping for {sleeptime} minutes')
     time.sleep(sleeptime*60)

@@ -1,14 +1,12 @@
+from .pages import RocTrainingPage
+from .roc_settings import SiteSettings
+from .captcha.pyroccaptchaselector import ROCCaptchaSelector
+
 from http.client import RemoteDisconnected
-
 from urllib3 import Retry
-from rocalert.roc_settings.settingstools import SiteSettings
-from rocalert.captcha.pyroccaptchaselector import ROCCaptchaSelector
 from bs4 import BeautifulSoup
-
 import requests
 
-from rocalert.roc_settings.settingstools import SiteSettings
-from pages import RocTrainingPage
 
 def __generate_useragent():
     pass

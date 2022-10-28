@@ -1,6 +1,6 @@
-from rocalert.rocaccount import ROCTraining, RocItem, \
+from rocalert.rocaccount import ROCTraining, \
     ROCAccount, ROCArmory, ROCStats
-from rocalert.roc_settings.settingstools import UserSettings
+from rocalert.roc_settings import UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools import ALL_ITEM_DETAILS
 from rocalert.services.rocservice import RocService

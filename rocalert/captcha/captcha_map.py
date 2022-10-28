@@ -1,5 +1,5 @@
 import os
-from roc_settings.settingstools import SettingsSaver, SettingsLoader
+from roc_settings import SettingsSaver, SettingsLoader
 
 
 class CaptcahMap:

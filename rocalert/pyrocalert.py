@@ -1,13 +1,13 @@
-from rocalert.captcha.equation_solver import EquationSolver
-from rocalert.captcha.roc_auto_solve import ROCAutoSolver
-from rocalert.pages.training import RocTrainingPage
-from rocalert.services.remote_lookup import RemoteCaptcha
-from rocalert.rocpurchases.roc_buyer import ROCBuyer
-from rocalert.roc_settings.settingstools import UserSettings
-from rocalert.roc_web_handler import RocWebHandler
-from rocalert.roc_web_handler import Captcha
-from rocalert.captcha.captcha_logger import CaptchaLogger
-from rocalert.cookiehelper import save_cookies_to_path, \
+from .captcha.equation_solver import EquationSolver
+from .captcha.roc_auto_solve import ROCAutoSolver
+from .pages.training import RocTrainingPage
+from .services.remote_lookup import RemoteCaptcha
+from .rocpurchases import ROCBuyer, ROCTrainer
+from .roc_settings import UserSettings
+from .roc_web_handler import RocWebHandler
+from .roc_web_handler import Captcha
+from .captcha.captcha_logger import CaptchaLogger
+from .cookiehelper import save_cookies_to_path, \
     load_cookies_from_path, load_cookies_from_browser
 
 import rocalert.pages as pages
@@ -25,6 +25,7 @@ class RocAlert:
                  rochandler: RocWebHandler = None,
                  usersettings: UserSettings = None,
                  buyer: ROCBuyer = None,
+                 trainer: ROCTrainer = None,
                  correctLog: CaptchaLogger = None,
                  generalLog: CaptchaLogger = None,
                  remoteCaptcha: RemoteCaptcha = None
@@ -426,8 +427,6 @@ class RocAlert:
 
         if not self._is_training_required(page):
             return True
-
-
 
         return True
 

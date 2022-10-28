@@ -1,7 +1,7 @@
 import os
 import unittest
 from datetime import datetime
-from rocalert.roc_settings.settingstools import SettingsSaver,\
+from rocalert.roc_settings import SettingsSaver,\
     SettingsLoader, Setting
 
 
