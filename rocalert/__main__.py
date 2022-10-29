@@ -85,9 +85,9 @@ def main():
         try:
             run()
             keeprunning = False
-        except KeyboardInterrupt:
+        except KeyboardInterrupt as e:
             print('Detected keyboard interrupt')
-            return
+            raise e
         except SettingsError as e:
             print(e)
             return
