@@ -1,6 +1,7 @@
 from datetime import datetime, timedelta
 import random
 import time
+from .roc_settings import SettingsError
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
 from rocalert.rocpurchases import ROCBuyer, ROCTrainer
@@ -71,7 +72,7 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
         muiltiplier = 2
 
     base = 5*(max(1, errorcount % 4))
-    sleeptime = muiltiplier * (base + random.uniform(0, 15))
+    sleeptime = int(muiltiplier * (base + random.uniform(0, 15)))
     print(f'Sleeping for {sleeptime} minutes')
     time.sleep(sleeptime*60)
 
@@ -84,9 +85,12 @@ def main():
         try:
             run()
             keeprunning = False
-        except KeyboardInterrupt as e:
+        except KeyboardInterrupt:
             print('Detected keyboard interrupt')
-            raise e
+            return
+        except SettingsError as e:
+            print(e)
+            return
         except Exception as e:
             # TODO: Collect specific exceptions and handle them
             # ConnectionResetError
