@@ -4,6 +4,10 @@ from typing import Callable
 import os
 
 
+class SettingsError(Exception):
+    pass
+
+
 def time_conv(t: str): return dt.strptime(t, '%H:%M').time() if len(
             t) <= 5 else dt.strptime(t, '%H:%M:%S').time()
 
@@ -168,7 +172,13 @@ class SettingsLoader:
                     default_settings[setting_name])
 
             setting = settings[setting_name]
-            setting.value = SettingsConverter.convert(value, setting.valtype)
+            try:
+                setting.value = SettingsConverter.convert(
+                    value, setting.valtype)
+            except ValueError:
+                raise SettingsError(
+                    f'Error converting settomg {setting.pname} with '
+                    + f'value {value} to type {setting.valtype.__name__}')
 
         return settings
 
