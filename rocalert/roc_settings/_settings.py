@@ -177,7 +177,7 @@ class SettingsLoader:
                     value, setting.valtype)
             except ValueError:
                 raise SettingsError(
-                    f'Error converting settomg {setting.pname} with '
+                    f'Error converting setting {setting.pname} with '
                     + f'value {value} to type {setting.valtype.__name__}')
 
         return settings
