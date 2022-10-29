@@ -147,7 +147,7 @@ class SettingsLoader:
         for line in lines:
             line = SettingsLoader.__split_comment(line)
 
-            if ':' not in line:
+            if ':' not in line and len(line.strip()) > 0:
                 if warnings:
                     print(f'Warning: found non-setting line {line}')
                 continue
