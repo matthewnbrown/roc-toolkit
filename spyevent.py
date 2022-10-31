@@ -3,7 +3,7 @@ from os.path import exists
 from rocalert.captcha.captcha_logger import CaptchaLogger
 
 from rocalert.events import SpyEvent
-from rocalert.roc_settings.settingstools import SettingsFileMaker, \
+from rocalert.roc_settings import SettingsSetupHelper, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
@@ -132,17 +132,27 @@ def test_multiimage(
 
 
 def runevent_new():
-    user_settings_fp = 'user.settings'
-    site_settings_fp = 'site.settings'
-    buyer_settings_fp = 'buyer.settings'
+    filepaths = {
+        'site': ('site.settings', SiteSettings),
+        'user': ('user.settings', UserSettings),
+    }
 
-    if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp, buyer_settings_fp):
+    settings_file_error = False
+
+    for settype, infotuple in filepaths.items():
+        path, settingtype = infotuple
+        if SettingsSetupHelper.needs_setup(path):
+            settings_file_error = True
+            SettingsSetupHelper.create_default_file(
+                path, settingtype.DEFAULT_SETTINGS)
+            print(f"Created settings file {path}.")
+
+    if settings_file_error:
         print("Exiting. Please fill out settings files")
-        quit()
+        return
 
-    user_settings = UserSettings(filepath=user_settings_fp)
-    site_settings = SiteSettings(filepath=site_settings_fp)
+    user_settings = UserSettings(filepath=filepaths['user'][0])
+    site_settings = SiteSettings(filepath=filepaths['site'][0])
     rochandler = RocWebHandler(site_settings)
 
     if not login(rochandler, user_settings):
