@@ -90,6 +90,7 @@ def main():
             raise e
         except SettingsError as e:
             print(e)
+            print('Exiting..')
             return
         except Exception as e:
             # TODO: Collect specific exceptions and handle them
