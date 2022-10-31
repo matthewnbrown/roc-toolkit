@@ -293,8 +293,6 @@ class RocWebHandler:
         pass
 
     def get_training_page(self) -> RocTrainingPage:
-        return None
-        # TODO: Figure out why linux (Android/rpi) cannot parse training page
         self.go_to_training()
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return RocTrainingPage(soup)
