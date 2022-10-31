@@ -65,7 +65,7 @@ class SiteSettings(Settings):
 
             if 'training' in self.settings['roc_training'].value:
                 raise SettingsError(
-                    'Training URL should not be training.php,' +
+                    'Training URL should not be training.php, ' +
                     'it was changed to train.php. Please update site.settings.'
                     )
 
