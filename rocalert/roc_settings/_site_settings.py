@@ -1,5 +1,5 @@
 
-from ._settings import Setting, Settings, SettingsValidator
+from ._settings import Setting, Settings, SettingsValidator, SettingsError
 from urllib.parse import urlparse
 
 
@@ -60,10 +60,14 @@ class SiteSettings(Settings):
                 validUrls &= validurl
 
             if not validUrls:
-                print(
-                    'Site settings are not set correctly. '
-                    + 'Ensure URLs are valid. Exiting')
-                quit()
+                raise SettingsError('Site settings are not set correctly. '
+                                    + 'Ensure URLs are valid. Exiting')
+
+            if 'training' in self.settings['roc_training'].value:
+                raise SettingsError(
+                    'Training URL should not be training.php,' +
+                    'it was changed to train.php. Please update site.settings.'
+                    )
 
     def get_page(self, page: str) -> str:
         return self.get_value(page)
