@@ -117,6 +117,9 @@ class SettingsConverter:
     def __totime__(value: str) -> time:
         return time_conv(value)
 
+    def __tofloat__(value: str) -> float:
+        return float(value)
+
     def __tobool__(value: str) -> bool:
         value = value.lower()
         validans = ['yes', 'y', 'true', 'enable', 'enabled']
@@ -126,7 +129,8 @@ class SettingsConverter:
         str: __tostr__,
         int: __toint__,
         time: __totime__,
-        bool: __tobool__
+        bool: __tobool__,
+        float: __tofloat__,
         }
 
 

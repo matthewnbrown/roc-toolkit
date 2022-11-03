@@ -27,10 +27,10 @@ class UserSettings(Settings):
                     'Enable longer wait times during certain time period'),
         'nightmode_minwait_mins':
             Setting('Nightmode minimum wait time', 'nightmode_minwait_mins',
-                    100, int, 'Minimum MINUTES to wait during nightmode'),
+                    100, float, 'Minimum MINUTES to wait during nightmode'),
         'nightmode_maxwait_mins':
             Setting('Nightmode maxmimum wait time', 'nightmode_maxwait_mins',
-                    200, int, 'Maximum MINUTE to wait during nightmode'),
+                    200, float, 'Maximum MINUTE to wait during nightmode'),
         'nightmode_begin':
             Setting('Nightmode start time', 'nightmode_begin',
                     time_conv('20:00'), time,
