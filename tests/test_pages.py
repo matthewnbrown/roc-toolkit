@@ -450,6 +450,11 @@ class TrainingPageTest(unittest.TestCase):
         soup = _getsoup(path)
         return pages.RocTrainingPage(soup)
 
+    def _get_none_avail_mercs(self) -> pages.RocTrainingPage:
+        path = self._pagepath + 'training_none_avail.html'
+        soup = _getsoup(path)
+        return pages.RocTrainingPage(soup)
+
     def test_stats_table(self):
         page = self._get_allmercs_page()
 
@@ -546,6 +551,28 @@ class TrainingPageTest(unittest.TestCase):
              page.avail_untrained_mercs.income),
             (114653, 2000),
             'Incorrect number/cost of untrained mercenaries'
+        )
+
+    def test_none_avail_merccount(self):
+        page = self._get_none_avail_mercs()
+
+        self.assertTupleEqual(
+            (page.avail_attack_mercs.count,
+             page.avail_defense_mercs.count,
+             page.avail_untrained_mercs.count),
+            (50664, 0, 0),
+            'Incorrect amount of mercenaries'
+        )
+
+    def test_event_merc_cost(self):
+        page = self._get_none_avail_mercs()
+
+        self.assertTupleEqual(
+            (page.avail_untrained_mercs.income,
+             page.avail_defense_mercs.income,
+             page.avail_untrained_mercs.income),
+            (577, 577, 577),
+            'Incorrect cost of mercenaries during event'
         )
 
 
