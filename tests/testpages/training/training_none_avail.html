@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="Massively Multi-player Bug-filled Experience" />
+<meta http-equiv="X-UA-Compatible" content="chrome=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#c87a0d">
+<meta name="apple-mobile-web-app-title" content="RoC">
+<meta name="application-name" content="RoC">
+<meta name="msapplication-TileColor" content="#c87a0d">
+<meta name="theme-color" content="#c87a0d">
+<script src="https://www.google.com/recaptcha/api.js?render=6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr"></script>
+<script>
+        try {
+            token = {};
+            grecaptcha.ready(function () {
+                grecaptcha.execute('6Lcs5C0bAAAAAE6gcz51SJuVTF2SFzsboAHe-NQr',
+                    {action: 'load/train'}).then(token);
+                {
+                    var recaptchaResponse = document.getElementById('recaptchaResponse');
+                    if (recaptchaResponse && recaptchaResponse.value) {
+                        recaptchaResponse.value = token;
+                    }
+                }
+
+            });
+        }
+        catch(err)
+        {
+            console.log(err);
+        }
+
+        window.addEventListener("unhandledrejection", function(err) {
+            console.log(err);
+        });
+    </script>
+<title>R o C: Training</title>
+<link rel="stylesheet" type="text/css" href="css/shared.css?1645730599">
+<link rel="stylesheet" type="text/css" href="css/train.css?1622502048">
+<link rel="stylesheet" type="text/css" href="css/beta.css?1648815905">
+<link rel="stylesheet" type="text/css" href="css/newage.css?1631469363">
+<style type="text/css">#banner:not(.take-up-lots-of-space-even-while-logged-in){max-height:8em;margin-top:1em}</style>
+<script type="text/javascript" defer src="https://code.jquery.com/jquery-2.2.4.min.js" crossorigin="anonymous"></script>
+<script type="text/javascript" defer src="data/js.js?1641175828"></script>
+<script type="text/javascript" defer src="js/countdown.js?1622502090"></script>
+<script type="text/javascript" defer src="data/autosuggest.js?1622502049"></script>
+</head>
+<body onload="startGame()">
+<div id="page_container">
+<div id="topnav" class="flex">
+<div id="topnav_left">
+<ul>
+<li><a href="news.php">news</a></li>
+<li><a href="https://discord.gg/TmPmM4J6BF">chat</a></li>
+<li><a href="rules.php">rules</a></li>
+<li><a href="help.php">help</a></li>
+</ul>
+</div>
+<div id="topnav_right">
+<a href="preferences.php">usersname</a>
+</div>
+</div>
+<div id="banner">
+<a href="/"></a>
+</div>
+<div id="notice_container" class="flex space column-if-mobile"> <div id="clock_bar">
+<form method="get" action="battlefield.php" style="display: inline-block">
+<input type="text" name="search" id="search" placeholder="search..."> <input type="hidden" name="search_type" value="c">
+</form>
+<div id="turn_box">
+Next Turn: <span id="s_next">29:03</span>
+</div>
+<script language="javascript" type="text/javascript">var limboends_time=0;turn_length=30,s_next_sec=parseInt(document.getElementById("s_next").innerHTML.substring(3,5),10),s_next_min=parseInt(document.getElementById("s_next").innerHTML.substring(0,2),10),"Now"==document.getElementById("s_next").innerHTML&&(s_next_sec=1,s_next_min=0);</script>
+<div id="gameinfo_bar">
+<div class="itemdisplay">
+#<span id="s_rank">26</span>
+</div>
+<div class="itemdisplay">
+<span id="s_gold">9,065,829</span> Gold
+</div>
+<div class="itemdisplay">
+<span id="s_turns">395</span> Turns
+</div>
+</div>
+</div>
+</div>
+<div class="menu" id="nav">
+<div class="ingame_nav">
+<div class="mainlink" id="base_links">
+<a href="base.php">
+<div id="basebutton" class="navbutton">Base</div>
+</a>
+<div class="droplinks" id="basesublinks">
+<a href="recruiter.php">Recruit Soldiers</a>
+<a href="train.php">Training
+Center</a> <a href="armory.php">Armory</a> <a href="upgrades.php">Buildings & Skills</a> <a href="logview.php">Activity
+Log</a>
+</div>
+</div>
+<div class="mainlink" id="battle_links">
+<a href="battlefield.php?do=mypage">
+<div id="battlebutton" class="navbutton">Battle</div>
+</a>
+<div class="droplinks" id="battlesublinks">
+<a href="battlefield.php">Battlefield</a>
+<a href="attacklog.php">Battle Log</a>
+<a href="intel.php">Intel Files</a>
+</div>
+</div>
+<div class="mainlink" id="social_links">
+<a href="mail.php">
+<div id="socialbutton" class="navbutton">Social</div>
+</a>
+<div class="droplinks" id="socialsublinks">
+<a href="mail.php">Mail</a>
+<a href="mail.php?tag=alliance">Alliance Discussion</a>
+<a href="alliance.php?a=85864">Alliance Name</a> <a href="alliances.php?do=listall">Browse Alliances</a>
+<a href="buddylist.php">Friends</a>
+</div>
+</div>
+<div class="mainlink" id="market_links">
+<a href="keep.php">
+<div id="marketbutton" class="navbutton">Keep</div>
+</a>
+<div class="droplinks" id="premiumsublinks">
+<a href="services.php">Premium</a>
+<a href="smartstats.php">Smart Stats</a>
+<a href="smartsab.php">Sabotage Stats</a>
+</div>
+</div>
+<div class="mainlink doge" id="dogecoin_links">
+<a href="dogecoin.php">
+<div id="dogecoinbutton" class="navbutton"><</div>
+</a>
+<div class="droplinks" id="dogecoinsublinks">
+<a href="dogecoin.php"><img src="/images/dogecoin.png" style="max-height:16px"> Dogecoin</a>
+<a href="dogefaucet.php">Faucet</a>
+<a href="senddoge.php">Send Doge</a>
+</div>
+</div>
+</div>
+</div>
+<div class="subnav">
+<span class="red" id="event_notifier">
+<b>Cheap Tricks</b><span class="screen-only"> is active, </span> ends in <b class="countdown" id="event" data-timestamp="1667618243" data-format="long"><span data-timestamp="1667618243" class="countdown" id="timestamp631" data-format="long">16 minutes 26 seconds</span></b>
+</span>
+</div>
+ <div id="content">
+<div class="th c">Training Center</div>
+<script type="text/javascript">
+<!--
+	console.log("Errors encountered: ");
+//-->
+	</script>
+<br />
+<form method="post" action="train.php">
+<div class="flexpanel_container">
+<div class="flexhalfnhalf">
+<ul class="inventory">
+<li class="typeheader">
+<h2 class="weapon">Training Program</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_train_attack_soldiers">
+<div class="weapon flex space">
+<h3>Attack Soldiers</h3>
+</div>
+<div class="info flex space">
+<span class="cost">1,000 Gold</span>
+<span class="strength">
++7.2 attack,
+-10.4 defense </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="train[attack_soldiers]" name="train[attack_soldiers]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy_attack_soldiers" onclick="training(1474,'attack_soldiers')">
+1,474 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_train_defense_soldiers">
+<div class="weapon flex space">
+<h3>Defense Soldiers</h3>
+</div>
+<div class="info flex space">
+<span class="cost">1,000 Gold</span>
+<span class="strength">
++5.2 defense,
+-14.4 attack </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="train[defense_soldiers]" name="train[defense_soldiers]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy_defense_soldiers" onclick="training(1474,'defense_soldiers')">
+1,474 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_train_spies">
+<div class="weapon flex space">
+<h3>Spies</h3>
+</div>
+<div class="info flex space">
+<span class="cost">2,000 Gold</span>
+<span class="strength">
++750 spy,
+-14.4 attack,
+-10.4 defense
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="train[spies]" name="train[spies]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy_spies" onclick="training(1474,'spies')">
+1,474 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_train_sentries">
+<div class="weapon flex space">
+<h3>Sentries</h3>
+</div>
+<div class="info flex space">
+<span class="cost">2,000 Gold</span>
+<span class="strength">
++750 sentry,
+-14.4 attack,
+-10.4 defense
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="train[sentries]" name="train[sentries]" />
+</div>
+<div class="autofillbuy normal button" id="autofillbuy_sentries" onclick="training(1474,'sentries')">
+1,474 </div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="inventory">
+<li class="typeheader">
+<h2 class="weapon">Mercenaries for Hire</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_merc_attack_mercs">
+<div class="weapon flex space">
+<h3>Attack Mercenaries</h3>
+<span>Available: 50,664</span>
+</div>
+<div class="info flex space">
+<span class="cost eventon" title="An event is modifying this value.">577 Gold</span>
+<span class="strength">
++21.6 attack,
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="buy[attack_mercs]" name="buy[attack_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofillmerc_attack_mercs" onclick="mercs(5191,'attack_mercs')">
+5,191 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_merc_defense_mercs">
+<div class="weapon flex space">
+<h3>Defense Mercenaries</h3>
+<span>None Available</span>
+</div>
+<div class="info flex space">
+<span class="cost eventon" title="An event is modifying this value.">577 Gold</span>
+<span class="strength">
++15.6 defense,
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="buy[defense_mercs]" name="buy[defense_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofillmerc_defense_mercs" onclick="mercs(0,'defense_mercs')">
+0 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_merc_untrained_mercs">
+<div class="weapon flex space">
+<h3>Untrained Mercenaries</h3>
+<span>None Available</span>
+</div>
+<div class="info flex space">
+<span class="cost eventon" title="An event is modifying this value.">577 Gold</span>
+<span class="strength">
++14.4 attack,
++10.4 defense
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="buy[untrained_mercs]" name="buy[untrained_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofillmerc_untrained_mercs" onclick="mercs(0,'untrained_mercs')">
+0 </div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="inventory">
+<li class="typeheader">
+<h2 class="weapon">Reassignment</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_untrain_attack_soldiers">
+<div class="weapon flex space">
+<h3>Attack Soldiers</h3>
+<span class="amount">14,000</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-7.2 attack,
++10.4 defense </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[attack_soldiers]" name="untrain[attack_soldiers]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_attack_soldiers" onclick="untraining(14000,'attack_soldiers')">
+14,000 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_untrain_defense_soldiers">
+<div class="weapon flex space">
+<h3>Defense Soldiers</h3>
+<span class="amount">100</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-5.2 defense,
++14.4 attack </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[defense_soldiers]" name="untrain[defense_soldiers]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_defense_soldiers" onclick="untraining(100,'defense_soldiers')">
+100 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_untrain_spies">
+<div class="weapon flex space">
+<h3>Spies</h3>
+<span class="amount">379,436</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-750 sentry,
++3.6 attack,
++2.6 defense
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[spies]" name="untrain[spies]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_spies" onclick="untraining(379436,'spies')">
+379,436 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_untrain_sentries">
+<div class="weapon flex space">
+<h3>Sentries</h3>
+<span class="amount">484,132</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-750 sentry,
++3.6 attack,
++2.6 defense
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[sentries]" name="untrain[sentries]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_sentries" onclick="untraining(484132,'sentries')">
+484,132 </div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+<div class="flexhalfnhalf">
+<ul class="inventory">
+<li class="typeheader">
+<h2 class="weapon">Fire Mercenaries</h2>
+<h3 class="info">Cost</h3>
+<h3 class="buy">Buy</h3>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_fire_attack_mercs">
+<div class="weapon flex space">
+<h3>Attack Mercenaries</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-21.6 attack </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[attack_mercs]" name="untrain[attack_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_attack_mercs" onclick="untraining(0,'attack_mercs')">
+0 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_fire_defense_mercs">
+<div class="weapon flex space">
+<h3>Defense Mercenaries</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-15.6 defense </span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[defense_mercs]" name="untrain[defense_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_defense_mercs" onclick="untraining(0,'defense_mercs')">
+0 </div>
+</div>
+</div>
+</li>
+<li class="weapon flex-if-mobile column-if-mobile" id="cell_fire_untrained_mercs">
+<div class="weapon flex space">
+<h3>Untrained Mercenaries</h3>
+<span class="amount" style="visibility: hidden;">0</span>
+</div>
+<div class="info flex space">
+<span class="cost">Free</span>
+<span class="strength">
+-14.4 attack,
+-10.4 defense
+</span>
+</div>
+<div class="buy">
+<div class="flex space center">
+<div>
+<input class="buyweapon" size="4" type="text" id="untrain[untrained_mercs]" name="untrain[untrained_mercs]" />
+</div>
+<div class="autofillbuy normal button" id="autofilluntrain_untrained_mercs" onclick="untraining(0,'untrained_mercs')">
+0 </div>
+</div>
+</div>
+</li>
+</ul>
+</div>
+</div>
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="2">Click the number to continue</th>
+</tr>
+<tr>
+<td width="50%" align="right"><img id="captcha_image" name="captcha_image" src="img.php?hash=b47ad4b3a905b2c891bd29d01727c06f" alt="[click the correct number to proceed]" width="150" height="150" />
+</td>
+<td width="50%" align="left"><div style="white-space: nowrap">
+<input type="hidden" id="captcha" name="captcha" value="b47ad4b3a905b2c891bd29d01727c06f" />
+<input type="hidden" name="coordinates[x]" id="cx" value="0">
+<input type="hidden" name="coordinates[y]" id="cy" value="0">
+<div class="hidden-if-mobile">
+<input onkeydown="if(isNumber(event)) { this.value = isNumber(event); this.form.submit(); el('altsubmit').setAttribute('disabled', 'disabled'); return false; }" class="captcha" type="number" pattern="[0-9]*" id="manualcaptcha" name="manualcaptcha" alt="manual captcha input" title="type the number here and press enter" />
+<input class="captcha" type="submit" id="altsubmit" name="altsubmit" value="Go" style="width: 70px;" alt="Alternate captcha submission" title="Click here if you typed the number in yourself" /><br />
+</div>
+<input accesskey="1" class="captcha" type="submit" name="num" value="1" alt="1" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="2" class="captcha" type="submit" name="num" value="2" alt="2" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="3" class="captcha" type="submit" name="num" value="3" alt="3" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<br />
+<input accesskey="4" class="captcha" type="submit" name="num" value="4" alt="4" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="5" class="captcha" type="submit" name="num" value="5" alt="5" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="6" class="captcha" type="submit" name="num" value="6" alt="6" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<br />
+<input accesskey="7" class="captcha" type="submit" name="num" value="7" alt="7" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="8" class="captcha" type="submit" name="num" value="8" alt="8" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+<input accesskey="9" class="captcha" type="submit" name="num" value="9" alt="9" ondblclick="$('input[name=num]').attr('disabled','disabled');" />
+</div>
+</td>
+</tr>
+</table>
+<div class="flexpanel_container">
+<div class="flexhalfnhalf">
+<table class="sep f" cellspacing="0">
+<tr>
+<th class="l tlr">Your Stats</th>
+<th class="c">Action Points</th>
+<th class="c h trr">Rank</th>
+</tr>
+<tr>
+<td class="l"><b>Strike:
+</b>
+</td>
+<td class="c">890,054,741</td> <td class="c h">#24</td>
+</tr>
+<tr>
+<td class="l"><b>Defense:
+</b>
+</td>
+<td class="c">4,131,286</td> <td class="c h">#72</td>
+</tr>
+<tr>
+<td class="l"><b>Spy:
+</b>
+</td>
+<td class="c">2,070,534,750</td> <td class="c h">#9</td>
+</tr>
+<tr>
+<td class="l"><b>Sentry:
+(+15%) </b>
+</td>
+<td class="c">1,300,930,313</td> <td class="c h">#26</td>
+</tr>
+<tr class="odd">
+<td class="l "><b>Kills: </b></td>
+<td class="c">277,113</td>
+
+<td />
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Kill Ratio: </b></td>
+<td class="c">16</td>
+
+<td />
+</tr>
+</table>
+</div>
+<div class="flexhalfnhalf">
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="3" class="topcap">Troops</th>
+</tr>
+<tr>
+<th class="subh l">Type</th>
+<th class="subh r">Amount</th>
+<th class="subh r">Income</th>
+</tr>
+<tr class="even">
+<td><span style="font-weight: bold; ">Attack Soldiers: </span></td>
+<td class="r">14,000</td>
+<td class="r">350,000</td>
+</tr>
+<tr class="odd">
+<td><span style="font-weight: bold; ">Attack Mercenaries: </span></td>
+<td class="r">0</td>
+<td class="r">0</td>
+</tr>
+<tr class="even">
+<td><span style="font-weight: bold; ">Defense Soldiers: </span></td>
+<td class="r">100</td>
+<td class="r">3,000</td>
+</tr>
+<tr class="odd">
+<td><span style="font-weight: bold; ">Defense Mercenaries: </span></td>
+<td class="r">0</td>
+<td class="r">0</td>
+</tr>
+<tr class="even">
+<td><span style="font-weight: bold; ">Untrained Soldiers: </span></td>
+<td class="r">1,474</td>
+<td class="r">36,850</td>
+</tr>
+<tr class="odd">
+<td><span style="font-weight: bold; ">Untrained Mercenaries: </span></td>
+<td class="r">0</td>
+<td class="r">0</td>
+</tr>
+<tr class="even">
+<td><span style="font-weight: bold; ">Spies: </span></td>
+<td class="r">379,436</td>
+<td class="r">3,794,360</td>
+</tr>
+<tr class="odd">
+<td><span style="font-weight: bold; ">Sentries: </span></td>
+<td class="r">484,132</td>
+<td class="r">4,841,320</td>
+</tr>
+<tr class="even">
+<td><span style="font-weight: bold; color: #33CCFF">Zombies: </span></td>
+<td class="r"><span style="color: #33CCFF">17,000</span></td>
+<td class="r">0</td>
+</tr>
+<tr class="odd">
+<td><b>Total Mercenaries: </b></td>
+<td class="r"><b>0</b></td>
+<td class="r"><b>0</b></td>
+</tr>
+<tr class="even">
+<td><b>Total Soldiers:</b></td>
+<td class="r"><b>15,574</b></td>
+<td class="r"><b>389,850</b></td>
+</tr>
+<tr class="odd">
+<td><b>Total Covert Force:</b></td>
+<td class="r"><b>863,568</b></td>
+<td class="r"><b>8,635,680</b></td>
+</tr>
+<tr class="even">
+<td class="blr"><b>Total Fighting Force: </b></td>
+<td class="brr r"><b>15,574</b></td>
+<td class="brr r"><b>9,025,530</b></td>
+</tr>
+</table>
+</div>
+<div class="flexhalfnhalf">
+<table class="sep f" cellspacing="0">
+<tr>
+<th colspan="3" class="topcap">Weapon And Troop Distribution</th>
+</tr>
+<tr>
+<th class="subh">&nbsp;</th>
+ <th class="subh">Weapons</th>
+<th class="subh">Soldiers</th>
+</tr>
+<tr class="even">
+<td class="l"><b>Attack:</b></td>
+<td class="c">13,510</td>
+<td class="c h">14,000 (+1,474 Untrained)
+</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Defense:</b></td>
+<td class="c">22</td>
+<td class="c h">100 (+1,474 Untrained)
+</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Spy:</b></td>
+<td class="c">82,113</td>
+<td class="c h">379,436</td>
+</tr>
+<tr class="odd">
+<td class="l"><b>Sentry: </b></td>
+<td class="c">35,317</td>
+<td class="c h">484,132</td>
+</tr>
+<tr class="even">
+<td class="l"><b>Total Fighting Force: </b></td>
+<td />
+<td class="c h">15,574</td>
+</tr>
+<tr class="odd">
+<td class="l blr"><b>Total Covert Force: </b></td>
+<td />
+<td class="c h brr">863,568</td>
+</tr>
+</table>
+</div>
+</div>
+</form>
+</div>
+<div class="ingame_nav">
+<div class="mainlink" id="logout_link">
+<a href="logout.php">
+<div id="logoutbutton" class="navbutton">Sign out</div>
+</a>
+</div>
+<div class="mainlink" id="top_link">
+<a href="top.php"><div id="topbutton" class="navbutton">Top</div></a>
+</div>
+<div class="mainlink" id="top_history_link">
+<a href="top_history.php"><div id="historybutton" class="navbutton">History</div></a>
+</div>
+</div>
+<div id="bottom_nav" class="flexpanel_container">
+<div id="socialmedia_links" class="bottomnav_container">
+<div class="bottomnav_header">Social Media</div>
+<div class="bottomnav_content">
+<a href="https://www.facebook.com/groups/22693920409/" target="_blank"><img src="images/redesign/social/facebook.png" /></a>
+<a href="chat.php"><img src="images/redesign/social/chat.png" /></a>
+</div>
+</div>
+<div id="legal_links" class="bottomnav_container">
+<div class="bottomnav_header">Legal</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="terms.php">Terms of Service</a>
+<a class="bottomnav_blocklink" href="privacy.php">Privacy</a>
+</div>
+</div>
+<div id="help_links" class="bottomnav_container">
+<div class="bottomnav_header">Help</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="help.php?do=aboutus">About</a>
+<a class="bottomnav_blocklink" href="help.php?do=signup">Getting Started</a>
+<a class="bottomnav_blocklink" href="help.php?do=strategy">Strategy</a>
+<a class="bottomnav_blocklink" href="medals.php">Medals</a>
+</div>
+</div>
+<div id="contact_links" class="bottomnav_container">
+<div class="bottomnav_header">Contact</div>
+<div class="bottomnav_content">
+<a class="bottomnav_blocklink" href="staff.php#administrators">Game Mandem</a>
+</div>
+</div>
+</div>
+<div id="copyright_bar">
+RoC - V1.11.0 | &copy; 2013 &mdash; 2022 Gf, LLC.
+</div>
+</body>
+</html>
