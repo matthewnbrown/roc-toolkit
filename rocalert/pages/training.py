@@ -23,24 +23,27 @@ class RocTrainingPage(genpages.RocImageCaptchaPage):
 
         self._get_troops_table(fpctables[1])
 
+    def _merc_entry_creator(
+            self, content: BeautifulSoup, id: str) -> RocTrainingTableEntry:
+        merc_span = content.find(id=id).find_all('span')
+        if 'None' in merc_span[0].text:
+            count_str = '0'
+        else:
+            count_str = merc_span[0].text.split(' ')[1]
+
+        merc_entry = RocTrainingTableEntry(
+            genpages.rocnum_to_int(count_str),
+            genpages.rocnum_to_int(merc_span[1].text.replace('Gold', '')))
+
+        return merc_entry
+
     def _get_mercs_avail(self, content: BeautifulSoup) -> None:
-        attspans = content.find(id='cell_merc_attack_mercs').find_all('span')
-        attcountstr = attspans[0].text.split(' ')[1]
-        self._availattmercs = RocTrainingTableEntry(
-            genpages.rocnum_to_int(attcountstr),
-            genpages.rocnum_to_int(attspans[1].text))
-
-        defspans = content.find(id='cell_merc_defense_mercs').find_all('span')
-        defcountstr = defspans[0].text.split(' ')[1]
-        self._availdefmercs = RocTrainingTableEntry(
-            genpages.rocnum_to_int(defcountstr),
-            genpages.rocnum_to_int(defspans[1].text))
-
-        untspan = content.find(id='cell_merc_untrained_mercs').find_all('span')
-        untcountstr = untspan[0].text.split(' ')[1]
-        self._availuntmercs = RocTrainingTableEntry(
-            genpages.rocnum_to_int(untcountstr),
-            genpages.rocnum_to_int(untspan[1].text))
+        self._availattmercs = self._merc_entry_creator(
+            content, 'cell_merc_attack_mercs')
+        self._availdefmercs = self._merc_entry_creator(
+            content, 'cell_merc_defense_mercs')
+        self._availuntmercs = self._merc_entry_creator(
+            content, 'cell_merc_untrained_mercs')
 
     def _parse_row(self, row: BeautifulSoup) -> RocTrainingTableEntry:
         return RocTrainingTableEntry(
