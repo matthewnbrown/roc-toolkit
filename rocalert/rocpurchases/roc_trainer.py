@@ -1,6 +1,15 @@
+import abc
 from ..roc_web_handler import RocWebHandler
 from ..roc_settings import TrainerSettings
+from . import TrainingModel, ArmoryModel, TrainingPurchaseModel, ArmoryPurchaseModel
 
+
+class ROCTrainingPurchaseGeneratorABC(abc.ABC):
+    def generate_purchase(
+            tsettings: TrainerSettings, gold: int,
+            trainmod: TrainingModel, armmod: ArmoryModel
+            ) -> TrainingPurchaseModel:
+        raise NotImplementedError
 
 def _gen_basetrainpayload():
     soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
