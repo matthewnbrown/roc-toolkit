@@ -1,8 +1,17 @@
 
+import abc
 from rocalert.roc_settings import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools \
     import ALL_ITEM_DETAILS as ITEM_DETAILS
+from . import ArmoryModel, ArmoryPurchaseModel
+
+
+class ROCArmoryPurchaseGeneratorABC(abc.ABC):
+    def generate_purchase(
+            bsettings: BuyerSettings, gold: int, armmod: ArmoryModel
+            ) -> ArmoryPurchaseModel:
+        raise NotImplementedError
 
 
 BASE_ARMORY_PAYLOAD = {
