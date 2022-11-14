@@ -10,7 +10,7 @@ from typing import Callable, Iterable, List
 from requests import Response
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
-from ..captcha.manualcaptchasolver import manual_captcha_solve
+from ..captcha.solvers import manual_captcha_solve
 
 
 class CaptchaSolveException(Exception):
@@ -123,6 +123,10 @@ class CaptchaSolverABC(abc.ABC):
     def solve_captcha(self, captcha: Captcha) -> Captcha:
         raise NotImplementedError
 
+    @abc.abstractmethod
+    def report_captcha(self, captcha: Captcha) -> None:
+        raise NotImplementedError
+
 
 class ManualCaptchaSolver(CaptchaSolverABC):
     def solve_captcha(self, captcha: Captcha):
@@ -135,6 +139,22 @@ class ManualCaptchaSolver(CaptchaSolverABC):
 
         return captcha
 
+    def report_captcha(self, captcha: Captcha) -> None:
+        if captcha.ans_correct:
+            print('Correct answer')
+        else:
+            print('Wrong answer')
+
+
+class TwocaptchaSolver(CaptchaSolverABC):
+    def __init__(self, api_key) -> None:
+        pass
+
+    def solve_captcha(self, captcha: Captcha) -> Captcha:
+        return captcha
+
+    def report_captcha(self, captcha: Captcha) -> None:
+        pass
 
 class MulticaptchaGUI:
     def __init__(
