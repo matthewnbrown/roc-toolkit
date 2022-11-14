@@ -10,10 +10,14 @@ from typing import Callable, Iterable, List
 from requests import Response
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
-from ..captcha.solvers import manual_captcha_solve
+from ..captcha.solvers import manual_captcha_solve, TwoCaptchaSolver
 
 
 class CaptchaSolveException(Exception):
+    pass
+
+
+class CaptchaReportException(Exception):
     pass
 
 
@@ -118,7 +122,7 @@ def _bytesimage_to_photoimage_resize(
     return photoimage
 
 
-class CaptchaSolverABC(abc.ABC):
+class CaptchaSolverServiceABC(abc.ABC):
     @abc.abstractmethod
     def solve_captcha(self, captcha: Captcha) -> Captcha:
         raise NotImplementedError
@@ -128,7 +132,7 @@ class CaptchaSolverABC(abc.ABC):
         raise NotImplementedError
 
 
-class ManualCaptchaSolver(CaptchaSolverABC):
+class ManualCaptchaSolverService(CaptchaSolverServiceABC):
     def solve_captcha(self, captcha: Captcha):
         if captcha is None:
             raise CaptchaSolveException('Captcha cannot be NoneType')
@@ -146,15 +150,26 @@ class ManualCaptchaSolver(CaptchaSolverABC):
             print('Wrong answer')
 
 
-class TwocaptchaSolver(CaptchaSolverABC):
-    def __init__(self, api_key) -> None:
-        pass
+class TwocaptchaSolverService(CaptchaSolverServiceABC):
+    def __init__(self, api_key, savepath='captchas/') -> None:
+        self._twocap = TwoCaptchaSolver(api_key, savepath=savepath)
 
     def solve_captcha(self, captcha: Captcha) -> Captcha:
-        return captcha
+        try:
+            self._twocap.captcha_solve(captcha)
+        except KeyboardInterrupt as e:
+            raise e
+        except Exception as e:
+            CaptchaSolveException(f'Error: ${e}')
 
     def report_captcha(self, captcha: Captcha) -> None:
-        pass
+        try:
+            self._twocap.captcha_solve(captcha)
+        except KeyboardInterrupt as e:
+            raise e
+        except Exception as e:
+            CaptchaReportException(f'Error: ${e}')
+
 
 class MulticaptchaGUI:
     def __init__(

@@ -1,25 +1,30 @@
 from ...roc_web_handler import Captcha
-from twocaptcha import TwoCaptcha, TimeoutException
-from twocaptcha.api import ApiException, NetworkException
-from rocalert.roc_settings import UserSettings
-from rocalert.services.rocservice import RocService
+from twocaptcha import TwoCaptcha
 import PIL.Image
 import io
-
-def twocaptcha_captcha_solve(
-        solver: TwoCaptcha, captcha: Captcha, savepath: str):
-    img = PIL.Image.open(io.BytesIO(captcha.img))
-    path = savepath + captcha.hash + '.png'
-    img.save(path)
-
-    hinttext = 'Single digit between 1-9  (1, 2, 3, 4, 5, 6, 7, 8, 9)'
-    response = solver.normal(path, hintText=hinttext)
-    ans = response['code']
+import collections
 
 
-def report_twocaptcha_answer(solver: TwoCaptcha, response):
-    try:
-        solver.report(response['captchaId'], wascorrect)
-    except (NetworkException, ApiException) as e:
-        result = 'Error reporting captcha: {}'.format(e.args[0])
-    return result
+class TwoCaptchaSolver:
+    def __init__(self, api_key: str, savepath: str) -> None:
+        self._solver = TwoCaptcha(apiKey=api_key)
+        self._savepath = savepath
+        self._lastresp = None
+        self._hinttext = 'A single digit between 1 and 9'
+        self._responsehistory = collections.deque(maxlen=10)
+
+    def captcha_solve(self, captcha: Captcha):
+        img = PIL.Image.open(io.BytesIO(captcha.img))
+        path = f'{self._savepath}/{captcha.hash}.png'
+        img.save(path)
+
+        response = self._solver.normal(path, hintText=self._hinttext)
+        self._responsehistory.append((captcha.hash, response))
+        captcha.ans = response['code']
+        return captcha
+
+    def report_answer(self, captcha: Captcha):
+        for chash, resp in self._responsehistory:
+            if chash == captcha.hash:
+                self._solver.report(resp['captchaId'], captcha.ans_correct)
+                break
