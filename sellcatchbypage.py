@@ -15,7 +15,7 @@ def _should_att(target: BattlefieldTarget):
     badranks = [112]
     badids = [7530]
 
-    mingold = 2 * (10**9)  # 2 x (1 billion)
+    mingold = 3 * (10**9)  # 3 x (1 billion) = 5 bn
 
     return target.gold >= mingold\
         and int(target.id) not in badids \
@@ -104,4 +104,4 @@ if __name__ == '__main__':
     buyer = ROCBuyer(rochandler, buyer_settings)
 
     sellcatch = BFSellCatch(ps, atts, buyer, rochandler)
-    sellcatch.run(_should_att, 0.05)
+    sellcatch.run(_should_att, 0.05, 1, 2)

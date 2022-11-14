@@ -2,7 +2,6 @@ from typing import Callable
 from rocalert.services.rocwebservices import BFPageServiceABC, AttackServiceABC
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.roc_web_handler import RocWebHandler, Captcha
-from rocalert.roc_settings import BuyerSettings
 from rocalert.rocpurchases import ROCBuyer
 from rocalert.services.manualcaptchaservice import ManualCaptchaService
 import time
@@ -77,9 +76,11 @@ class BFSellCatch:
     def run(
             self,
             shouldhit: Callable[[BattlefieldTarget], bool],
-            pagedelay: float = 0.01
+            pagedelay: float = 0.01,
+            lowpage: int = 1,
+            highpage: int = 2
             ) -> None:
-        lowpage, highpage = self._bfps.get_page_range(self._roc)
+
         while True:
             for pnum in range(lowpage, highpage+1):
                 targets = self._bfps.run_service(self._roc, pnum)
