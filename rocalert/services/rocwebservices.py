@@ -6,7 +6,8 @@ from requests import Response
 
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
-from rocalert.services.manualcaptchaservice import ManualCaptchaService
+from rocalert.services.captchaservices import CaptchaSolverServiceABC, \
+    CaptchaSolveException
 
 
 # TODO: Rework captcha services to use ABC
@@ -121,25 +122,25 @@ class AttackServiceABC(abc.ABC):
 
 
 class AttackService(AttackServiceABC):
-    @classmethod
-    def run_service(cls, roc: RocWebHandler, target: BattlefieldTarget):
+    @staticmethod
+    def run_service(
+            roc: RocWebHandler,
+            target: BattlefieldTarget,
+            captchasolver: CaptchaSolverServiceABC):
         url = roc.site_settings.get_home() + f'/attack.php?id={target.id}'
         captcha = roc.get_url_img_captcha(url)
 
-        mcs = ManualCaptchaService()
-        r = mcs.run_service(None, None, {'captcha': captcha})
-
-        if 'captcha' not in r or r['captcha'] is None:
-            raise Exception('No captcha received from service')
-        captcha = r['captcha']
-        print(f'Received answer: \'{captcha.ans}\'')
+        try:
+            captcha = captchasolver.solve_captcha(captcha)
+        except CaptchaSolveException as e:
+            return f'Error: {e}'
 
         payload = {
             'defender_id': target.id,
             'mission_type': 'attack',
             'attacks': 12
         }
-        return roc.submit_captcha_url(r['captcha'], url, payload)
+        return roc.submit_captcha_url(captcha, url, payload)
 
 
 class SpyResult:
