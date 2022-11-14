@@ -1,0 +1,2 @@
+from .manualcaptchasolver import manual_captcha_solve
+from .twocaptchasolver import twocaptcha_captcha_solve
