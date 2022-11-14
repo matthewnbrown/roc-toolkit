@@ -1,3 +1,4 @@
+import abc
 from collections import deque
 from functools import partial
 from threading import Lock, Condition
@@ -9,6 +10,11 @@ from typing import Callable, Iterable, List
 from requests import Response
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.roc_web_handler import Captcha
+from ..captcha.manualcaptchasolver import manual_captcha_solve
+
+
+class CaptchaSolveException(Exception):
+    pass
 
 
 class GetCaptchaService:
@@ -110,6 +116,24 @@ def _bytesimage_to_photoimage_resize(
                     interpolation=cv2.INTER_CUBIC)
     photoimage = ImageTk.PhotoImage(image=Image.fromarray(img_np_resize))
     return photoimage
+
+
+class CaptchaSolverABC(abc.ABC):
+    @abc.abstractmethod
+    def solve_captcha(self, captcha: Captcha) -> Captcha:
+        raise NotImplementedError
+
+
+class ManualCaptchaSolver(CaptchaSolverABC):
+    def solve_captcha(self, captcha: Captcha):
+        if captcha is None:
+            raise CaptchaSolveException('Captcha cannot be NoneType')
+        elif captcha.img is None:
+            raise CaptchaSolveException('Captcha cannot be NoneType')
+
+        captcha = manual_captcha_solve(captcha)
+
+        return captcha
 
 
 class MulticaptchaGUI:
