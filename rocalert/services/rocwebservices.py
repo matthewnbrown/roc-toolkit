@@ -1,19 +1,34 @@
+import abc
 from collections import deque
-from typing import Dict, Iterable, List, Tuple
+from typing import Iterable, List, Tuple
 from bs4 import BeautifulSoup
 from requests import Response
+
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
+from rocalert.services.manualcaptchaservice import ManualCaptchaService
 
 
+# TODO: Rework captcha services to use ABC
 def _cleanstr_to_int(num: str) -> int:
     return int(num.strip().replace(',', ''))
 
 
-class BattlefieldPageService():
+class BFPageServiceABC(abc.ABC):
+    @classmethod
+    @abc.abstractclassmethod
+    def run_service(cls, roc: RocWebHandler, pagenum: int) -> dict:
+        raise NotImplementedError
 
     @classmethod
-    def run_service(cls, roc: RocWebHandler, pagenum: int) -> Dict:
+    @abc.abstractclassmethod
+    def get_page_range(cls, roc: RocWebHandler) -> Tuple[int, int]:
+        raise NotImplementedError
+
+
+class BattlefieldPageService(BFPageServiceABC):
+    @classmethod
+    def run_service(cls, roc: RocWebHandler, pagenum: int) -> dict:
         pageurl = roc.site_settings.get_home() + \
             f'/battlefield.php?p={pagenum}'
 
@@ -99,6 +114,34 @@ class BattlefieldPageService():
         return BattlefieldTarget(id, rank, name, alliance, tff, tfftype, gold)
 
 
+class AttackServiceABC(abc.ABC):
+    @abc.abstractclassmethod
+    def run_service(cls, roc: RocWebHandler, target: BattlefieldTarget):
+        raise NotImplementedError
+
+
+class AttackService(AttackServiceABC):
+    @classmethod
+    def run_service(cls, roc: RocWebHandler, target: BattlefieldTarget):
+        url = roc.site_settings.get_home() + f'/attack.php?id={target.id}'
+        captcha = roc.get_url_img_captcha(url)
+
+        mcs = ManualCaptchaService()
+        r = mcs.run_service(None, None, {'captcha': captcha})
+
+        if 'captcha' not in r or r['captcha'] is None:
+            raise Exception('No captcha received from service')
+        captcha = r['captcha']
+        print(f'Received answer: \'{captcha.ans}\'')
+
+        payload = {
+            'defender_id': target.id,
+            'mission_type': 'attack',
+            'attacks': 12
+        }
+        return roc.submit_captcha_url(r['captcha'], url, payload)
+
+
 class SpyResult:
     SUCCESS = 0
     FAILURE = 1
@@ -122,7 +165,7 @@ class SpyService():
     def __init__(
             self,
             roc: RocWebHandler,
-            targets: List[Tuple[BattlefieldTarget, Captcha]] = []
+            targets: list[Tuple[BattlefieldTarget, Captcha]] = []
             ) -> None:
         self._roc = roc
         self._targets = deque(targets)
