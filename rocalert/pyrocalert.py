@@ -1,7 +1,7 @@
 from .captcha.equation_solver import EquationSolver
-from .captcha.roc_auto_solve import ROCAutoSolver
 from .pages.training import RocTrainingPage
 from .services.remote_lookup import RemoteCaptcha
+from .services.captchaservices import CaptchaSolverServiceABC
 from .rocpurchases import ROCBuyer, ROCTrainer
 from .roc_settings import UserSettings
 from .roc_web_handler import RocWebHandler
@@ -28,7 +28,8 @@ class RocAlert:
                  trainer: ROCTrainer = None,
                  correctLog: CaptchaLogger = None,
                  generalLog: CaptchaLogger = None,
-                 remoteCaptcha: RemoteCaptcha = None
+                 remoteCaptcha: RemoteCaptcha = None,
+                 capsolver: CaptchaSolverServiceABC = None,
                  ) -> None:
         if rochandler is None:
             raise Exception("An existing ROC Handler must be passed!")
@@ -36,7 +37,6 @@ class RocAlert:
         self.buyer = buyer
         self.user_settings = usersettings.get_settings_old()
         self.validans = {str(i) for i in range(1, 10)}
-        self.solver = ROCAutoSolver()
         self.general_log = generalLog
         self.correct_log = correctLog
         self.__in_nightmode = False
@@ -45,6 +45,7 @@ class RocAlert:
         self.__purchase_error = False
         self.__failure_timeout = False
         self.__cooldown = False
+        self._capsolver = capsolver
 
         if self.user_settings['auto_solve_captchas']:
             self.solver.set_twocaptcha_apikey(
@@ -78,8 +79,7 @@ class RocAlert:
         return min + int(random.uniform(0, 1) * (max - min))
 
     def __get_img_captcha_ans(self, captcha: Captcha) -> str:
-
-        path = self.__save_captcha(captcha)
+        self.__save_captcha(captcha)
 
         if self.__useRemoteCatcha:
             res = self.__remoteCaptcha.lookup_remote(captcha)
@@ -90,13 +90,8 @@ class RocAlert:
                     captcha.ans = res[1]
                     return captcha.ans
 
-        if self.user_settings['auto_solve_captchas']:
-            ans = self.solver.twocaptcha_solve(path)
-        else:
-            ans = self.solver.gui_solve(captcha.img)
-
-        captcha.ans = ans
-        return ans
+        self._capsolver.solve_captcha(captcha)
+        return captcha.ans
 
     def __save_captcha(self, captcha: Captcha):
         img = PIL.Image.open(io.BytesIO(captcha.img))
@@ -175,17 +170,13 @@ class RocAlert:
             self.__log("Login failure.", timestamp=False)
             return False
 
-    def __report_captcha(self, captcha: Captcha):
-        if self.user_settings['auto_solve_captchas'] \
-                and captcha and captcha.img:
-            self.solver.report_last_twocaptcha(captcha.ans_correct)
 
     def __captcha_final(self, captcha: Captcha) -> None:
         if captcha is None or captcha.img is None:
             return
 
         if 'ERROR' not in captcha.ans:
-            self.__report_captcha(captcha)
+            self._capsolver.report_captcha(captcha)
 
         if captcha.ans_correct:
             self.__log_correct(captcha)
