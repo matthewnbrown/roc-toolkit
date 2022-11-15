@@ -1,7 +1,8 @@
 from .captcha.equation_solver import EquationSolver
 from .pages.training import RocTrainingPage
 from .services.remote_lookup import RemoteCaptcha
-from .services.captchaservices import CaptchaSolverServiceABC
+from .services.captchaservices import CaptchaSolverServiceABC,\
+    CaptchaReportException, CaptchaSolveException
 from .rocpurchases import ROCBuyer, ROCTrainer
 from .roc_settings import UserSettings
 from .roc_web_handler import RocWebHandler
@@ -84,8 +85,12 @@ class RocAlert:
                 if len(res) == 2:
                     captcha.ans = res[1]
                     return captcha.ans
+        try:
+            self._capsolver.solve_captcha(captcha)
+        except CaptchaReportException as e:
+            self.__log(f'Exception solving captcha: {e}')
+            captcha.ans = f'Exception: {e}'
 
-        self._capsolver.solve_captcha(captcha)
         return captcha.ans
 
     def __save_captcha(self, captcha: Captcha):
@@ -170,7 +175,10 @@ class RocAlert:
             return
 
         if 'ERROR' not in captcha.ans:
-            self._capsolver.report_captcha(captcha)
+            try:
+                self._capsolver.report_captcha(captcha)
+            except CaptchaReportException as e:
+                self.__log(f'Error reporting captcha: {e}')
 
         if captcha.ans_correct:
             self.__log_correct(captcha)
@@ -188,8 +196,9 @@ class RocAlert:
             captcha.ans_correct = False
             return captcha
 
-        ans = self.__get_img_captcha_ans(captcha)
+        self.__get_img_captcha_ans(captcha)
         captcha.ans_correct = False
+        ans = captcha.ans
         if len(ans) != 1 or ans not in self.validans:
             self.__log(("Warning: received response \'{}\' "
                         + "from captcha solver!").format(ans))
