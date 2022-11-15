@@ -46,8 +46,8 @@ def run():
     autocap = user_settings.get_setting('auto_solve_captchas').value
 
     if autocap:
-        savepath = user_settings.get_setting('captcha_save_path')
-        apikey = user_settings.get_setting('auto_captcha_key')
+        savepath = user_settings.get_setting('captcha_save_path').value
+        apikey = user_settings.get_setting('auto_captcha_key').value
         capsolver = captchaservices.TwocaptchaSolverService(
             api_key=apikey, savepath=savepath)
     else:
