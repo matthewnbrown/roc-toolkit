@@ -47,11 +47,6 @@ class RocAlert:
         self.__cooldown = False
         self._capsolver = capsolver
 
-        if self.user_settings['auto_solve_captchas']:
-            self.solver.set_twocaptcha_apikey(
-                self.user_settings['auto_captcha_key']
-                )
-
         self.cookie_filename = 'cookies'
         self.__useRemoteCatcha = True
         self.__remoteCaptcha = remoteCaptcha
@@ -169,7 +164,6 @@ class RocAlert:
             self.consecutive_login_failures += 1
             self.__log("Login failure.", timestamp=False)
             return False
-
 
     def __captcha_final(self, captcha: Captcha) -> None:
         if captcha is None or captcha.img is None:
