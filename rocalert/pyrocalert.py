@@ -87,7 +87,7 @@ class RocAlert:
                     return captcha.ans
         try:
             self._capsolver.solve_captcha(captcha)
-        except CaptchaReportException as e:
+        except CaptchaSolveException as e:
             self.__log(f'Exception solving captcha: {e}')
             captcha.ans = f'Exception: {e}'
 
