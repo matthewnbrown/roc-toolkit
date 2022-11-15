@@ -9,7 +9,7 @@ from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
-from rocalert.services.captchaservices import MulticaptchaGUI
+from rocalert.captcha.solvers import MulticaptchaGUI
 
 
 lower_rank_cutoff = 1
@@ -92,43 +92,6 @@ def login(roc: RocWebHandler, us: UserSettings):
     else:
         __log("Login failure.")
         return False
-
-
-def test_multiimage(
-        path: str,
-        getnewcaptcha: Callable = None,
-        oncaptchasolve: Callable = None
-        ) -> None:
-
-    import glob
-    imagelist = []
-
-    for filename in glob.glob(path+'/*.png'):
-        # im = Image.open(filename)
-        with open(filename, 'rb') as image:
-            f = image.read()
-            b = bytearray(f)
-            imagelist.append((filename, b))
-
-    def getcapchtas():
-        if len(imagelist) == 0:
-            return []
-        filename, image = imagelist.pop()
-        cap = Captcha(filename, image, captype='img')
-        return [cap]
-
-    def oncaptchasolve(ans: str):
-        print(f'captcha solved with ans {ans}')
-    x, y = 6, 1
-
-    startcap = []
-
-    for i in range(x*y):
-        startcap += getcapchtas()
-
-    event = MulticaptchaGUI(startcap, oncaptchasolve, getcapchtas, x, y)
-
-    event.start()
 
 
 def runevent_new():
