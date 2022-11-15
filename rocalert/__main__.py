@@ -11,6 +11,7 @@ from rocalert.roc_settings import BuyerSettings,\
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
 
+
 def run():
     filepaths = {
         'trainer': ('trainer.settings', TrainerSettings),

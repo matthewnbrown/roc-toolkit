@@ -11,7 +11,7 @@ from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
-from rocalert.captcha.solvers import MulticaptchaGUI
+from rocalert.captcha.solvers.multicaptchaguisolver import MulticaptchaGUI
 from rocalert.services.rocwebservices import BattlefieldPageService
 
 
