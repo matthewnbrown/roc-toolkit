@@ -3,7 +3,7 @@ from tkinter import Entry, Canvas, Button, Frame, PhotoImage, Tk, NW
 from PIL import Image, ImageTk
 import io
 
-from ..roc_web_handler import Captcha
+from ...roc_web_handler import Captcha
 
 
 def manual_captcha_solve(captcha: Captcha) -> Captcha:
