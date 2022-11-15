@@ -160,7 +160,7 @@ class TwocaptchaSolverService(CaptchaSolverServiceABC):
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
-            CaptchaSolveException(f'Error: ${e}')
+            raise CaptchaSolveException(f'Error: ${e}')
 
     def report_captcha(self, captcha: Captcha) -> None:
         try:
@@ -168,7 +168,7 @@ class TwocaptchaSolverService(CaptchaSolverServiceABC):
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
-            CaptchaReportException(f'Error: ${e}')
+            raise CaptchaReportException(f'Error: ${e}')
 
 
 class MulticaptchaGUI:
