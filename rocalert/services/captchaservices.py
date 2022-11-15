@@ -164,7 +164,7 @@ class TwocaptchaSolverService(CaptchaSolverServiceABC):
 
     def report_captcha(self, captcha: Captcha) -> None:
         try:
-            self._twocap.captcha_solve(captcha)
+            self._twocap.report_answer(captcha)
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
