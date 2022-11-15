@@ -4,12 +4,12 @@ import time
 from .roc_settings import SettingsError
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
+import rocalert.services.captchaservices as captchaservices
 from rocalert.rocpurchases import ROCBuyer, ROCTrainer
 from rocalert.roc_settings import BuyerSettings,\
         SettingsSetupHelper, SiteSettings, UserSettings, TrainerSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
-
 
 def run():
     filepaths = {
@@ -43,6 +43,16 @@ def run():
         user_settings.get_value('remote_captcha_add'),
         user_settings.get_value('remote_captcha_lookup'))
 
+    autocap = user_settings.get_setting('auto_solve_captchas').value
+
+    if autocap:
+        savepath = user_settings.get_setting('captcha_save_path')
+        apikey = user_settings.get_setting('auto_captcha_key')
+        capsolver = captchaservices.TwocaptchaSolverService(
+            api_key=apikey, savepath=savepath)
+    else:
+        capsolver = captchaservices.ManualCaptchaSolverService()
+
     buyer = ROCBuyer(
         rochandler,
         BuyerSettings(filepath=filepaths['buyer'][0]),
@@ -59,7 +69,8 @@ def run():
         trainer,
         correct_log,
         gen_log,
-        remoteCaptcha
+        remoteCaptcha,
+        capsolver=capsolver
         )
 
     a.start()
