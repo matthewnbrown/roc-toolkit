@@ -2,7 +2,7 @@ from ._settings import Setting, Settings, SettingsValidator
 
 
 class TrainerSettings(Settings):
-    VALID_SOLDIER_TYPES = ['attack', 'defense', 'spy', 'sentry', 'none']
+    VALID_SOLDIER_TYPES = {'attack', 'defense', 'spy', 'sentry', 'none'}
     DEFAULT_SETTINGS = {
         'train_soldiers': Setting(
             'Train Soldiers',
@@ -20,7 +20,7 @@ class TrainerSettings(Settings):
             'soldier_dump_type',
             'none', str,
             'Dump all excess soldiers into this program.',
-            None,
+            'none',
             lambda x: x in TrainerSettings.VALID_SOLDIER_TYPES
         )
     }
@@ -39,7 +39,7 @@ class TrainerSettings(Settings):
 
         self.mandatory = {'train_soldiers'}
 
-        if(filepath is not None):
+        if filepath is not None:
             self.__check_valid_settings()
 
     def __check_valid_settings(self):
@@ -56,8 +56,10 @@ class TrainerSettings(Settings):
     def training_enabled(self):
         return self.get_setting['train_soldiers'].value
 
+    @property
     def match_soldiers_to_weapons(self):
         return self.get_setting['soldier_weapon_match'].value
 
+    @property
     def soldier_dump_type(self):
         return self.get_setting['soldier_dump_type'].value
