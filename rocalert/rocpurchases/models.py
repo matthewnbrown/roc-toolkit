@@ -40,6 +40,22 @@ class ArmoryModel:
     guard_dog: ItemCostPair = ItemCostPair()
     torch: ItemCostPair = ItemCostPair()
 
+    @property
+    def total_attack_weapons(self) -> int:
+        return self.dagger + self.maul + self.blade + self.excalibur
+
+    @property
+    def total_defense_weapons(self) -> int:
+        return self.sai + self.shield + self.mithril + self.dragonskin
+
+    @property
+    def total_spy_weapons(self) -> int:
+        return self.cloak + self.hook + self.pickaxe
+
+    @property
+    def total_sentry_weapons(self) -> int:
+        return self.horn + self.guard_dog + self.torch
+
 
 @dataclasses.dataclass
 class TrainingPurchaseModel:
