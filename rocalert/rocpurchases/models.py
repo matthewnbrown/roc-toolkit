@@ -59,35 +59,35 @@ class ArmoryModel:
 
 @dataclasses.dataclass
 class TrainingPurchaseModel:
-    attack_soldiers: int = ItemCostPair()
-    defense_soldiers: int = ItemCostPair()
-    spies: int = ItemCostPair()
-    sentries: int = ItemCostPair()
-    attack_mercs: int = ItemCostPair()
-    defense_mercs: int = ItemCostPair()
-    untrained_mercs: int = ItemCostPair()
-    sell_attack_soldiers: int = ItemCostPair()
-    sell_defense_soldiers: int = ItemCostPair()
-    sell_spies: int = ItemCostPair()
-    sell_sentries: int = ItemCostPair()
-    sell_attack_mercs: int = ItemCostPair()
-    sell_defense_mercs: int = ItemCostPair()
-    sell_untrained_mercs: int = ItemCostPair()
+    attack_soldiers: int
+    defense_soldiers: int
+    spies: int
+    sentries: int
+    attack_mercs: int
+    defense_mercs: int
+    untrained_mercs: int
+    sell_attack_soldiers: int
+    sell_defense_soldiers: int
+    sell_spies: int
+    sell_sentries: int
+    sell_attack_mercs: int
+    sell_defense_mercs: int
+    sell_untrained_mercs: int
 
 
 @dataclasses.dataclass
 class ArmoryPurchaseModel:
-    dagger: int = ItemCostPair()
-    maul: int = ItemCostPair()
-    blade: int = ItemCostPair()
-    excalibur: int = ItemCostPair()
-    sai: int = ItemCostPair()
-    shield: int = ItemCostPair()
-    mithril: int = ItemCostPair()
-    dragonskin: int = ItemCostPair()
-    cloak: int = ItemCostPair()
-    hook: int = ItemCostPair()
-    pickaxe: int = ItemCostPair()
-    horn: int = ItemCostPair()
-    guard_dog: int = ItemCostPair()
-    torch: int = ItemCostPair()
+    dagger: int
+    maul: int
+    blade: int
+    excalibur: int
+    sai: int
+    shield: int
+    mithril: int
+    dragonskin: int
+    cloak: int
+    hook: int
+    pickaxe: int
+    horn: int
+    guard_dog: int
+    torch: int
