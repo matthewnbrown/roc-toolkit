@@ -42,6 +42,14 @@ class TrainingPurchaseModel:
     attack_mercs: int
     defense_mercs: int
     untrained_mercs: int
+    sell_untrained_soldiers: int
+    sell_attack_soldiers: int
+    sell_defense_soldiers: int
+    sell_spies: int
+    sell_sentries: int
+    sell_attack_mercs: int
+    sell_defense_mercs: int
+    sell_untrained_mercs: int
 
 
 @dataclasses.dataclass
