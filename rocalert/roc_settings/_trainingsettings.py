@@ -22,6 +22,11 @@ class TrainerSettings(Settings):
             'Dump all excess soldiers into this program.',
             'none',
             lambda x: x in TrainerSettings.VALID_SOLDIER_TYPES
+        ),
+        'soldier_round_amount': Setting(
+            'Soldier round amount', 'solder_round_amount',
+            '1000', str, 'Round matching purchase to this amount',
+            '1000', lambda x: x >= 0
         )
     }
 
@@ -63,3 +68,7 @@ class TrainerSettings(Settings):
     @property
     def soldier_dump_type(self):
         return self.get_setting['soldier_dump_type'].value
+
+    @property
+    def soldier_round_amount(self):
+        return self.get_setting['soldier_round_amount'].value
