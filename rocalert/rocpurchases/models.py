@@ -34,7 +34,6 @@ class ArmoryModel:
 
 @dataclasses.dataclass
 class TrainingPurchaseModel:
-    untrained_soldiers: int
     attack_soldiers: int
     defense_soldiers: int
     spies: int
@@ -42,7 +41,6 @@ class TrainingPurchaseModel:
     attack_mercs: int
     defense_mercs: int
     untrained_mercs: int
-    sell_untrained_soldiers: int
     sell_attack_soldiers: int
     sell_defense_soldiers: int
     sell_spies: int
