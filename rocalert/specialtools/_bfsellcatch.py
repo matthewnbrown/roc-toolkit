@@ -3,7 +3,8 @@ from rocalert.services.rocwebservices import BFPageServiceABC, AttackServiceABC
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.roc_web_handler import RocWebHandler, Captcha
 from rocalert.rocpurchases import ROCBuyer
-from rocalert.services.manualcaptchaservice import ManualCaptchaService
+from rocalert.services.captchaservices import CaptchaSolverServiceABC, \
+    CaptchaSolveException
 import time
 
 
@@ -13,11 +14,13 @@ class BFSellCatch:
             bf_pageservce: BFPageServiceABC,
             attack_serv: AttackServiceABC,
             buyer: ROCBuyer,
-            roc: RocWebHandler) -> None:
+            roc: RocWebHandler,
+            captchasolver: CaptchaSolverServiceABC) -> None:
         self._bfps = bf_pageservce
         self._attackservice = attack_serv
         self._buyer = buyer
         self._roc = roc
+        self._capsolver = captchasolver
 
     def _get_all_users(self) -> None:
         pagenum = 1
@@ -34,7 +37,7 @@ class BFSellCatch:
 
     def _attack_target(self, target: BattlefieldTarget):
         print(f'Attacking {target.name} with {target.gold:,} gold')
-        self._attackservice.run_service(self._roc, target)
+        self._attackservice.run_service(self._roc, target, self._capsolver)
 
     def _buy(self):
         payload = self._buyer.create_order_payload()
@@ -60,10 +63,14 @@ class BFSellCatch:
             print('Uhoh text captcha')
             captcha.ans_correct = False
 
-        mcs = ManualCaptchaService()
-        r = mcs.run_service(None, None, {'captcha': captcha})
-        captcha = r['captcha']
-        correct = self._roc.submit_captcha(captcha, captcha.ans, page, payload)
+        correct = False
+        try:
+            captcha = self._capsolver.solve_captcha(captcha)
+            correct = self._roc.submit_captcha(
+                    captcha, captcha.ans, page, payload)
+        except CaptchaSolveException as e:
+            print(f'Error solving captcha: {e}')
+
         if correct:
             print("Correct answer")
             self.consecutive_captcha_failures = 0
