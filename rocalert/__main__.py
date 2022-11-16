@@ -101,8 +101,7 @@ def main():
             print('Detected keyboard interrupt')
             raise e
         except SettingsError as e:
-            print(e)
-            print('Exiting..')
+            print(f'Settings error: {e}\nExiting..')
             return
         except Exception as e:
             # TODO: Collect specific exceptions and handle them
