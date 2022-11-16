@@ -13,6 +13,7 @@ def manual_captcha_solve(captcha: Captcha) -> Captcha:
     gui = _GUI(root, img)
     root.mainloop()
     captcha.ans = gui.get_user_selection()
+    return captcha
 
 
 def bytesimage_to_photoimage(image) -> PhotoImage:
