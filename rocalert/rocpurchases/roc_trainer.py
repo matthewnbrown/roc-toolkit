@@ -1,15 +1,26 @@
-import abc
-from ..roc_web_handler import RocWebHandler
 from ..roc_settings import TrainerSettings
-from . import TrainingModel, ArmoryModel, TrainingPurchaseModel, ArmoryPurchaseModel
+from models import ArmoryModel, TrainingModel, TrainingPurchaseModel
+import abc
 
 
-class ROCTrainingPurchaseGeneratorABC(abc.ABC):
-    def generate_purchase(
-            tsettings: TrainerSettings, gold: int,
-            trainmod: TrainingModel, armmod: ArmoryModel
+class ROCTrainingPayloadCreatorABC(abc.ABC):
+    @abc.abstractmethod
+    @staticmethod
+    def create_training_payload(tpm: TrainingPurchaseModel):
+        raise NotImplementedError
+
+
+class ROCTrainingPurchaseCreatorABC(abc.ABC):
+    @abc.abstractmethod
+    @staticmethod
+    def create_purchase(
+            tsettings: TrainerSettings,
+            gold: int,
+            trainmod: TrainingModel,
+            armmod: ArmoryModel = None
             ) -> TrainingPurchaseModel:
         raise NotImplementedError
+
 
 def _gen_basetrainpayload():
     soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
@@ -26,34 +37,37 @@ def _gen_basetrainpayload():
 _BASE_TRAIN_PAYLOAD = _gen_basetrainpayload()
 
 
-class ROCTrainer:
-    def __init__(
-            self,
-            roc_handler: RocWebHandler,
-            trainersettings: TrainerSettings
-            ) -> None:
-        if roc_handler is None:
-            raise Exception("Parameter roc_handler must not be None")
-        elif trainersettings is None:
-            raise Exception('Parameter trainersettings must not be None')
+class ROCTrainingPayloadCreator(ROCTrainingPayloadCreatorABC):
+    def _get_count_str(count: int):
+        return str(count) if count != 0 else ''
 
-        self.roc = roc_handler
-        self.trainersettings = trainersettings
+    @staticmethod
+    def create_training_payload(tpm: TrainingPurchaseModel):
+        gts = ROCTrainingPayloadCreator._get_count_str
+        return {
+            'train[attack_soldiers]': gts(tpm.attack_soldiers),
+            'train[defense_soldiers]': gts(tpm.defense_soldiers),
+            'train[spies]': gts(tpm.spies),
+            'train[sentries]': gts(tpm.sentries),
+            'buy[attack_mercs]': gts(tpm.attack_mercs),
+            'buy[defense_mercs]': gts(tpm.defense_mercs),
+            'buy[untrained_mercs]': gts(tpm.untrained_mercs),
+            'untrain[attack_soldiers]': gts(tpm.sell_attack_soldiers),
+            'untrain[defense_soldiers]': gts(tpm.sell_defense_soldiers),
+            'untrain[spies]': gts(tpm.sell_spies),
+            'untrain[sentries]': gts(tpm.sell_sentries),
+            'untrain[attack_mercs]': gts(tpm.sell_attack_mercs),
+            'untrain[defense_mercs]': gts(tpm.sell_defense_mercs),
+            'untrain[untrained_mercs]': gts(tpm.sell_untrained_mercs),
+        }
 
-    def __make_order(gold) -> dict[str, int]:
-        pass
 
-    def purchase_required(self, current_gold: int, account_details):
-        ts = self.trainersettings
-        if (not ts.training_enabled
-                or ts.soldier_dump_type != ts.SoldierTypes.NONE):
-            return False
-
-        return ts.soldier_dump_type
-
-    def create_order_payload(self, gold):
-        order = self.__make_order__(gold)
-        payload = _BASE_TRAIN_PAYLOAD.copy()
-
-        for item, count in order.items():
-            payload[item] = str(count)
+class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
+    @staticmethod
+    def create_purchase(
+            tsettings: TrainerSettings,
+            gold: int,
+            trainmod: TrainingModel,
+            armmod: ArmoryModel = None
+            ) -> TrainingPurchaseModel:
+        raise NotImplementedError
