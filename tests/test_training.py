@@ -43,6 +43,21 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
         self._spy_cost = 2000
         self._spy_cost = 2000
 
+    def test_training_disabled(self):
+        tm = TrainingModel(untrained_soldiers=ICP(1000))
+        am = ArmoryModel(dagger=ICP(1000))
+        tset = MockTrainingSettings(False, True, 'defense')
+        gold = 10**8
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers,
+                tpmod.sentries, tpmod.spies),
+            (0, 0, 0, 0),
+            'No soldiers should be purchased when training disabled'
+        )
+
     def test_no_soldiers_avail(self):
         tm = TrainingModel()
         am = ArmoryModel(excalibur=ICP(10000, 10))
@@ -71,6 +86,24 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
             'No soldiers should be bought when no gold is available'
         )
 
+    def test_no_untraineded_to_match(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(0),
+            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
+            spies=ICP(0, 2000), sentries=ICP(0, 2000))
+        am = ArmoryModel(dagger=ICP(10000))
+        tset = MockTrainingSettings(True, True, 'none')
+        gold = 10**6
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers,
+                tpmod.sentries, tpmod.spies),
+            (0, 0, 0, 0),
+            'No soldiers should be dumped when no untrained are available'
+        )
+
     def test_soldier_dump_to_correct_type(self):
         tm = TrainingModel(
             untrained_soldiers=ICP(1000),
@@ -80,7 +113,6 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(True, False, 'defense')
         gold = 10**6
 
-        print(am.total_attack_weapons)
         tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
 
         self.assertTupleEqual(
@@ -103,10 +135,62 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers),
-            (1050, 0),
+            (1000, 0),
             'Soldier matching should buyout all untrained when excess weapons'
         )
 
+    def test_soldier_match_excess_soldiers_no_dump(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(1000, 1000))
+        am = ArmoryModel(dagger=ICP(500, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='none')
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers),
+            (0, 0),
+            'Soldier matching should not buy weapons when unneeded and ' +
+            'soldiers should not be dumped needlessly'
+        )
+
+    def test_soldier_match_excess_soldiers_with_dump(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(1000, 1000))
+        am = ArmoryModel(dagger=ICP(500, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='defense')
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertEqual(
+            tpmod.defense_soldiers,
+            1000,
+            'Soldiers should be dumped when matching is enabled and there' +
+            ' are no weapons that need matching'
+        )
+
+    def test_soldier_match_short_untrained_with_dump(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(1000, 1000))
+        am = ArmoryModel(dagger=ICP(5000, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='defense')
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers),
+            (1000, 0),
+            'Soldier matching should match and there is no excess to dump'
+        )
 
 class ROCTrainingPayloadCreatorTest(unittest.TestCase):
     pass
