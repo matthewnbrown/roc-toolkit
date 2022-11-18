@@ -58,17 +58,17 @@ class TrainerSettings(Settings):
             quit()
 
     @property
-    def training_enabled(self):
+    def training_enabled(self) -> bool:
         return self.get_setting['train_soldiers'].value
 
     @property
-    def match_soldiers_to_weapons(self):
+    def match_soldiers_to_weapons(self) -> bool:
         return self.get_setting['soldier_weapon_match'].value
 
     @property
-    def soldier_dump_type(self):
+    def soldier_dump_type(self) -> str:
         return self.get_setting['soldier_dump_type'].value
 
     @property
-    def soldier_round_amount(self):
+    def soldier_round_amount(self) -> int:
         return self.get_setting['soldier_round_amount'].value
