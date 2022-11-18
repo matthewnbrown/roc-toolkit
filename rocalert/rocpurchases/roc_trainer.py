@@ -1,18 +1,19 @@
 from ..roc_settings import TrainerSettings
-from .models import ArmoryModel, TrainingModel, TrainingPurchaseModel
+from rocalert.rocpurchases.models import ArmoryModel,\
+    TrainingModel, TrainingPurchaseModel
 import abc
 
 
 class ROCTrainingPayloadCreatorABC(abc.ABC):
-    @abc.abstractmethod
     @staticmethod
+    @abc.abstractmethod
     def create_training_payload(tpm: TrainingPurchaseModel):
         raise NotImplementedError
 
 
 class ROCTrainingPurchaseCreatorABC(abc.ABC):
-    @abc.abstractmethod
     @classmethod
+    @abc.abstractmethod
     def create_purchase(
             cls,
             tsettings: TrainerSettings,
@@ -73,7 +74,7 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             armmod: ArmoryModel = None
             ) -> TrainingPurchaseModel:
 
-        if not tsettings.training_enabled:
+        if not tsettings.training_enabled or gold <= 0:
             return TrainingPurchaseModel()
 
         purchase_counts = {
@@ -115,7 +116,7 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             amt, netcost = cls._calc_soldier_match(
                 gold, armmod.total_attack_weapons, roundamt,
                 trainmod.attack_soldiers.count,
-                trainmod.attack_soldiers.cost),
+                trainmod.attack_soldiers.cost)
             cur_purch['attack'] += amt
             trainmod.untrained_soldiers -= amt
             gold -= netcost
@@ -124,7 +125,7 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             amt, netcost = cls._calc_soldier_match(
                 gold, armmod.total_defense_weapons, roundamt,
                 trainmod.defense_soldiers.count,
-                trainmod.defense_soldiers.cost),
+                trainmod.defense_soldiers.cost)
             cur_purch['defense'] += amt
             trainmod.untrained_soldiers -= amt
             gold -= netcost
@@ -133,7 +134,7 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             amt, netcost = cls._calc_soldier_match(
                 gold, armmod.total_spy_weapons, roundamt,
                 trainmod.spies.count,
-                trainmod.spies.cost),
+                trainmod.spies.cost)
             cur_purch['spies'] += amt
             trainmod.untrained_soldiers -= amt
             gold -= netcost
@@ -142,7 +143,7 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             amt, netcost = cls._calc_soldier_match(
                 gold, armmod.total_sentry_weapons, roundamt,
                 trainmod.sentries.count,
-                trainmod.sentries.cost),
+                trainmod.sentries.cost)
             cur_purch['sentries'] += amt
             trainmod.untrained_soldiers -= amt
             gold -= netcost
@@ -156,9 +157,12 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             soldiers: int, soldiercost: int
             ) -> tuple[int, int]:
 
+        if soldiercost <= 0:
+            return (0, 0)
+
         reqamt = weapons - soldiers
         if reqamt <= 0:
-            return 0
+            return (0, 0)
 
         if reqamt % roundamt == 0:
             desiredamt = reqamt
@@ -188,6 +192,9 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         elif dumptype == 'sentries':
             cost = trainmod.sentries.cost
 
+        if cost <= 0:
+            return gold
+    
         purchamt = min(trainmod.untrained_soldiers, gold//cost)
 
         cur_purch[dumptype] += purchamt
