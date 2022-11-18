@@ -194,8 +194,8 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
 
         if cost <= 0:
             return gold
-    
-        purchamt = min(trainmod.untrained_soldiers, gold//cost)
+
+        purchamt = min(trainmod.untrained_soldiers.count, gold//cost)
 
         cur_purch[dumptype] += purchamt
         return gold
