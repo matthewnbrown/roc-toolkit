@@ -10,6 +10,25 @@ class ItemCostPair:
     def total_cost(self) -> int:
         return self.count * self.cost
 
+    def __add__(self, other):
+        if type(other) == int:
+            return ItemCostPair(self.count + other, self.cost)
+        elif type(other) == ItemCostPair:
+            return ItemCostPair(self.count + other.count, self.cost)
+        return self + other
+
+    def __sub__(self, other):
+        if type(other) == int:
+            return ItemCostPair(self.count - other, self.cost)
+        elif type(other) == ItemCostPair:
+            return ItemCostPair(self.count - other.count, self.cost)
+        return self + other
+
+    def __mul__(self, other):
+        if type(other) == int:
+            return ItemCostPair(self.count * other, self.cost)
+        return self * other
+
 
 @dataclasses.dataclass
 class TrainingModel:
