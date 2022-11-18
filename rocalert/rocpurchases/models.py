@@ -61,7 +61,7 @@ class ArmoryModel:
 
     @property
     def total_attack_weapons(self) -> int:
-        total = (self.dagger + self.maul + self.blade + self.excalibur)
+        total = self.dagger + self.maul + self.blade + self.excalibur
         return total.count
 
     @property
@@ -78,6 +78,7 @@ class ArmoryModel:
     def total_sentry_weapons(self) -> int:
         total = self.horn + self.guard_dog + self.torch
         return total.count
+
 
 @dataclasses.dataclass
 class TrainingPurchaseModel:
@@ -113,3 +114,4 @@ class ArmoryPurchaseModel:
     horn: int = 0
     guard_dog: int = 0
     torch: int = 0
+
