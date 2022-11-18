@@ -64,6 +64,7 @@ class ROCTrainingPayloadCreator(ROCTrainingPayloadCreatorABC):
         }
 
 
+# TODO: Split into two creators and add results
 class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
     @classmethod
     def create_purchase(

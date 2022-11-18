@@ -139,6 +139,23 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
             'Soldier matching should buyout all untrained when excess weapons'
         )
 
+    def test_soldier_matching_gold_shortage(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(0, 1000))
+        am = ArmoryModel(dagger=ICP(100, 50))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='defense')
+        gold = 50000
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertEqual(
+            tpmod.attack_soldiers,
+            50,
+            'Soldier matching should not buy more soldiers than it can afford'
+        )
+
     def test_soldier_match_excess_soldiers_no_dump(self):
         tm = TrainingModel(
             untrained_soldiers=ICP(1000),
@@ -192,6 +209,47 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
             'Soldier matching should match and there is no excess to dump'
         )
 
+    def test_soldier_match_with_dump(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(300, 1000))
+        am = ArmoryModel(dagger=ICP(500, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True,
+            sold_dumptype='defense', sold_roundamt=1)
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers),
+            (200, 800),
+            'Soldier matching with dumping should properly distribute soldiers'
+        )
+
+    def test_all_soldier_match(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(0, 1000),
+            defense_soldiers=ICP(0, 1000),
+            spies=ICP(0, 2000),
+            sentries=ICP(0, 2000))
+        am = ArmoryModel(
+            dagger=ICP(250), shield=ICP(250),
+            hook=ICP(250), guard_dog=ICP(250))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='none', sold_roundamt=1)
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers,
+             tpmod.spies, tpmod.sentries),
+            (250, 250, 250, 250),
+            'Soldier matching should match all soldier types'
+        )
+
     def test_soldier_rounding(self):
         tm = TrainingModel(
             untrained_soldiers=ICP(1000),
@@ -225,6 +283,8 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
             (125, 0),
             'Soldier matching should match and there is no excess to dump'
         )
+
+
 class ROCTrainingPayloadCreatorTest(unittest.TestCase):
     pass
 
