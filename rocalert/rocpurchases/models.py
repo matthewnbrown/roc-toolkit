@@ -15,19 +15,43 @@ class ItemCostPair:
             return ItemCostPair(self.count + other, self.cost)
         elif type(other) == ItemCostPair:
             return ItemCostPair(self.count + other.count, self.cost)
-        return self + other
+        return NotImplemented
 
     def __sub__(self, other):
         if type(other) == int:
             return ItemCostPair(self.count - other, self.cost)
         elif type(other) == ItemCostPair:
             return ItemCostPair(self.count - other.count, self.cost)
-        return self + other
+        return NotImplemented
 
     def __mul__(self, other):
         if type(other) == int:
             return ItemCostPair(self.count * other, self.cost)
-        return self * other
+        return NotImplemented
+
+    def __iadd__(self, other):
+        if type(other) == int:
+            self = ItemCostPair(self.count + other, self.cost)
+            return self
+        elif type(other) == ItemCostPair:
+            self = ItemCostPair(self.count + other.count, self.cost)
+            return self
+        return NotImplemented
+
+    def __isub__(self, other):
+        if type(other) == int:
+            self = ItemCostPair(self.count - other, self.cost)
+            return self
+        elif type(other) == ItemCostPair:
+            self = ItemCostPair(self.count - other.count, self.cost)
+            return self
+        return NotImplemented
+
+    def __imul__(self, other):
+        if type(other) == int:
+            self = ItemCostPair(self.count * other, self.cost)
+            return self
+        return NotImplemented
 
 
 @dataclasses.dataclass
@@ -114,4 +138,3 @@ class ArmoryPurchaseModel:
     horn: int = 0
     guard_dog: int = 0
     torch: int = 0
-
