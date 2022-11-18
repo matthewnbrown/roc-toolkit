@@ -192,6 +192,39 @@ class ROCTrainingPurchaseCreatorTest(unittest.TestCase):
             'Soldier matching should match and there is no excess to dump'
         )
 
+    def test_soldier_rounding(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(0, 1000))
+        am = ArmoryModel(dagger=ICP(125, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='none', sold_roundamt=50)
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers),
+            (150, 0),
+            'Soldier matching should match and there is no excess to dump'
+        )
+
+    def test_soldier_rounding_one(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(1000),
+            attack_soldiers=ICP(0, 1000))
+        am = ArmoryModel(dagger=ICP(125, 10))
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_dumptype='none', sold_roundamt=1)
+        gold = 10**7
+
+        tpmod = ROCTrainingPurchaseCreator.create_purchase(tset, gold, tm, am)
+
+        self.assertTupleEqual(
+            (tpmod.attack_soldiers, tpmod.defense_soldiers),
+            (125, 0),
+            'Soldier matching should match and there is no excess to dump'
+        )
 class ROCTrainingPayloadCreatorTest(unittest.TestCase):
     pass
 
