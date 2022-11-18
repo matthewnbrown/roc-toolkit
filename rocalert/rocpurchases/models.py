@@ -4,7 +4,7 @@ import dataclasses
 @dataclasses.dataclass(frozen=True)
 class ItemCostPair:
     count: int = 0
-    cost: int = 0
+    cost: int = -1
 
     @property
     def total_cost(self) -> int:
@@ -33,13 +33,13 @@ class ItemCostPair:
 @dataclasses.dataclass
 class TrainingModel:
     untrained_soldiers: ItemCostPair = ItemCostPair()
-    attack_soldiers: ItemCostPair = ItemCostPair()
-    defense_soldiers: ItemCostPair = ItemCostPair()
-    spies: ItemCostPair = ItemCostPair()
-    sentries: ItemCostPair = ItemCostPair()
-    attack_mercs: ItemCostPair = ItemCostPair()
-    defense_mercs: ItemCostPair = ItemCostPair()
-    untrained_mercs: ItemCostPair = ItemCostPair()
+    attack_soldiers: ItemCostPair = ItemCostPair(cost=1000)
+    defense_soldiers: ItemCostPair = ItemCostPair(cost=1000)
+    spies: ItemCostPair = ItemCostPair(cost=2000)
+    sentries: ItemCostPair = ItemCostPair(cost=2000)
+    attack_mercs: ItemCostPair = ItemCostPair(cost=2500)
+    defense_mercs: ItemCostPair = ItemCostPair(cost=2500)
+    untrained_mercs: ItemCostPair = ItemCostPair(cost=2000)
 
 
 @dataclasses.dataclass
@@ -81,35 +81,35 @@ class ArmoryModel:
 
 @dataclasses.dataclass
 class TrainingPurchaseModel:
-    attack_soldiers: int
-    defense_soldiers: int
-    spies: int
-    sentries: int
-    attack_mercs: int
-    defense_mercs: int
-    untrained_mercs: int
-    sell_attack_soldiers: int
-    sell_defense_soldiers: int
-    sell_spies: int
-    sell_sentries: int
-    sell_attack_mercs: int
-    sell_defense_mercs: int
-    sell_untrained_mercs: int
+    attack_soldiers: int = 0
+    defense_soldiers: int = 0
+    spies: int = 0
+    sentries: int = 0
+    attack_mercs: int = 0
+    defense_mercs: int = 0
+    untrained_mercs: int = 0
+    sell_attack_soldiers: int = 0
+    sell_defense_soldiers: int = 0
+    sell_spies: int = 0
+    sell_sentries: int = 0
+    sell_attack_mercs: int = 0
+    sell_defense_mercs: int = 0
+    sell_untrained_mercs: int = 0
 
 
 @dataclasses.dataclass
 class ArmoryPurchaseModel:
-    dagger: int
-    maul: int
-    blade: int
-    excalibur: int
-    sai: int
-    shield: int
-    mithril: int
-    dragonskin: int
-    cloak: int
-    hook: int
-    pickaxe: int
-    horn: int
-    guard_dog: int
-    torch: int
+    dagger: int = 0
+    maul: int = 0
+    blade: int = 0
+    excalibur: int = 0
+    sai: int = 0
+    shield: int = 0
+    mithril: int = 0
+    dragonskin: int = 0
+    cloak: int = 0
+    hook: int = 0
+    pickaxe: int = 0
+    horn: int = 0
+    guard_dog: int = 0
+    torch: int = 0
