@@ -309,7 +309,9 @@ class SimpleRocTrainer(ROCTrainerABC):
                 self._tsettings,
                 gold, tmod, amod
             )
-        # TODO: Get cost of previous pmod and remove the correct amount of gold from gold
+
+        gold -= pmod.cost
+
         if self._tsettings.soldier_dump_type != 'none':
             pmod += ROCTrainingDumpPurchaseCreator.create_purchase(
                 self._tsettings,
