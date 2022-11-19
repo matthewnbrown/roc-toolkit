@@ -180,6 +180,25 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
             'No soldiers should be bought when no gold is available'
         )
 
+    def test_cost_calculation(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(100),
+            defense_soldiers=ICP(0, 1500),
+        )
+
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=False, sold_dumptype='defense')
+        gold = 10**7
+
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, gold, tm)
+
+        self.assertEqual(
+            tpmod.cost,
+            tm.untrained_soldiers.count * tm.defense_soldiers.cost,
+            'The cost of a purchase should be properly calculated'
+        )
+
 
 class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
@@ -370,6 +389,35 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             125,
             'When limited by gold, as many soldiers as possible' +
             ' should be bought'
+        )
+
+    def test_cost_calculation(self):
+        tm = TrainingModel(
+            untrained_soldiers=ICP(4),
+            attack_soldiers=ICP(0, 1000),
+            defense_soldiers=ICP(0, 1500),
+            spies=ICP(0, 2000),
+            sentries=ICP(0, 2500))
+        am = ArmoryModel(
+            dagger=ICP(1, 10),
+            shield=ICP(1, 10),
+            hook=ICP(1, 10),
+            guard_dog=ICP(1, 10))
+
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True, sold_roundamt=1)
+        gold = 10**7
+
+        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
+            tset, gold, tm, am)
+
+        self.assertEqual(
+            tpmod.cost,
+            tm.attack_soldiers.cost
+            + tm.defense_soldiers.cost
+            + tm.spies.cost
+            + tm.sentries.cost,
+            'The cost of a purchase should be properly calculated'
         )
 
 
