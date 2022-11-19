@@ -32,6 +32,7 @@ class ROCTrainerABC(abc.ABC):
 
     @abc.abstractmethod
     def is_training_required(
+            self,
             gold: int = 0,
             tmod: TrainingModel = None,
             amod: ArmoryModel = None
@@ -40,10 +41,11 @@ class ROCTrainerABC(abc.ABC):
 
     @abc.abstractmethod
     def gen_purchase_payload(
-        gold: int = 0,
-        tmod: TrainingModel = None,
-        amod: ArmoryModel = None
-    ) -> dict[str, str]:
+            self,
+            gold: int = 0,
+            tmod: TrainingModel = None,
+            amod: ArmoryModel = None
+            ) -> dict[str, str]:
         raise NotImplementedError
 
 
@@ -253,3 +255,46 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
 
         cur_purch[dumptype] += purchamt
         return gold
+
+
+class SimpleRocTrainer(ROCTrainerABC):
+    def __init__(self, tsettings: TrainerSettings) -> None:
+        self._tsettings = tsettings
+
+    def is_training_required(
+            self,
+            gold: int = 0,
+            tmod: TrainingModel = None,
+            amod: ArmoryModel = None
+            ) -> bool:
+
+        if gold <= 0 or tmod is None or tmod.untrained_soldiers.count == 0\
+                or not self._tsettings.training_enabled:
+            return False
+
+        return True
+
+    def gen_purchase_payload(
+            self,
+            gold: int = 0,
+            tmod: TrainingModel = None,
+            amod: ArmoryModel = None
+            ) -> dict[str, str]:
+
+        pmod = TrainingPurchaseModel()
+
+        if gold <= 0 or tmod is None or tmod.untrained_soldiers.count == 0:
+            return pmod
+
+        if self._tsettings.match_soldiers_to_weapons and amod is not None:
+            pmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
+                self._tsettings,
+                gold, tmod, amod
+            )
+        # TODO: Get cost of previous pmod and remove the correct amount of gold from gold
+        if self._tsettings.soldier_dump_type != 'none':
+            pmod += ROCTrainingDumpPurchaseCreator.create_purchase(
+                self._tsettings,
+                gold, tmod, amod
+            )
+        return pmod
