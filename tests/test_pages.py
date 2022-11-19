@@ -575,6 +575,38 @@ class TrainingPageTest(unittest.TestCase):
             'Incorrect cost of mercenaries during event'
         )
 
+    def test_attack_soldier_costs(self):
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            page.attack_sold_cost,
+            1000
+        )
+
+    def test_defense_soldier_costs(self):
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            page.defense_sold_cost,
+            1500
+        )
+
+    def test_spy_costs(self):
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            page.spy_sold_cost,
+            2500
+        )
+
+    def test_sentry_cost(self):
+        page = self._get_allmercs_page()
+
+        self.assertEqual(
+            page.sentry_sold_cost,
+            3000
+        )
+
 
 class BasePageTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:

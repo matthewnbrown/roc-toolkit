@@ -1,6 +1,10 @@
 from dataclasses import dataclass
-import rocalert.pages.genericpages as genpages
+import abc
+
 from bs4 import BeautifulSoup
+
+import rocalert.pages.genericpages as genpages
+
 
 
 @dataclass
@@ -8,13 +12,13 @@ class RocTrainingTableEntry:
     count: int
     income: int
 
-
 class RocTrainingPage(genpages.RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
 
         content = page.find(id='content')
         fpc = content.find_all('div', {'class': 'flexpanel_container'})
+        self._get_allsoldier_cost(fpc[0])
         self._get_mercs_avail(fpc[0])
 
         fpctables = fpc[1].find_all('table')
@@ -22,6 +26,23 @@ class RocTrainingPage(genpages.RocImageCaptchaPage):
         self._weapondisttable = genpages.WeaponTroopDistTable(fpctables[2])
 
         self._get_troops_table(fpctables[1])
+
+    def _get_soldiersoldier_cost(
+            self, content: BeautifulSoup, id: str) -> int:
+        eles = content.find(id=id).find_all('span', {'class': 'cost'})
+
+        cost = eles[0].text.split(' ')[0]
+        return genpages.rocnum_to_int(cost)
+
+    def _get_allsoldier_cost(self, content: BeautifulSoup) -> None:
+        self._attacksoldcost = self._get_soldiersoldier_cost(
+            content, 'cell_train_attack_soldiers')
+        self._defensesoldcost = self._get_soldiersoldier_cost(
+            content, 'cell_train_defense_soldiers')
+        self._spysoldcost = self._get_soldiersoldier_cost(
+            content, 'cell_train_spies')
+        self._sentrysoldcost = self._get_soldiersoldier_cost(
+            content, 'cell_train_sentries')
 
     def _merc_entry_creator(
             self, content: BeautifulSoup, id: str) -> RocTrainingTableEntry:
@@ -137,3 +158,31 @@ class RocTrainingPage(genpages.RocImageCaptchaPage):
     @property
     def avail_untrained_mercs(self) -> RocTrainingTableEntry:
         return self._availuntmercs
+
+    @property
+    def attack_sold_cost(self) -> int:
+        return self._attacksoldcost
+
+    @property
+    def defense_sold_cost(self) -> int:
+        return self._defensesoldcost
+
+    @property
+    def spy_sold_cost(self) -> int:
+        return self._spysoldcost
+
+    @property
+    def sentry_sold_cost(self) -> int:
+        return self._sentrysoldcost
+
+
+class RocTrainingPageGeneratorABC(abc.ABC):
+    @abc.abstractmethod
+    def generate_page() -> RocTrainingPage:
+        raise NotImplementedError
+
+
+class RocTrainingPageGenerator(RocTrainingPageGeneratorABC):
+
+    def generate_page(response) -> RocTrainingPage:
+        raise NotImplementedError
