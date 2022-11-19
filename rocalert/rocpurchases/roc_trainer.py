@@ -111,12 +111,21 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
 
         purchase_counts[solddumptype] += purchamt
 
-        return TrainingPurchaseModel(
+        tpm = TrainingPurchaseModel(
             attack_soldiers=purchase_counts['attack'],
             defense_soldiers=purchase_counts['defense'],
             spies=purchase_counts['spies'],
             sentries=purchase_counts['sentries']
         )
+
+        tpm.cost = (
+            tpm.attack_soldiers * trainmod.attack_soldiers.cost
+            + tpm.defense_soldiers * trainmod.defense_soldiers.cost
+            + tpm.spies * trainmod.spies.cost
+            + tpm.sentries * trainmod.sentries.cost
+        )
+
+        return tpm
 
 
 class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
@@ -146,12 +155,21 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
                 tsettings.soldier_round_amount,
                 trainmod, armmod)
 
-        return TrainingPurchaseModel(
+        tpm = TrainingPurchaseModel(
             attack_soldiers=purchase_counts['attack'],
             defense_soldiers=purchase_counts['defense'],
             spies=purchase_counts['spies'],
             sentries=purchase_counts['sentries']
         )
+
+        tpm.cost = (
+            tpm.attack_soldiers * trainmod.attack_soldiers.cost
+            + tpm.defense_soldiers * trainmod.defense_soldiers.cost
+            + tpm.spies * trainmod.spies.cost
+            + tpm.sentries * trainmod.sentries.cost
+        )
+
+        return tpm
 
     @classmethod
     def _soldier_match(
