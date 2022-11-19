@@ -1,4 +1,4 @@
-from .pages import RocTrainingPage
+import rocalert.pages as pages
 from .roc_settings import SiteSettings
 from .captcha.pyroccaptchaselector import ROCCaptchaSelector
 
@@ -292,7 +292,12 @@ class RocWebHandler:
     def __makesoup(resp) -> BeautifulSoup:
         pass
 
-    def get_training_page(self) -> RocTrainingPage:
+    def get_training_page(self) -> pages.RocTrainingPage:
         self.go_to_training()
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
-        return RocTrainingPage(soup)
+        return pages.RocTrainingPage(soup)
+
+    def get_armory_page(self) -> pages.RocArmoryPage:
+        self.go_to_armory()
+        soup = BeautifulSoup(self.r.text, _BS_PARSER)
+        return pages.RocArmoryPage(soup)
