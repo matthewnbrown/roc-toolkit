@@ -120,6 +120,7 @@ class TrainingPurchaseModel:
     sell_attack_mercs: int = 0
     sell_defense_mercs: int = 0
     sell_untrained_mercs: int = 0
+    cost: int = 0
 
     def __add__(self, other):
         if type(other) == TrainingPurchaseModel:
@@ -136,7 +137,8 @@ class TrainingPurchaseModel:
                 self.sell_sentries + other.sell_sentries,
                 self.sell_attack_mercs + other.sell_attack_mercs,
                 self.sell_defense_mercs + other.sell_defense_mercs,
-                self.sell_untrained_mercs + other.sell_untrained_mercs
+                self.sell_untrained_mercs + other.sell_untrained_mercs,
+                self.cost + other.cost,
             )
         return NotImplemented
 
@@ -155,6 +157,7 @@ class TrainingPurchaseModel:
             self.sell_attack_mercs += other.sell_attack_mercs,
             self.sell_defense_mercs += other.sell_defense_mercs,
             self.sell_untrained_mercs += other.sell_untrained_mercs
+            self.cost += other.cost
             return self
         return NotImplemented
 
@@ -175,3 +178,4 @@ class ArmoryPurchaseModel:
     horn: int = 0
     guard_dog: int = 0
     torch: int = 0
+    cost: int = 0
