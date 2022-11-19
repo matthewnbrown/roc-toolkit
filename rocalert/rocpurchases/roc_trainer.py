@@ -64,8 +64,7 @@ class ROCTrainingPayloadCreator(ROCTrainingPayloadCreatorABC):
         }
 
 
-# TODO: Split into two creators and add results
-class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
+class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
     @classmethod
     def create_purchase(
             cls,
@@ -73,10 +72,56 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             gold: int,
             trainmod: TrainingModel,
             armmod: ArmoryModel = None,
-            skipmatch: set[str] = {}
             ) -> TrainingPurchaseModel:
         if not tsettings.training_enabled or gold <= 0:
             return TrainingPurchaseModel()
+
+        solddumptype = tsettings.soldier_dump_type
+
+        purchase_counts = {
+            'attack': 0,
+            'defense': 0,
+            'spies': 0,
+            'sentries': 0
+        }
+
+        if solddumptype == 'attack':
+            cost = trainmod.attack_soldiers.cost
+        elif solddumptype == 'defense':
+            cost = trainmod.defense_soldiers.cost
+        elif solddumptype == 'spies':
+            cost = trainmod.spies.cost
+        elif solddumptype == 'sentries':
+            cost = trainmod.sentries.cost
+
+        if cost <= 0:
+            return gold
+
+        purchamt = min(trainmod.untrained_soldiers.count, gold//cost)
+
+        purchase_counts[solddumptype] += purchamt
+
+        return TrainingPurchaseModel(
+            attack_soldiers=purchase_counts['attack'],
+            defense_soldiers=purchase_counts['defense'],
+            spies=purchase_counts['spies'],
+            sentries=purchase_counts['sentries']
+        )
+
+
+class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
+    @classmethod
+    def create_purchase(
+            cls,
+            tsettings: TrainerSettings,
+            gold: int,
+            trainmod: TrainingModel,
+            armmod: ArmoryModel = None,
+            ) -> TrainingPurchaseModel:
+        if not tsettings.training_enabled or gold <= 0:
+            return TrainingPurchaseModel()
+
+        skipmatch = {}
 
         purchase_counts = {
             'attack': 0,
@@ -90,11 +135,6 @@ class ROCTrainingPurchaseCreator(ROCTrainingPurchaseCreatorABC):
                 purchase_counts, gold, skipmatch,
                 tsettings.soldier_round_amount,
                 trainmod, armmod)
-
-        solddumptype = tsettings.soldier_dump_type
-
-        if solddumptype != 'none':
-            cls._soldier_dump(gold, purchase_counts, trainmod, solddumptype)
 
         return TrainingPurchaseModel(
             attack_soldiers=purchase_counts['attack'],
