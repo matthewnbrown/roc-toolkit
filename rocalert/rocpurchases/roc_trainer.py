@@ -47,21 +47,6 @@ class ROCTrainerABC(abc.ABC):
         raise NotImplementedError
 
 
-def _gen_basetrainpayload():
-    soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
-    merctypes = ['attack_mercs', 'defense_mercs', 'untrained_mercs']
-
-    res = {f'train[{stype}]': '' for stype in soldtypes}
-    for merctype in merctypes:
-        res[f'buy[{merctype}]'] = ''
-
-    for stype in soldtypes+merctypes:
-        res[f'untrain[{stype}]'] = ''
-
-
-_BASE_TRAIN_PAYLOAD = _gen_basetrainpayload()
-
-
 class ROCTrainingPayloadCreator(ROCTrainingPayloadCreatorABC):
     def _get_count_str(count: int):
         return str(count) if count != 0 else ''
