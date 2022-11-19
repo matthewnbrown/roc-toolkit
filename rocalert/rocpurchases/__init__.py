@@ -2,7 +2,8 @@ from .roc_buyer import ROCBuyer
 from .rocpurchtools import RocItem, RocItemGroup, ALL_ITEM_DETAILS
 from .roc_trainer import ROCTrainingPurchaseCreatorABC,\
     ROCTrainingPayloadCreatorABC, ROCTrainingPayloadCreator,\
-    ROCTrainingDumpPurchaseCreator, ROCTrainingWeaponMatchPurchaseCreator
+    ROCTrainingDumpPurchaseCreator, ROCTrainingWeaponMatchPurchaseCreator,\
+    ROCTrainerABC
 
 if __name__ == '__main__':
     print('don\'t run this file')
@@ -14,4 +15,5 @@ if __name__ == '__main__':
     ROCTrainingDumpPurchaseCreator()
     ROCTrainingWeaponMatchPurchaseCreator()
     RocItemGroup()
+    ROCTrainerABC()
     ALL_ITEM_DETAILS

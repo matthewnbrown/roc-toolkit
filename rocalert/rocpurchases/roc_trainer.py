@@ -24,6 +24,29 @@ class ROCTrainingPurchaseCreatorABC(abc.ABC):
         raise NotImplementedError
 
 
+class ROCTrainerABC(abc.ABC):
+    @abc.abstractmethod
+    def __init__(self) -> None:
+        super().__init__()
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def is_training_required(
+            gold: int = 0,
+            tmod: TrainingModel = None,
+            amod: ArmoryModel = None
+            ) -> bool:
+        raise NotImplementedError
+
+    @abc.abstractmethod
+    def gen_purchase_payload(
+        gold: int = 0,
+        tmod: TrainingModel = None,
+        amod: ArmoryModel = None
+    ) -> dict[str, str]:
+        raise NotImplementedError
+
+
 def _gen_basetrainpayload():
     soldtypes = ['attack_soldiers', 'defense_soldiers', 'spies', 'sentries']
     merctypes = ['attack_mercs', 'defense_mercs', 'untrained_mercs']
