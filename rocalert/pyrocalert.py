@@ -257,11 +257,10 @@ class RocAlert:
         return None
 
     def __init_cookie_loading(self) -> None:
-        self.__load_browser_cookies()
-        if not self.roc.is_logged_in():
-            self.__load_cookies_file()
-        else:
+        if self.__load_browser_cookies() and self.roc.is_logged_in():
             self.__log("Took login cookie from browser.")
+        else:
+            self.__load_cookies_file()
 
     def __check_failure_conditions(self) -> bool:
         error = False
@@ -432,7 +431,7 @@ class RocAlert:
                 or not self._trainer.is_training_required(page)):
             self.__log('Training not needed')
             return True
-
+        self.__log('Attempting to train our soldiers.')
         payload = self._trainer.gen_purchase_payload(tpage=page)
 
         res_captcha = self.__handle_img_captcha('roc_training', payload)
