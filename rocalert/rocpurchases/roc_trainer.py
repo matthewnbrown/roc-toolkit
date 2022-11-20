@@ -1,8 +1,7 @@
 import abc
 
 from ..roc_settings import TrainerSettings
-from rocalert.rocpurchases.models import ArmoryModel,\
-    TrainingModel, TrainingPurchaseModel
+from rocalert.rocpurchases.models import TrainingPurchaseModel
 import rocalert.pages as pages
 
 
@@ -35,7 +34,6 @@ class ROCTrainerABC(abc.ABC):
     def is_training_required(
             self,
             tpage: pages.RocTrainingPage,
-            amodel: ArmoryModel = None
             ) -> bool:
         raise NotImplementedError
 
@@ -43,7 +41,6 @@ class ROCTrainerABC(abc.ABC):
     def gen_purchase_payload(
             self,
             tpage: pages.RocTrainingPage,
-            amodel: ArmoryModel = None
             ) -> dict[str, str]:
         raise NotImplementedError
 
@@ -92,7 +89,7 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             'spies': 0,
             'sentries': 0
         }
-
+        cost = 0
         if solddumptype == 'attack':
             cost = tpage.attack_sold_cost
         elif solddumptype == 'defense':
@@ -164,7 +161,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             tpm.attack_soldiers * tpage.attack_sold_cost
             + tpm.defense_soldiers * tpage.defense_sold_cost
             + tpm.spies * tpage.spy_sold_cost
-            + tpm.sentries * tpage.spy_sold_cost
+            + tpm.sentries * tpage.sentry_sold_cost
         )
 
         return tpm
