@@ -2,7 +2,7 @@ from ._settings import Setting, Settings, SettingsValidator
 
 
 class TrainerSettings(Settings):
-    VALID_SOLDIER_TYPES = {'attack', 'defense', 'spy', 'sentry', 'none'}
+    VALID_SOLDIER_TYPES = {'attack', 'defense', 'spies', 'sentries', 'none'}
     DEFAULT_SETTINGS = {
         'train_soldiers': Setting(
             'Train Soldiers',
