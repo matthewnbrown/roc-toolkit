@@ -25,8 +25,8 @@ class TrainerSettings(Settings):
         ),
         'soldier_round_amount': Setting(
             'Soldier round amount', 'solder_round_amount',
-            '1000', str, 'Round matching purchase to this amount',
-            '1000', lambda x: x >= 0
+            1000, int, 'Round matching purchase to this amount',
+            1000, lambda x: x >= 0
         )
     }
 
@@ -59,16 +59,16 @@ class TrainerSettings(Settings):
 
     @property
     def training_enabled(self) -> bool:
-        return self.get_setting['train_soldiers'].value
+        return self.get_setting('train_soldiers').value
 
     @property
     def match_soldiers_to_weapons(self) -> bool:
-        return self.get_setting['soldier_weapon_match'].value
+        return self.get_setting('soldier_weapon_match').value
 
     @property
     def soldier_dump_type(self) -> str:
-        return self.get_setting['soldier_dump_type'].value
+        return self.get_setting('soldier_dump_type').value
 
     @property
     def soldier_round_amount(self) -> int:
-        return self.get_setting['soldier_round_amount'].value
+        return self.get_setting('soldier_round_amount').value
