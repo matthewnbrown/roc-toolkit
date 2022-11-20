@@ -5,7 +5,7 @@ from .roc_settings import SettingsError
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
 import rocalert.services.captchaservices as captchaservices
-from rocalert.rocpurchases import ROCBuyer, ROCTrainer
+from rocalert.rocpurchases import ROCBuyer, SimpleRocTrainer
 from rocalert.roc_settings import BuyerSettings,\
         SettingsSetupHelper, SiteSettings, UserSettings, TrainerSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
@@ -59,8 +59,7 @@ def run():
         BuyerSettings(filepath=filepaths['buyer'][0]),
         )
 
-    trainer = ROCTrainer(
-        rochandler,
+    trainer = SimpleRocTrainer(
         TrainerSettings(filepath=filepaths['trainer'][0])
     )
     a = RocAlert(
