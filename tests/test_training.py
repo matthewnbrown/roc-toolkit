@@ -2,7 +2,8 @@ import unittest
 import dataclasses
 
 from rocalert.rocpurchases import ROCTrainingPayloadCreator,\
-    ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator
+    ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator, \
+    SimpleRocTrainer
 from rocalert.rocpurchases.models import TrainingPurchaseModel
 from rocalert.pages.training import RocTrainingTableEntry
 from rocalert.pages.genericpages import WeaponDistTableEntry
@@ -116,11 +117,13 @@ class MockTrainingSettings():
             train_soldiers: bool = True,
             sold_weapmatch: bool = False,
             sold_dumptype: str = 'none',
-            sold_roundamt: int = 1000) -> None:
+            sold_roundamt: int = 1000,
+            min_purch_size: int = 1500,) -> None:
         self._train_soldiers = train_soldiers
         self._sold_weapmaptch = sold_weapmatch
         self._sold_dumptype = sold_dumptype
         self._sold_roundamt = sold_roundamt
+        self._min_size = min_purch_size
 
     @property
     def training_enabled(self):
@@ -137,6 +140,10 @@ class MockTrainingSettings():
     @property
     def soldier_round_amount(self):
         return self._sold_roundamt
+
+    @property
+    def min_training_size(self):
+        return self._min_size
 
 
 class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
@@ -668,6 +675,204 @@ class ROCTrainingPayloadCreatorTest(unittest.TestCase):
                 'untrain[untrained_mercs]': '14'
             },
             'Payload should contain expected values'
+        )
+
+
+class SimpleRocTrainerTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self.trainertype = SimpleRocTrainer
+        self._PAYLOAD_SIZE = 14
+
+    def test_payload_size_disabled_training(self):
+        tset = MockTrainingSettings(
+            False, True, 'attack', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        self.assertEqual(
+            len(respayload),
+            self._PAYLOAD_SIZE,
+            'Payload should have correct number of items'
+        )
+
+    def test_payload_size_dump(self):
+        tset = MockTrainingSettings(
+            True, False, 'attack', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        self.assertEqual(
+            len(respayload),
+            self._PAYLOAD_SIZE,
+            'Payload should have correct number of items'
+        )
+
+    def test_payload_size_soldmatch(self):
+        tset = MockTrainingSettings(
+            True, True, 'none', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        self.assertEqual(
+            len(respayload),
+            self._PAYLOAD_SIZE,
+            'Payload should have correct number of items'
+        )
+
+    def test_training_disabled(self):
+        tset = MockTrainingSettings(
+            False, True, 'attack', 1000)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        for _, val in respayload.items():
+            self.assertEqual(
+                len(val),
+                0,
+                'Payload vals should be empty when user has insufficient gold'
+            )
+
+    def test_payload_vals_dump(self):
+        tset = MockTrainingSettings(
+            True, False, 'attack', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=0)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        count_empty = sum(1 for val in respayload.values() if len(val) == 0)
+
+        self.assertEqual(
+            count_empty,
+            self._PAYLOAD_SIZE - 1,
+            'Payload should have correct number of items'
+        )
+
+        self.assertEqual(
+            respayload['train[attack_soldiers]'],
+            '1000',
+            'Payload should contain correct amount of soldiers to buy'
+        )
+
+    def test_payload_vals_match(self):
+        tset = MockTrainingSettings(
+            True, True, 'none', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        count_empty = sum(1 for val in respayload.values() if len(val) == 0)
+
+        self.assertEqual(
+            count_empty,
+            self._PAYLOAD_SIZE - 1,
+            'Payload should have correct number of items'
+        )
+
+        self.assertEqual(
+            respayload['train[attack_soldiers]'],
+            '1000',
+            'Payload should contain correct amount of soldiers to buy'
+        )
+
+    def test_payload_vals_dumpmatch_nonetodump(self):
+        tset = MockTrainingSettings(
+            True, True, 'defense', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1,
+            defensesoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        count_empty = sum(1 for val in respayload.values() if len(val) == 0)
+
+        self.assertEqual(
+            count_empty,
+            self._PAYLOAD_SIZE - 1,
+            'Payload should have correct number of items'
+        )
+
+        self.assertEqual(
+            respayload['train[attack_soldiers]'],
+            '1000',
+            'Payload should contain correct amount of soldiers to buy'
+        )
+
+        self.assertEqual(
+            respayload['train[defense_soldiers]'],
+            '',
+            'Payload should contain correct amount of soldiers to buy'
+        )
+
+    def test_payload_vals_dumpmatch(self):
+        tset = MockTrainingSettings(
+            True, True, 'defense', 1000, 0)
+        trainer = self.trainertype(tset)
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=1500,
+            attacksoldcost=1,
+            defensesoldcost=1,
+            attweps=1000)
+
+        respayload = trainer.gen_purchase_payload(tpage)
+
+        count_empty = sum(1 for val in respayload.values() if len(val) == 0)
+
+        self.assertEqual(
+            count_empty,
+            self._PAYLOAD_SIZE - 2,
+            'Payload should have correct number of items'
+        )
+
+        self.assertEqual(
+            respayload['train[attack_soldiers]'],
+            '1000',
+            'Payload should contain correct amount of soldiers to buy'
+        )
+
+        self.assertEqual(
+            respayload['train[defense_soldiers]'],
+            '500',
+            'Payload should contain correct amount of soldiers to buy'
         )
 
 
