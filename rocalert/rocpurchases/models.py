@@ -122,6 +122,15 @@ class TrainingPurchaseModel:
     sell_untrained_mercs: int = 0
     cost: int = 0
 
+    @property
+    def total_soldiers_in_purchase(self) -> int:
+        return self.attack_soldiers + self.defense_soldiers \
+            + self.spies + self.sentries
+
+    @property
+    def total_mercs_in_purchase(self) -> int:
+        return self.attack_mercs + self.defense_mercs + self.untrained_mercs
+
     def __add__(self, other):
         if type(other) == TrainingPurchaseModel:
             return TrainingPurchaseModel(
