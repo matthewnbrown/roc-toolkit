@@ -3,8 +3,7 @@ import dataclasses
 
 from rocalert.rocpurchases import ROCTrainingPayloadCreator,\
     ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator
-from rocalert.rocpurchases.models import TrainingPurchaseModel,\
-    ItemCostPair as ICP
+from rocalert.rocpurchases.models import TrainingPurchaseModel
 from rocalert.pages.training import RocTrainingTableEntry
 from rocalert.pages.genericpages import WeaponDistTableEntry
 
@@ -293,7 +292,8 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
     def test_gold_shortage(self):
         mtp = MockTrainingPage(
             gold=70500,
-            untrained=1000
+            untrained=1000,
+            defensesoldcost=1000
         )
 
         tset = MockTrainingSettings(True, False, 'defense')
@@ -330,6 +330,10 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
 
 
 class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self.purchasecreater = ROCTrainingWeaponMatchPurchaseCreator
+
     def test_training_disabled(self):
         mtp = MockTrainingPage(
             gold=10**8,
@@ -339,7 +343,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
 
         tset = MockTrainingSettings(False, True, 'defense')
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -352,13 +356,13 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
 
     def test_no_soldiers_avail(self):
         mtp = MockTrainingPage(
-            gold = 10**6,
+            gold=10**6,
             attweps=10000
         )
 
         tset = MockTrainingSettings(True, True, 'attack', 100)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -380,7 +384,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
 
         tset = MockTrainingSettings(True, True)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -403,7 +407,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -424,7 +428,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -446,7 +450,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -473,7 +477,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -495,7 +499,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=50)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -516,7 +520,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -536,9 +540,8 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
 
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
-        gold = 125678
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
@@ -566,16 +569,16 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
 
-        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+        tpmod = self.purchasecreater.create_purchase(
             tset, mtp, mtp.gold
         )
 
         self.assertEqual(
             tpmod.cost,
-            mtp.attack_soldiers.cost
-            + mtp.defense_soldiers.cost
-            + mtp.spies.cost
-            + mtp.sentries.cost,
+            mtp.attack_sold_cost
+            + mtp.defense_sold_cost
+            + mtp.spy_sold_cost
+            + mtp.sentry_sold_cost,
             'The cost of a purchase should be properly calculated'
         )
 
