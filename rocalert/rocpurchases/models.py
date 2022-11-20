@@ -123,12 +123,12 @@ class TrainingPurchaseModel:
     cost: int = 0
 
     @property
-    def total_soldiers_in_purchase(self) -> int:
+    def total_soldiers(self) -> int:
         return self.attack_soldiers + self.defense_soldiers \
             + self.spies + self.sentries
 
     @property
-    def total_mercs_in_purchase(self) -> int:
+    def total_mercs(self) -> int:
         return self.attack_mercs + self.defense_mercs + self.untrained_mercs
 
     def __add__(self, other):
