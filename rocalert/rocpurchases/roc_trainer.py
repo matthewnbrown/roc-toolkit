@@ -285,7 +285,7 @@ class SimpleRocTrainer(ROCTrainerABC):
         purchase = self._calculate_purchase(tpage)
         size = purchase.total_mercs + purchase.total_soldiers
 
-        return size > self._tsettings.min_training_size()
+        return size > self._tsettings.min_training_size
 
     def _calculate_purchase(
             self,
