@@ -438,6 +438,27 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             'Soldier matching should not buy more soldiers than it can afford'
         )
 
+    def test_matching_spies_gold_shortage(self):
+        mtp = MockTrainingPage(
+            gold=50000,
+            untrained=1000,
+            spycost=2000,
+            spyweps=100,
+        )
+
+        tset = MockTrainingSettings(
+            True, sold_weapmatch=True)
+
+        tpmod = self.purchasecreater.create_purchase(
+            tset, mtp, mtp.gold
+        )
+
+        self.assertEqual(
+            tpmod.spies,
+            25,
+            'Spy matching should not buy more soldiers than it can afford'
+        )
+
     def test_soldier_match_excess_soldiers(self):
         mtp = MockTrainingPage(
             gold=10**7,
