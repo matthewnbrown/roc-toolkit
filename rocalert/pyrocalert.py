@@ -418,11 +418,12 @@ class RocAlert:
 
         if (self._trainer is None
                 or not self._trainer.is_training_required(page)):
+            self.__log('Training not needed')
             return True
 
         payload = self._trainer.gen_purchase_payload(tpage=page)
 
-        self.__log(f'Theorotical Training Purchase:\n{payload}')
+        self.__log(f'Theoretical Training Purchase:\n{payload}')
 
         return True
 
