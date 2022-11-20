@@ -6,11 +6,11 @@ from bs4 import BeautifulSoup
 import rocalert.pages.genericpages as genpages
 
 
-
 @dataclass
 class RocTrainingTableEntry:
     count: int
     income: int
+
 
 class RocTrainingPage(genpages.RocImageCaptchaPage):
     def __init__(self, page: BeautifulSoup) -> None:

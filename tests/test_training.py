@@ -1,9 +1,114 @@
 import unittest
+import dataclasses
 
 from rocalert.rocpurchases import ROCTrainingPayloadCreator,\
     ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator
-from rocalert.rocpurchases.models import ArmoryModel,\
-    TrainingModel, TrainingPurchaseModel, ItemCostPair as ICP
+from rocalert.rocpurchases.models import TrainingPurchaseModel,\
+    ItemCostPair as ICP
+from rocalert.pages.training import RocTrainingTableEntry
+from rocalert.pages.genericpages import WeaponDistTableEntry
+
+
+@dataclasses.dataclass
+class MockWeaponTroopDistTable:
+    att_dist: WeaponDistTableEntry = WeaponDistTableEntry(0, 0)
+    def_dist: WeaponDistTableEntry = WeaponDistTableEntry(0, 0)
+    spy_dist: WeaponDistTableEntry = WeaponDistTableEntry(0, 0)
+    sent_dist: WeaponDistTableEntry = WeaponDistTableEntry(0, 0)
+
+    @property
+    def attack_wt_dist(self) -> WeaponDistTableEntry:
+        return self.att_dist
+
+    @property
+    def defense_wt_dist(self) -> WeaponDistTableEntry:
+        return self.def_dist
+
+    @property
+    def spy_wt_dist(self) -> WeaponDistTableEntry:
+        return self.spy_dist
+
+    @property
+    def sentry_wt_dist(self) -> WeaponDistTableEntry:
+        return self.sent_dist
+
+
+@dataclasses.dataclass
+class MockTrainingPage:
+    gold: int = 0
+    attacksoldiers: int = 0
+    defensesoldiers: int = 0
+    spiesamt: int = 0
+    sentriesamt: int = 0
+    untrained: int = 0
+    attacksoldcost: int = 0
+    defensesoldcost: int = 0
+    spycost: int = 0
+    sentrycost: int = 0
+    attweps: int = 0
+    defweps: int = 0
+    spyweps: int = 0
+    sentryweps: int = 0
+    attmercs: int = 0
+    defmercs: int = 0
+    untrainedmercs: int = 0
+
+    def __post_init__(self):
+        self._weapondisttable = MockWeaponTroopDistTable(
+            att_dist=WeaponDistTableEntry(self.attacksoldiers,
+                                          self.attweps),
+            def_dist=WeaponDistTableEntry(self.defensesoldiers, self.defweps),
+            spy_dist=WeaponDistTableEntry(self.spyweps, self.spyweps),
+            sent_dist=WeaponDistTableEntry(self.sentriesamt, self.sentrycost)
+        )
+
+    @property
+    def weapon_distribution_table(self) -> MockWeaponTroopDistTable:
+        return self._weapondisttable
+
+    @property
+    def attack_soldiers(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.attacksoldiers, 0)
+
+    @property
+    def defense_soldiers(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.defensesoldiers, 0)
+
+    @property
+    def defense_mercenaries(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.defmercs, 0)
+
+    @property
+    def untrained_soldiers(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.untrained, 0)
+
+    @property
+    def untrained_mercenaries(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.untrainedmercs, 0)
+
+    @property
+    def spies(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.spiesamt, 0)
+
+    @property
+    def sentries(self) -> RocTrainingTableEntry:
+        return RocTrainingTableEntry(self.sentriesamt, 0)
+
+    @property
+    def attack_sold_cost(self) -> int:
+        return self.attacksoldcost
+
+    @property
+    def defense_sold_cost(self) -> int:
+        return self.defensesoldcost
+
+    @property
+    def spy_sold_cost(self) -> int:
+        return self.spycost
+
+    @property
+    def sentry_sold_cost(self) -> int:
+        return self.sentrycost
 
 
 class MockTrainingSettings():
@@ -38,19 +143,19 @@ class MockTrainingSettings():
 class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
-        self._att_cost = 1000
-        self._def_cost = 1000
-        self._spy_cost = 2000
-        self._spy_cost = 2000
 
     def test_training_disabled(self):
-        tm = TrainingModel(untrained_soldiers=ICP(1000))
-        am = ArmoryModel(dagger=ICP(1000))
+        mtp = MockTrainingPage(
+            gold=10**8,
+            untrained=1000,
+            attweps=1000
+        )
+
         tset = MockTrainingSettings(False, True, 'defense')
-        gold = 10**8
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -60,13 +165,15 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_soldiers_avail(self):
-        tm = TrainingModel()
-        am = ArmoryModel(excalibur=ICP(10000, 10))
+        mtp = MockTrainingPage(
+            gold=10**6,
+            )
+
         tset = MockTrainingSettings(True, True, 'attack', 100)
-        gold = 10**6
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -75,13 +182,15 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_gold_dump(self):
-        tm = TrainingModel(untrained_soldiers=ICP(1000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            untrained=1000
+        )
+
         tset = MockTrainingSettings(True, False, 'defense')
-        gold = 0
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.defense_soldiers,
@@ -90,16 +199,20 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_defense_soldier_dump(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000), sentries=ICP(0, 2000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            gold=10**6,
+            untrained=1000,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000
+        )
+
         tset = MockTrainingSettings(True, False, 'defense')
-        gold = 10**6
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -109,16 +222,20 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_attack_soldier_dump(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000), sentries=ICP(0, 2000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            gold=10**6,
+            untrained=1000,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000,
+        )
+
         tset = MockTrainingSettings(True, False, 'attack')
-        gold = 10**6
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -128,16 +245,20 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_spy_soldier_dump(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000), sentries=ICP(0, 2000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000
+        )
+
         tset = MockTrainingSettings(True, False, 'spies')
-        gold = 10**7
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -147,16 +268,20 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_sentry_soldier_dump(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000), sentries=ICP(0, 2000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000
+        )
+
         tset = MockTrainingSettings(True, False, 'sentries')
-        gold = 10**7
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -166,13 +291,16 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_gold_shortage(self):
-        tm = TrainingModel(untrained_soldiers=ICP(1000))
-        am = ArmoryModel()
+        mtp = MockTrainingPage(
+            gold=70500,
+            untrained=1000
+        )
+
         tset = MockTrainingSettings(True, False, 'defense')
-        gold = 70500
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.defense_soldiers,
@@ -181,41 +309,39 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_cost_calculation(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(100),
-            defense_soldiers=ICP(0, 1500),
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=100,
+            defensesoldcost=1500
         )
 
         tset = MockTrainingSettings(
             True, sold_weapmatch=False, sold_dumptype='defense')
-        gold = 10**7
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, gold, tm)
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.cost,
-            tm.untrained_soldiers.count * tm.defense_soldiers.cost,
+            mtp.untrained_soldiers.count * mtp.defense_sold_cost,
             'The cost of a purchase should be properly calculated'
         )
 
 
 class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-        self._att_cost = 1000
-        self._def_cost = 1000
-        self._spy_cost = 2000
-        self._spy_cost = 2000
-
     def test_training_disabled(self):
-        tm = TrainingModel(untrained_soldiers=ICP(1000))
-        am = ArmoryModel(dagger=ICP(1000))
-        tset = MockTrainingSettings(False, True, 'defense')
-        gold = 10**8
+        mtp = MockTrainingPage(
+            gold=10**8,
+            untrained=1000,
+            attweps=1000
+        )
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tset = MockTrainingSettings(False, True, 'defense')
+
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -225,13 +351,16 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_soldiers_avail(self):
-        tm = TrainingModel()
-        am = ArmoryModel(excalibur=ICP(10000, 10))
-        tset = MockTrainingSettings(True, True, 'attack', 100)
-        gold = 10**6
+        mtp = MockTrainingPage(
+            gold = 10**6,
+            attweps=10000
+        )
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tset = MockTrainingSettings(True, True, 'attack', 100)
+
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -240,16 +369,20 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_untrained_to_match(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(0),
-            attack_soldiers=ICP(0, 1000), defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000), sentries=ICP(0, 2000))
-        am = ArmoryModel(dagger=ICP(10000))
-        tset = MockTrainingSettings(True, True)
-        gold = 10**6
+        mtp = MockTrainingPage(
+            gold=10**6,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000,
+            attweps=10000,
+        )
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tset = MockTrainingSettings(True, True)
+
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -259,16 +392,20 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_matching_excess_weapons(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(50, 1000))
-        am = ArmoryModel(dagger=ICP(10000, 10))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldiers=50,
+            attacksoldcost=1000,
+            attweps=10000,
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -277,16 +414,19 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_matching_gold_shortage(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000))
-        am = ArmoryModel(dagger=ICP(100, 50))
+        mtp = MockTrainingPage(
+            gold=50000,
+            untrained=1000,
+            attacksoldcost=1000,
+            attweps=100,
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
-        gold = 50000
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -295,16 +435,20 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_match_excess_soldiers(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(1000, 1000))
-        am = ArmoryModel(dagger=ICP(500, 10))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            attacksoldiers=1000,
+            attweps=500
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -313,21 +457,25 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_all_soldier_match(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000),
-            defense_soldiers=ICP(0, 1000),
-            spies=ICP(0, 2000),
-            sentries=ICP(0, 2000))
-        am = ArmoryModel(
-            dagger=ICP(250), shield=ICP(250),
-            hook=ICP(250), guard_dog=ICP(250))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            defensesoldcost=1000,
+            spycost=2000,
+            sentrycost=2000,
+            attweps=250,
+            defweps=250,
+            spyweps=250,
+            sentryweps=200
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
@@ -337,16 +485,19 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_rounding(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000))
-        am = ArmoryModel(dagger=ICP(125, 10))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            attweps=125
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=50)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers),
@@ -355,16 +506,19 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_rounding_one(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000))
-        am = ArmoryModel(dagger=ICP(125, 10))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=1000,
+            attacksoldcost=1000,
+            attweps=125
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers),
@@ -373,16 +527,20 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_gold_shortage(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(1000),
-            attack_soldiers=ICP(0, 1000))
-        am = ArmoryModel(dagger=ICP(5000, 10))
+        mtp = MockTrainingPage(
+            gold=125678,
+            untrained=1000,
+            attacksoldcost=1000,
+            attweps=5000
+        )
+
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
         gold = 125678
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.attack_soldiers,
@@ -392,31 +550,32 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_cost_calculation(self):
-        tm = TrainingModel(
-            untrained_soldiers=ICP(4),
-            attack_soldiers=ICP(0, 1000),
-            defense_soldiers=ICP(0, 1500),
-            spies=ICP(0, 2000),
-            sentries=ICP(0, 2500))
-        am = ArmoryModel(
-            dagger=ICP(1, 10),
-            shield=ICP(1, 10),
-            hook=ICP(1, 10),
-            guard_dog=ICP(1, 10))
+        mtp = MockTrainingPage(
+            gold=10**7,
+            untrained=4,
+            attacksoldcost=1000,
+            defensesoldcost=1500,
+            spycost=2000,
+            sentrycost=2500,
+            attweps=1,
+            defweps=1,
+            spyweps=1,
+            sentryweps=1
+        )
 
         tset = MockTrainingSettings(
             True, sold_weapmatch=True, sold_roundamt=1)
-        gold = 10**7
 
-        tpmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
-            tset, gold, tm, am)
+        tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
+            tset, mtp, mtp.gold
+        )
 
         self.assertEqual(
             tpmod.cost,
-            tm.attack_soldiers.cost
-            + tm.defense_soldiers.cost
-            + tm.spies.cost
-            + tm.sentries.cost,
+            mtp.attack_soldiers.cost
+            + mtp.defense_soldiers.cost
+            + mtp.spies.cost
+            + mtp.sentries.cost,
             'The cost of a purchase should be properly calculated'
         )
 
