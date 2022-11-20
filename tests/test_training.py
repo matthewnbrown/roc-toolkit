@@ -875,6 +875,95 @@ class SimpleRocTrainerTest(unittest.TestCase):
             'Payload should contain correct amount of soldiers to buy'
         )
 
+    def test_training_not_reqd_training_disabled(self):
+        tset = MockTrainingSettings(
+            False, True, 'attack', min_purch_size=1
+        )
+
+        trainer = self.trainertype(tset)
+
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=10000,
+            attweps=1000,
+            attacksoldcost=1,
+            defensesoldcost=1)
+
+        reqd = trainer.is_training_required(tpage=tpage)
+
+        self.assertFalse(reqd)
+
+    def test_training_reqd_dump(self):
+        tset = MockTrainingSettings(
+            True, False, 'attack', min_purch_size=1
+        )
+
+        trainer = self.trainertype(tset)
+
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=10000,
+            attweps=1000,
+            attacksoldcost=1,
+            defensesoldcost=1)
+
+        reqd = trainer.is_training_required(tpage=tpage)
+
+        self.assertTrue(reqd)
+
+    def test_training_reqd_match(self):
+        tset = MockTrainingSettings(
+            True, True, 'none', min_purch_size=1
+        )
+
+        trainer = self.trainertype(tset)
+
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=10000,
+            attweps=1000,
+            attacksoldcost=1,
+            defensesoldcost=1)
+
+        reqd = trainer.is_training_required(tpage=tpage)
+
+        self.assertTrue(reqd)
+
+    def test_training_notreqd_too_poor(self):
+        tset = MockTrainingSettings(
+            True, True, 'attack', min_purch_size=1000
+        )
+
+        trainer = self.trainertype(tset)
+
+        tpage = MockTrainingPage(
+            gold=60000,
+            untrained=10000,
+            attweps=1000,
+            attacksoldcost=1000)
+
+        reqd = trainer.is_training_required(tpage=tpage)
+
+        self.assertFalse(reqd)
+
+    def test_training_notreqd_toofew_untrained(self):
+        tset = MockTrainingSettings(
+            False, True, 'attack', min_purch_size=1000
+        )
+
+        trainer = self.trainertype(tset)
+
+        tpage = MockTrainingPage(
+            gold=10**7,
+            untrained=500,
+            attweps=1000,
+            attacksoldcost=1,
+            defensesoldcost=1)
+
+        reqd = trainer.is_training_required(tpage=tpage)
+
+        self.assertFalse(reqd)
+
 
 if __name__ == "__main__":
     unittest.main()
