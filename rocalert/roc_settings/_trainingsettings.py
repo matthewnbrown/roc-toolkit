@@ -24,10 +24,16 @@ class TrainerSettings(Settings):
             lambda x: x in TrainerSettings.VALID_SOLDIER_TYPES
         ),
         'soldier_round_amount': Setting(
-            'Soldier round amount', 'solder_round_amount',
+            'Soldier round amount', 'soldier_round_amount',
             1000, int, 'Round matching purchase to this amount',
             1000, lambda x: x >= 0
-        )
+        ),
+        'min_train_purchase_size': Setting(
+            'Minimum amount of untrained soldiers to train.',
+            'min_train_purchase_size',
+            1200, int, 'Round matching purchase to this amount',
+            1200, lambda x: x >= 0
+        ),
     }
 
     class SoldierTypes:
@@ -72,3 +78,7 @@ class TrainerSettings(Settings):
     @property
     def soldier_round_amount(self) -> int:
         return self.get_setting('soldier_round_amount').value
+
+    @property
+    def min_training_size(self):
+        return self.get_setting('min_train_purchase_size').value
