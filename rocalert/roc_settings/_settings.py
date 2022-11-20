@@ -142,7 +142,7 @@ class SettingsLoader:
                                 ) -> dict:
         if settings is None:
             if warnings:
-                print('Warning. Empty settings file passed to loader')
+                print('Warning. Empty settings dict passed to loader')
             settings = {}
 
         with open(filepath) as f:
