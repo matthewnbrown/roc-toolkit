@@ -1,2 +1,2 @@
-#from captcha_logger import CaptchaLogger
-#from equation_solver import EquationSolver
+if __name__ == '__main__':
+    print('dont run this')
