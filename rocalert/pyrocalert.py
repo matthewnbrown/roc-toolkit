@@ -1,9 +1,8 @@
 from .captcha.equation_solver import EquationSolver
-from .pages.training import RocTrainingPage
 from .services.remote_lookup import RemoteCaptcha
 from .services.captchaservices import CaptchaSolverServiceABC,\
     CaptchaReportException, CaptchaSolveException
-from .rocpurchases import ROCBuyer, ROCTrainer
+from .rocpurchases import ROCBuyer, ROCTrainerABC
 from .roc_settings import UserSettings
 from .roc_web_handler import RocWebHandler
 from .roc_web_handler import Captcha
@@ -26,7 +25,7 @@ class RocAlert:
                  rochandler: RocWebHandler = None,
                  usersettings: UserSettings = None,
                  buyer: ROCBuyer = None,
-                 trainer: ROCTrainer = None,
+                 trainer: ROCTrainerABC = None,
                  correctLog: CaptchaLogger = None,
                  generalLog: CaptchaLogger = None,
                  remoteCaptcha: RemoteCaptcha = None,
@@ -36,6 +35,7 @@ class RocAlert:
             raise Exception("An existing ROC Handler must be passed!")
         self.roc = rochandler
         self.buyer = buyer
+        self._trainer = trainer
         self.user_settings = usersettings.get_settings_old()
         self.validans = {str(i) for i in range(1, 10)}
         self.general_log = generalLog
@@ -413,14 +413,16 @@ class RocAlert:
 
         return res_captcha.ans_correct and purchase_success
 
-    def _is_training_required(self, trainingpage: RocTrainingPage) -> bool:
-        pass
-
     def __trainingCheck(self) -> bool:
         page = self.roc.get_training_page()
 
-        if not self._is_training_required(page):
+        if (self._trainer is None
+                or not self._trainer.is_training_required(page)):
             return True
+
+        payload = self._trainer.gen_purchase_payload(tpage=page)
+
+        self.__log(f'Theorotical Training Purchase:\n{payload}')
 
         return True
 
