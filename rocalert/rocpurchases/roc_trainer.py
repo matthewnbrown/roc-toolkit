@@ -282,6 +282,9 @@ class SimpleRocTrainer(ROCTrainerABC):
         if tpage.gold <= 0 or tpage.untrained_soldiers.count == 0:
             return False
 
+        if self._tsettings.min_training_size > tpage.untrained_soldiers.count:
+            return False
+
         purchase = self._calculate_purchase(tpage)
         size = purchase.total_mercs + purchase.total_soldiers
 
