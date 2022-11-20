@@ -56,10 +56,17 @@ class RocWebHandler:
         HOME = 'roc_home'
         LOGIN = 'roc_login'
 
-    def __init__(self, roc_site_settings: SiteSettings) -> None:
-        self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
-                        + 'Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
-                        + 'Chrome/102.0.5005.63 Safari/537.36'}
+    def __init__(
+            self,
+            roc_site_settings: SiteSettings,
+            default_headers: dict[str, str] = None,
+            ) -> None:
+        if default_headers:
+            self.headers = default_headers
+        else:
+            self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
+                            + 'Win64; x64) AppleWebKit/537.36 (KHTML, like'
+                            + ' Gecko) Chrome/107.0.0.0 Safari/537.36'}
         self.site_settings = roc_site_settings
         self.session = requests.Session()
 

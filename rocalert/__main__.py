@@ -37,7 +37,26 @@ def run():
     gen_log = CaptchaLogger('logs/captcha_answers.log', timestamp=True)
     correct_log = CaptchaLogger('logs/correct_ans.log', log_correctness=False)
 
-    rochandler = RocWebHandler(SiteSettings(filepath=filepaths['site'][0]))
+    default_headers = {
+        'Accept': 'text/html,application/xhtml+xml,application/xml'
+                  + ';q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+        'TE': 'trailers',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
+                      + 'AppleWebKit/537.36 (KHTML, like Gecko) '
+                      + 'Chrome/107.0.0.0 Safari/537.36',
+    }
+
+    rochandler = RocWebHandler(
+        SiteSettings(filepath=filepaths['site'][0]),
+        default_headers=default_headers)
     user_settings = UserSettings(filepath=filepaths['user'][0])
 
     remoteCaptcha = RemoteCaptcha(
