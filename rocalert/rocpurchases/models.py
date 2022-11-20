@@ -131,6 +131,7 @@ class TrainingPurchaseModel:
                 self.sentries + other.sentries,
                 self.attack_mercs + other.attack_mercs,
                 self.defense_mercs + other.defense_mercs,
+                self.untrained_mercs + other.untrained_mercs,
                 self.sell_attack_soldiers + other.sell_attack_soldiers,
                 self.sell_defense_soldiers + other.sell_defense_soldiers,
                 self.sell_spies + other.sell_spies,
@@ -144,18 +145,19 @@ class TrainingPurchaseModel:
 
     def __imul__(self, other):
         if type(other) == int:
-            self.attack_soldiers += other.attack_soldiers,
-            self.defense_soldiers += other.defense_soldiers,
-            self.spies += other.spies,
-            self.sentries += other.sentries,
-            self.attack_mercs += other.attack_mercs,
-            self.defense_mercs += other.defense_mercs,
-            self.sell_attack_soldiers += other.sell_attack_soldiers,
-            self.sell_defense_soldiers += other.sell_defense_soldiers,
-            self.sell_spies += other.sell_spies,
-            self.sell_sentries + other.sell_sentries,
-            self.sell_attack_mercs += other.sell_attack_mercs,
-            self.sell_defense_mercs += other.sell_defense_mercs,
+            self.attack_soldiers += other.attack_soldiers
+            self.defense_soldiers += other.defense_soldiers
+            self.spies += other.spies
+            self.sentries += other.sentries
+            self.attack_mercs += other.attack_mercs
+            self.defense_mercs += other.defense_mercs
+            self.untrained_mercs += other.untrained_mercs
+            self.sell_attack_soldiers += other.sell_attack_soldiers
+            self.sell_defense_soldiers += other.sell_defense_soldiers
+            self.sell_spies += other.sell_spies
+            self.sell_sentries + other.sell_sentries
+            self.sell_attack_mercs += other.sell_attack_mercs
+            self.sell_defense_mercs += other.sell_defense_mercs
             self.sell_untrained_mercs += other.sell_untrained_mercs
             self.cost += other.cost
             return self
