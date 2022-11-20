@@ -43,7 +43,9 @@ class RocAlert:
         self.__in_nightmode = False
         self.__last_login_time = None
         self.__last_purchase_time = None
+        self.__last_train_time = None
         self.__purchase_error = False
+        self.__training_error = False
         self.__failure_timeout = False
         self.__cooldown = False
         self._capsolver = capsolver
@@ -268,6 +270,7 @@ class RocAlert:
         max_ccf = self.user_settings['max_consecutive_captcha_attempts']
         max_cbl = 4
         max_fpa = 5
+        max_fta = 5
         max_cdclears = 2
         if self.consecutive_login_failures >= max_clf:
             self.__log("ERROR: Multiple login failures. Exiting.")
@@ -294,6 +297,11 @@ class RocAlert:
             self.__log('Error: Too many failed purchase attempts! '
                        + 'No longer attempting to purchase.')
             self.__purchase_error = True
+        if self.consecutive_training_attempts >= max_fta:
+            self.consecutive_training_attempts = 0
+            self.__log('Error: Too many failed purchase attempts! '
+                       + 'No longer attempting to purchase.')
+            self.__training_error = True
         if self.consecutive_cooldowns >= max_cdclears:
             self.consecutive_cooldowns = 0
             self.__log('Text captcha failed to clear too many times.')
@@ -416,6 +424,10 @@ class RocAlert:
     def __trainingCheck(self) -> bool:
         page = self.roc.get_training_page()
 
+        if self.__training_error:
+            self.__log('Not training due to passed failed attempts')
+            return True
+
         if (self._trainer is None
                 or not self._trainer.is_training_required(page)):
             self.__log('Training not needed')
@@ -423,9 +435,44 @@ class RocAlert:
 
         payload = self._trainer.gen_purchase_payload(tpage=page)
 
-        self.__log(f'Theoretical Training Purchase:\n{payload}')
+        res_captcha = self.__handle_img_captcha('roc_training', payload)
 
-        return True
+        curtime = datetime.datetime.now()
+        if self.__last_train_time:
+            min_bugged_time = datetime.timedelta(0, 600)
+            if (not res_captcha or res_captcha.ans in self.validans) \
+                    and curtime - self.__last_train_time <= min_bugged_time:
+                self.consecutive_training_attempts += 1
+                time.sleep(3 + int(random.uniform(0, 1) * 5))
+            elif res_captcha:
+                self.consecutive_training_attempts = 0
+
+        self.__last_train_time = curtime
+
+        if res_captcha is None:
+            return False
+
+        if res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
+            self.__cooldown = True
+            self.__log('Detected text captcha in armory')
+            return False
+
+        if not res_captcha.ans_correct:
+            self.__captcha_final(res_captcha)
+            self.__log('Bad captcha answer')
+            return False
+
+        page = self.roc.get_training_page()
+        train_success = not self._trainer.is_training_required(page)
+
+        if not train_success:
+            self.__log('Failure training')
+        else:
+            self.__log('Training was successful')
+
+        self.__captcha_final(res_captcha)
+
+        return res_captcha.ans_correct and train_success
 
     def _get_events(self) -> None:
         a = random.randint(1, 2)
@@ -469,6 +516,7 @@ class RocAlert:
         self.consecutive_answer_errors = 0
         self.consecutive_bugged_logins = 0
         self.consecutive_purchase_attempts = 0
+        self.consecutive_training_attempts = 0
         self.consecutive_cooldowns = 0
         while True:
             if self.__check_failure_conditions():
