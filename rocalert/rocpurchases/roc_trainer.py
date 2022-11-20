@@ -178,9 +178,9 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
 
         untrained = tpage.untrained_soldiers.count
         attweps = tpage.weapon_distribution_table.attack_wt_dist.weapon_count
-        defweps = tpage.weapon_distribution_table.attack_wt_dist.weapon_count
-        spyweps = tpage.weapon_distribution_table.attack_wt_dist.weapon_count
-        sentweps = tpage.weapon_distribution_table.attack_wt_dist.weapon_count
+        defweps = tpage.weapon_distribution_table.defense_wt_dist.weapon_count
+        spyweps = tpage.weapon_distribution_table.spy_wt_dist.weapon_count
+        sentweps = tpage.weapon_distribution_table.sentry_wt_dist.weapon_count
 
         if 'attack' not in skip_match:
             amt, netcost = cls._calc_soldier_match(
@@ -296,4 +296,4 @@ class SimpleRocTrainer(ROCTrainerABC):
                 self._tsettings,
                 tpage, gold
             )
-        return pmod
+        return ROCTrainingPayloadCreator.create_training_payload(pmod)
