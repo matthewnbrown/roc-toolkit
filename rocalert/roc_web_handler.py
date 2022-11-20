@@ -50,7 +50,7 @@ class Captcha:
 
 class RocWebHandler:
     class Pages:
-        TRAINER = 'roc_train'
+        TRAINER = 'roc_training'
         RECRUIT = 'roc_recruit'
         ARMORY = 'roc_armory'
         HOME = 'roc_home'
@@ -170,7 +170,10 @@ class RocWebHandler:
             'email': email,
             'password': password
         }
-        self.r = self.session.post(self.site_settings.get_login_url(), payload)
+        self.r = self.session.post(
+            self.site_settings.get_login_url(),
+            payload,
+            headers=self.headers)
         incorrect = r'Incorrect login' in self.r.text
         return not incorrect and r'email@address.com' not in self.r.text
 
@@ -179,7 +182,10 @@ class RocWebHandler:
             'email': email,
             'password': password
         }
-        self.r = self.session.post(self.site_settings.get_login_url(), payload)
+        self.r = self.session.post(
+            self.site_settings.get_login_url(),
+            payload,
+            headers=self.headers)
         if r'Incorrect login' in self.r.text:
             return 'incorrect_login'
         if r'email@address.com' in self.r.text:
@@ -203,7 +209,10 @@ class RocWebHandler:
             'flagInput': str(captcha.ans),
             'flagSubmit': 'Submit'
         }
-        self.r = self.session.post(self.site_settings.get_page(page), payload)
+        self.r = self.session.post(
+            self.site_settings.get_page(page),
+            headers=self.headers,
+            payload=payload)
 
         return self.__page_captcha_type() == Captcha.CaptchaType.IMAGE
 
@@ -232,7 +241,10 @@ class RocWebHandler:
         if manual_page:
             payload['num'] = captcha.ans
 
-        self.r = self.session.post(url, payload)
+        self.r = self.session.post(
+            url,
+            payload,
+            headers=self.headers)
         return self._check_incorrect_captcha()
 
     def submit_captcha(
@@ -254,7 +266,9 @@ class RocWebHandler:
         payload['num'] = ans
 
         self.r = self.session.post(
-            self.site_settings.get_setting(page).value, payload)
+            self.site_settings.get_setting(page).value,
+            payload,
+            headers=self.headers)
 
         return self._check_incorrect_captcha()
 
