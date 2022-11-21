@@ -1,15 +1,14 @@
-from typing import Callable
 from os.path import exists
-from rocalert.captcha.captcha_logger import CaptchaLogger
+import time
 
+from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.events import SpyEvent
 from rocalert.roc_settings import SettingsSetupHelper, \
     SiteSettings, UserSettings
-from rocalert.roc_web_handler import Captcha, RocWebHandler
+from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
-from rocalert.captcha.solvers import MulticaptchaGUI
 
 
 lower_rank_cutoff = 1
@@ -52,6 +51,7 @@ def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
             roc.site_settings.get_home()
             )
         roc.add_cookies(cookies)
+        time.sleep(0.25)
         return True
     return False
 
@@ -62,6 +62,7 @@ def __load_cookies_file(roc: RocWebHandler, cookie_filename: str) -> bool:
         cookies = load_cookies_from_path(cookie_filename)
         if cookies is not None:
             roc.add_cookies(cookies)
+    time.sleep(0.25)
 
 
 def __log(s: str):
@@ -69,7 +70,7 @@ def __log(s: str):
 
 
 def login(roc: RocWebHandler, us: UserSettings):
-    __log('Logging in.')
+    __log('Attempting to get login status')
     if __load_cookies_file(roc, cookie_filename) and roc.is_logged_in():
         __log('Successfully used cookie file')
         return True
@@ -80,11 +81,12 @@ def login(roc: RocWebHandler, us: UserSettings):
         save_cookies_to_path(roc.get_cookies(), cookie_filename)
         return True
 
+    __log('Logging in..')
     roc.login(
         us.get_setting('email'),
         us.get_setting('password')
     )
-
+    time.sleep(0.25)
     if roc.is_logged_in():
         __log("Login success.")
         save_cookies_to_path(roc.get_cookies(), cookie_filename)
