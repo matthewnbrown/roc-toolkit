@@ -57,7 +57,7 @@ Install lxml:
 **browser:** chrome or firefox
 
 #### Remote Lookup
-**remote_captcha_lookup:** None (API url to lookup captcha answer based on hash)
+**remote_captcha_lookup:** None (API url to lookup captcha answer based on hash)  
 **remote_captcha_add:** None (API call to add captcha answer to database)
 
 
