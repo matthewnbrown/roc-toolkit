@@ -211,8 +211,8 @@ class RocWebHandler:
         }
         self.r = self.session.post(
             self.site_settings.get_page(page),
-            headers=self.headers,
-            payload=payload)
+            payload,
+            headers=self.headers,)
 
         return self.__page_captcha_type() == Captcha.CaptchaType.IMAGE
 
