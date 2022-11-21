@@ -6,6 +6,21 @@ If this is your first run, or you're missing settings files, they will be create
 
 Auto captcha solving using [2Captcha](https://2captcha.com/)
 
+
+Windows installation notes:  
+`pip install .` should install everything
+
+
+Ubuntu installation notes:  
+Install pillow and ImageTK:
+`apt-get install python3-pil python3-pil.imagetk`  
+Install tkinter:
+`apt-get install python3-tk`  
+Install lxml:
+`apt-get install python3-lxml`  
+`pip install .` for the rest
+
+
 ### User Settings
 
 #### Login Details  
@@ -42,7 +57,7 @@ Auto captcha solving using [2Captcha](https://2captcha.com/)
 **browser:** chrome or firefox
 
 #### Remote Lookup
-**remote_captcha_lookup:** None (API url to lookup captcha answer based on hash)
+**remote_captcha_lookup:** None (API url to lookup captcha answer based on hash)  
 **remote_captcha_add:** None (API call to add captcha answer to database)
 
 
@@ -61,12 +76,9 @@ Gold is divided by the folloing formula for each weapon:
 
 (gold) * (weapon number) / (sum of all weapon numbers)
 
-Installation Notes:
-
-Ubuntu:
-
-Install pillow and ImageTK:
-`sudo apt-get install python3-pil python3-pil.imagetk`
-
-Install tkinter:
-`sudo apt-get install python3-tk`
+#  Trainer settings
+**train_soldiers:** True/False  
+**soldier_weapon_match:** True/False (Should soldiers be purchased to match weapons)  
+**soldier_dump_type:** attack/defense/spies/sentries (All excess untrained dumped to this category)  
+**soldier_round_amount:** Integer > 0 (Instead of matching weaponcount exactly, round up this amount (nearest 100, 1000 etc)  
+**min_train_purchase_size:** Integer > 0 (Minimum size to complete a training purchase)  
