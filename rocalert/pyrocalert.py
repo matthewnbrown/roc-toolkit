@@ -351,6 +351,9 @@ class RocAlert:
                 self.__log('Bad captcha answer...')
                 self.__captcha_final(captcha)
                 return False
+            if captcha.type == Captcha.CaptchaType.EQUATION:
+                self.__log('Successfully solved equation')
+                return False
             if self.roc.recruit_has_captcha():
                 self.__log('Recruit attempt failed')
                 return False
