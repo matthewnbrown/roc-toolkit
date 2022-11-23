@@ -236,9 +236,9 @@ class RocAlert:
         minsleeptime = 3 if int(c.ans) % 10 == 0 else 5
         time.sleep(minsleeptime + int(random.uniform(0, 1) * minsleeptime))
 
-        correct = self.roc.submit_equation(c)
+        c.ans_correct = self.roc.submit_equation(c)
 
-        if correct:
+        if c.ans_correct:
             self.__log(f"{c.hash} = {c.ans}")
             self.consecutive_captcha_failures = 0
         else:
