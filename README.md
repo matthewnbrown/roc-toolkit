@@ -21,7 +21,7 @@ Install lxml:
 `pip install .` for the rest
 
 
-### User Settings
+## User Settings
 
 #### Login Details  
 **email:** email<span>@email.</span>com  
@@ -31,7 +31,6 @@ Install lxml:
 **auto_solve_captchas:** False or True  
 **auto_captcha_key:** replace_with_2captcha_apikey  
 
-**notify_soldier_amt:** 60  (currently unused)  
 
 #### Range of time before checking for captchas
 **min_checktime_secs:** 300  
@@ -60,23 +59,12 @@ Install lxml:
 **remote_captcha_lookup:** None (API url to lookup captcha answer based on hash)  
 **remote_captcha_add:** None (API call to add captcha answer to database)
 
-
-
-### Site Settings
-All of the settings below must be a complete URL for identifying the webpage.
-
-**roc_home:** ENTER_HOME_URL  
-**roc_login:** ENTER_LOGIN_URL  
-**roc_recruit:** ENTER_RECRUIT_URL  
-**roc_armory:** ENTER_ARMORY_URL
-**roc_training:** ENTER_TRAINING_URL
-
-### Buyer Settings
+## Buyer Settings
 Gold is divided by the folloing formula for each weapon:
 
 (gold) * (weapon number) / (sum of all weapon numbers)
 
-#  Trainer settings
+## Trainer settings
 **train_soldiers:** True/False  
 **soldier_weapon_match:** True/False (Should soldiers be purchased to match weapons)  
 **soldier_dump_type:** attack/defense/spies/sentries (All excess untrained dumped to this category)  
