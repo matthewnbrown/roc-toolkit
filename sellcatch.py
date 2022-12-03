@@ -32,7 +32,7 @@ def getgoldfrompage(page: str) -> int:
 
 
 def getgold(roc: RocWebHandler, id: str):
-    url = roc.site_settings['roc_home'] + f'/stats.php?id={id}'
+    url = roc.url_generator.get_home() + f'stats.php?id={id}'
     roc.go_to_page(url)
     if roc.r.status_code != 200:
         return -1
@@ -44,7 +44,7 @@ def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
     if us.get_setting('load_cookies_from_browser'):
         cookies = load_cookies_from_browser(
             us.get_setting('browser'),
-            roc.site_settings['roc_home']
+            roc.url_generator.get_home()
             )
         roc.add_cookies(cookies)
         return True
@@ -89,7 +89,7 @@ def goldformat(gold: int) -> str:
 
 
 def attack(roc: RocWebHandler, id: str) -> bool:
-    url = roc.site_settings['roc_home'] + f'/attack.php?id={id}'
+    url = roc.url_generator.get_home() + f'attack.php?id={id}'
     captcha = roc.get_url_img_captcha(url)
 
     mcs = ManualCaptchaService()

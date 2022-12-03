@@ -481,7 +481,7 @@ class RocAlert:
         if not self.__in_nightmode and a != 1:
             return
 
-        url = self.roc.site_settings.get_home() + '/base.php'
+        url = self.roc.url_generator.get_home() + '/base.php'
         self.roc.go_to_page(url)
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
         base = pages.RocBasePage(soup)
@@ -557,7 +557,7 @@ class RocAlert:
         if self.user_settings['load_cookies_from_browser']:
             cookies = load_cookies_from_browser(
                 self.user_settings['browser'],
-                self.roc.site_settings.get_home()
+                self.roc.url_generator.get_home()
                 )
             self.roc.add_cookies(cookies)
             return True

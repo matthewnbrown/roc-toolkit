@@ -9,18 +9,20 @@ from rocalert.rocpurchases import ROCBuyer
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 import os
 
 
 def _should_att(target: BattlefieldTarget):
     badranks = [112]
     badids = [7530]
-
-    mingold = 3 * (10**9)  # 3 x (1 billion) = 3 bn
+    bad_alliance = []
+    mingold = 5 * (10**9)  # 5 x (1 billion) = 5 bn
 
     return target.gold >= mingold\
         and int(target.id) not in badids \
-        and target.rank not in badranks
+        and target.rank not in badranks \
+        and target.alliance not in bad_alliance
 
 
 def login(roc: RocWebHandler, us: UserSettings, cookie_filename='cookies'):
@@ -51,9 +53,10 @@ def login(roc: RocWebHandler, us: UserSettings, cookie_filename='cookies'):
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
     if us.get_setting('load_cookies_from_browser'):
+        url_generator = ROCDecryptUrlGenerator()
         cookies = load_cookies_from_browser(
             us.get_setting('browser').value,
-            roc.site_settings.get_home()
+            url_generator.get_home()
             )
         roc.add_cookies(cookies)
         return True
@@ -105,4 +108,4 @@ if __name__ == '__main__':
     buyer = ROCBuyer(rochandler, buyer_settings)
     capsolver = ManualCaptchaSolverService()
     sellcatch = BFSellCatch(ps, atts, buyer, rochandler, capsolver)
-    sellcatch.run(_should_att, 0.05, 1, 2)
+    sellcatch.run(_should_att, 0.35, 1, 2)

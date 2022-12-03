@@ -30,8 +30,8 @@ class BFPageServiceABC(abc.ABC):
 class BattlefieldPageService(BFPageServiceABC):
     @classmethod
     def run_service(cls, roc: RocWebHandler, pagenum: int) -> dict:
-        pageurl = roc.site_settings.get_home() + \
-            f'/battlefield.php?p={pagenum}'
+        pageurl = roc.url_generator.get_home() + \
+            f'battlefield.php?p={pagenum}'
 
         roc.go_to_page(pageurl)
 
@@ -55,8 +55,8 @@ class BattlefieldPageService(BFPageServiceABC):
 
     @classmethod
     def get_page_range(cls, roc: RocWebHandler) -> Tuple[int, int]:
-        pageurl = roc.site_settings.get_home() + \
-            f'/battlefield.php?p={1}'
+        pageurl = roc.url_generator.get_home() + \
+            f'battlefield.php?p={1}'
 
         roc.go_to_page(pageurl)
         soup = BeautifulSoup(roc.r.text, 'html.parser')
@@ -127,7 +127,7 @@ class AttackService(AttackServiceABC):
             roc: RocWebHandler,
             target: BattlefieldTarget,
             captchasolver: CaptchaSolverServiceABC):
-        url = roc.site_settings.get_home() + f'/attack.php?id={target.id}'
+        url = roc.url_generator.get_home() + f'attack.php?id={target.id}'
         captcha = roc.get_url_img_captcha(url)
 
         try:
@@ -172,8 +172,8 @@ class SpyService():
         self._targets = deque(targets)
 
     def _get_spy_url(self, user: BattlefieldTarget) -> str:
-        return self._roc.site_settings.get_home() \
-            + f'/attack.php?id={user.id}&mission_type=recon'
+        return self._roc.url_generator.get_home() \
+            + f'attack.php?id={user.id}&mission_type=recon'
 
     def _get_result(self, resp: Response) -> SpyResult:
         text = resp.text

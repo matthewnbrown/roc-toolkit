@@ -3,13 +3,12 @@ import time
 
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.events import SpyEvent
-from rocalert.roc_settings import SettingsSetupHelper, \
-    SiteSettings, UserSettings
+from rocalert.roc_settings import SettingsSetupHelper, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
-
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 
 lower_rank_cutoff = 1
 upper_rank_cutoff = None
@@ -46,9 +45,10 @@ def user_filter(user: BattlefieldTarget) -> bool:
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
     if us.get_setting('load_cookies_from_browser'):
+        url_generator = ROCDecryptUrlGenerator()
         cookies = load_cookies_from_browser(
             us.get_setting('browser').value,
-            roc.site_settings.get_home()
+            url_generator.get_home()
             )
         roc.add_cookies(cookies)
         time.sleep(0.25)
@@ -98,7 +98,6 @@ def login(roc: RocWebHandler, us: UserSettings):
 
 def runevent_new():
     filepaths = {
-        'site': ('site.settings', SiteSettings),
         'user': ('user.settings', UserSettings),
     }
 
@@ -117,8 +116,8 @@ def runevent_new():
         return
 
     user_settings = UserSettings(filepath=filepaths['user'][0])
-    site_settings = SiteSettings(filepath=filepaths['site'][0])
-    rochandler = RocWebHandler(site_settings)
+    url_generator = ROCDecryptUrlGenerator()
+    rochandler = RocWebHandler(urlgenerator=url_generator)
 
     if not login(rochandler, user_settings):
         print('Error logging in.')

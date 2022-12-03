@@ -13,6 +13,7 @@ from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.captcha.solvers.multicaptchaguisolver import MulticaptchaGUI
 from rocalert.services.rocwebservices import BattlefieldPageService
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 
 
 def SolveEqn(roc: RocWebHandler):
@@ -74,6 +75,8 @@ class SpyEvent:
 
         self._guiexit = False
 
+        self._urlgenerator = ROCDecryptUrlGenerator()
+
     def _save_captcha(self, captcha: Captcha) -> None:
         if self._captcha_save_path is None:
             return
@@ -91,7 +94,7 @@ class SpyEvent:
         return 'You cannot recon this person' in responsetext
 
     def _get_spy_url(self, user: BattlefieldTarget) -> str:
-        return self._roc.site_settings.get_home() \
+        return self._urlgenerator.get_home() \
             + f'/attack.php?id={user.id}&mission_type=recon'
 
     def _filterusers(
@@ -143,7 +146,7 @@ class SpyEvent:
 
             self._roclock.acquire()
             captype = self._roc.get_page_captcha_type(
-                self._roc.site_settings.get_armory())
+                self._urlgenerator.get_armory())
             self._roclock.release()
 
             if captype == Captcha.CaptchaType.EQUATION:

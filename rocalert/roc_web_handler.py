@@ -1,11 +1,11 @@
-import rocalert.pages as pages
-from .roc_settings import SiteSettings
-from .captcha.pyroccaptchaselector import ROCCaptchaSelector
-
+import requests
 from http.client import RemoteDisconnected
 from urllib3 import Retry
 from bs4 import BeautifulSoup
-import requests
+
+import rocalert.pages as pages
+from rocalert.services.urlgenerator import ROCUrlGenerator
+from .captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 
 _BS_PARSER = 'lxml'
@@ -58,7 +58,7 @@ class RocWebHandler:
 
     def __init__(
             self,
-            roc_site_settings: SiteSettings,
+            urlgenerator: ROCUrlGenerator,
             default_headers: dict[str, str] = None,
             ) -> None:
         if default_headers:
@@ -67,14 +67,13 @@ class RocWebHandler:
             self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; '
                             + 'Win64; x64) AppleWebKit/537.36 (KHTML, like'
                             + ' Gecko) Chrome/107.0.0.0 Safari/537.36'}
-        self.site_settings = roc_site_settings
+        self._urlgenerator = urlgenerator
         self.session = requests.Session()
 
         retry = Retry(connect=10, backoff_factor=0.5)
         adapter = requests.adapters.HTTPAdapter(max_retries=retry)
         self.session.mount('http://', adapter)
         self.session.mount('https://', adapter)
-
         self.r = None
 
     def __check_for_bad_captcha(self):
@@ -134,7 +133,7 @@ class RocWebHandler:
         if page is None:
             return None
 
-        self.__go_to_page(self.site_settings.get_page(page))
+        self.__go_to_page(self._urlgenerator.get_page_url(page))
         cap_type = self.__page_captcha_type()
         hash = self.__get_imagehash()
 
@@ -155,14 +154,14 @@ class RocWebHandler:
         return Captcha(equation, None, captype=Captcha.CaptchaType.EQUATION)
 
     def __get_captcha_image(self, hash):
-        imgurl = (self.site_settings.get_home()
+        imgurl = (self._urlgenerator.get_home()
                   + '/img.php?hash=' + hash)
 
         img = self.__go_to_page(imgurl).content
         return img
 
     def is_logged_in(self) -> bool:
-        self.__go_to_page(self.site_settings.get_home())
+        self.__go_to_page(self._urlgenerator.get_home())
         return r'email@address.com' not in self.r.text
 
     def login(self, email: str, password: str) -> bool:
@@ -171,7 +170,7 @@ class RocWebHandler:
             'password': password
         }
         self.r = self.session.post(
-            self.site_settings.get_login_url(),
+            self._urlgenerator.get_login(),
             payload,
             headers=self.headers)
         incorrect = r'Incorrect login' in self.r.text
@@ -183,7 +182,7 @@ class RocWebHandler:
             'password': password
         }
         self.r = self.session.post(
-            self.site_settings.get_login_url(),
+            self._urlgenerator.get_login(),
             payload,
             headers=self.headers)
         if r'Incorrect login' in self.r.text:
@@ -210,7 +209,7 @@ class RocWebHandler:
             'flagSubmit': 'Submit'
         }
         self.r = self.session.post(
-            self.site_settings.get_page(page),
+            self._urlgenerator.get_page_url(page),
             payload,
             headers=self.headers,)
 
@@ -266,7 +265,7 @@ class RocWebHandler:
         payload['num'] = ans
 
         self.r = self.session.post(
-            self.site_settings.get_setting(page).value,
+            self._urlgenerator.get_page_url(page),
             payload,
             headers=self.headers)
 
@@ -276,7 +275,7 @@ class RocWebHandler:
         return self.__get_captcha_image(hash)
 
     def recruit_has_captcha(self) -> str:
-        self.__go_to_page(self.site_settings.get_recruit())
+        self.__go_to_page(self._urlgenerator.get_recruit())
         return self.__page_captcha_type()
 
     def current_gold(self) -> int:
@@ -288,17 +287,17 @@ class RocWebHandler:
 
     def reset_cooldown(self) -> None:
         addition = r'/cooldown.php?delete=strike'
-        self.__go_to_page(self.site_settings.get_home() + addition)
+        self.__go_to_page(self._urlgenerator.get_home() + addition)
 
     def on_cooldown(self) -> bool:
         self.go_to_armory()
         return self.__page_captcha_type() == Captcha.CaptchaType.TEXT
 
     def go_to_armory(self) -> None:
-        self.__go_to_page(self.site_settings.get_armory())
+        self.__go_to_page(self._urlgenerator.get_armory())
 
     def go_to_training(self) -> None:
-        self.__go_to_page(self.site_settings.get_training())
+        self.__go_to_page(self._urlgenerator.get_training())
 
     def get_response(self) -> requests.Response:
         return self.r
@@ -322,3 +321,7 @@ class RocWebHandler:
         self.go_to_armory()
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return pages.RocArmoryPage(soup)
+
+    @property
+    def url_generator(self) -> ROCUrlGenerator:
+        return self._urlgenerator

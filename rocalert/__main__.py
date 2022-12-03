@@ -1,21 +1,22 @@
 from datetime import datetime, timedelta
 import random
 import time
+
 from .roc_settings import SettingsError
 from rocalert.pyrocalert import RocAlert
 from rocalert.services.remote_lookup import RemoteCaptcha
 import rocalert.services.captchaservices as captchaservices
 from rocalert.rocpurchases import ROCBuyer, SimpleRocTrainer
 from rocalert.roc_settings import BuyerSettings,\
-        SettingsSetupHelper, SiteSettings, UserSettings, TrainerSettings
+        SettingsSetupHelper, UserSettings, TrainerSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 
 
 def run():
     filepaths = {
         'trainer': ('trainer.settings', TrainerSettings),
-        'site': ('site.settings', SiteSettings),
         'user': ('user.settings', UserSettings),
         'buyer': ('buyer.settings', BuyerSettings)
     }
@@ -53,8 +54,9 @@ def run():
                       + 'Chrome/107.0.0.0 Safari/537.36',
     }
 
+    urlgenerator = ROCDecryptUrlGenerator()
     rochandler = RocWebHandler(
-        SiteSettings(filepath=filepaths['site'][0]),
+        urlgenerator=urlgenerator,
         default_headers=default_headers)
     user_settings = UserSettings(filepath=filepaths['user'][0])
 
