@@ -33,6 +33,10 @@ class ROCUrlGenerator(abc.ABC):
     def get_recruit() -> str:
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def get_login() -> str:
+        raise NotImplementedError()
+
 
 class ROCDecryptUrlGenerator(ROCUrlGenerator):
     def __init__(self) -> None:
@@ -40,12 +44,36 @@ class ROCDecryptUrlGenerator(ROCUrlGenerator):
         rocurlbytes = base64.b64decode(rocurlb64)
         self._rocburl = rocurlbytes.decode('ascii')
 
-    @property
-    def roc_burl(self) -> str:
-        return self._rocburl
+        self._urls = {
+            'roc_home': self._rocburl,
+            'roc_armory': self._rocburl + 'armory.php',
+            'roc_login': self._rocburl + 'login.php',
+            'roc_training': self._rocburl + 'train.php',
+            'roc_recruit': self._rocburl + 'recruiter.php',
+        }
 
-    def get_page_url(page: str) -> str:
-        pass
+    def get_page_url(self, page: str) -> str:
+        if page not in self._urls:
+            raise URLNotFoundError(f'{page} url not known')
+        return self._urls[page]
+
+    def get_home(self) -> str:
+        return self.get_page_url('roc_home')
+
+    def get_armory(self) -> str:
+        return self.get_page_url('roc_armory')
+
+    def get_training(self) -> str:
+        return self.get_page_url('roc_training')
+
+    def get_base(self) -> str:
+        return self.get_page_url('roc_home') + 'base.php'
+
+    def get_recruit(self) -> str:
+        return self.get_page_url('roc_recruit')
+
+    def get_login(self) -> str:
+        return self.get_page_url('roc_login')
 
 
 class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
@@ -53,8 +81,11 @@ class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
         self._sitesettings = sitesettings
 
     def get_page_url(self, page: str) -> str:
-        if page not in self._sitesettings.get_settings():
+        settings = self._sitesettings.get_settings()
+        if page not in settings:
             raise URLNotFoundError(f'{page} url not known')
+
+        return settings[page]
 
     def get_home(self) -> str:
         return self._sitesettings.get_home()
@@ -70,3 +101,6 @@ class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
 
     def get_recruit(self) -> str:
         return self._sitesettings.get_recruit()
+
+    def get_login(self) -> str:
+        return self._sitesettings.get_login_url()
