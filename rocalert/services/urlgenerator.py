@@ -1,4 +1,5 @@
 import abc
+import base64
 
 import rocalert.roc_settings as rocsettings
 
@@ -35,7 +36,13 @@ class ROCUrlGenerator(abc.ABC):
 
 class ROCDecryptUrlGenerator(ROCUrlGenerator):
     def __init__(self) -> None:
-        pass
+        rocurlb64 = 'aHR0cHM6Ly9ydWluc29mY2hhb3MuY29tLw=='
+        rocurlbytes = base64.b64decode(rocurlb64)
+        self._rocburl = rocurlbytes.decode('ascii')
+
+    @property
+    def roc_burl(self) -> str:
+        return self._rocburl
 
     def get_page_url(page: str) -> str:
         pass
