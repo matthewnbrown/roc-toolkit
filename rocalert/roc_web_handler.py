@@ -2,6 +2,7 @@ import requests
 from http.client import RemoteDisconnected
 from urllib3 import Retry
 from bs4 import BeautifulSoup
+import datetime
 
 import rocalert.pages as pages
 from rocalert.services.urlgenerator import ROCUrlGenerator
@@ -21,9 +22,12 @@ class Captcha:
         IMAGE = 'img'
         EQUATION = 'equation'
 
+    EXPIRATION_AGE = datetime.timedelta(minutes=4, seconds=30)
+
     def __init__(
             self, hash: str, img: bytes = None, ans: str = '-1',
-            correct: bool = False, captype: str = None
+            correct: bool = False, captype: str = None,
+            creation_date: datetime.datetime = None
             ) -> None:
 
         self._hash = hash
@@ -31,6 +35,11 @@ class Captcha:
         self._ans = ans
         self._ans_correct = correct
         self._type = captype
+
+        if creation_date is None:
+            self._creationdate = datetime.datetime.now()
+        else:
+            self._creationdate = creation_date
 
     @property
     def hash(self): return self._hash
@@ -46,6 +55,14 @@ class Captcha:
     def ans_correct(self, correct: bool): self._ans_correct = correct
     @property
     def type(self): return self._type
+
+    @property
+    def captcha_age(self) -> datetime.timedelta:
+        return datetime.datetime.now() - self._creationdate
+
+    @property
+    def is_expired(self) -> bool:
+        return self.captcha_age > Captcha.EXPIRATION_AGE
 
 
 class RocWebHandler:
