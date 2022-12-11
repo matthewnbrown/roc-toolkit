@@ -253,6 +253,19 @@ class SpyEvent:
     def _nextuser_delay(self) -> None:
         time.sleep(max(1.5 + random.gauss(.5, .3), 1))
 
+    def _purge_expired_captchas(self) -> None:
+        print('Detected expired captchas, purging...')
+
+        count = 1
+
+        self._captchaslock.acquire()
+        while len(self._captchas) > 0 and self._captchas[0].is_expired:
+            count += 1
+            self._captchas.popleft()
+        self._captchaslock.release()
+
+        print(f'Purged {count} captcha{"" if count == 1 else "s"}')
+
     def _handle_spying(self) -> None:
         last_user_skipped = False
 
@@ -273,6 +286,9 @@ class SpyEvent:
 
                 if self._guiexit:
                     return
+                if captcha.is_expired:
+                    self._purge_expired_captchas()
+                    continue
 
                 spyres = self._spyuser(user, captcha)
                 self._log_captcha(captcha)

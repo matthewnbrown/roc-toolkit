@@ -57,12 +57,12 @@ class Captcha:
     def type(self): return self._type
 
     @property
-    def captcha_age(self) -> datetime.timedelta:
+    def age(self) -> datetime.timedelta:
         return datetime.datetime.now() - self._creationdate
 
     @property
     def is_expired(self) -> bool:
-        return self.captcha_age > Captcha.EXPIRATION_AGE
+        return self.age >= Captcha.EXPIRATION_AGE
 
 
 class RocWebHandler:
