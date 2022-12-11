@@ -1,6 +1,6 @@
 from rocalert.services.rocwebservices import \
     BattlefieldPageService, AttackService
-from rocalert.roc_settings import SiteSettings, BuyerSettings,\
+from rocalert.roc_settings import BuyerSettings,\
     UserSettings, SettingsSetupHelper
 from rocalert.services.captchaservices import ManualCaptchaSolverService
 from rocalert.specialtools import BFSellCatch
@@ -16,8 +16,10 @@ import os
 def _should_att(target: BattlefieldTarget):
     badranks = [112]
     badids = [7530]
-    bad_alliance = []
+    bad_alliance = ['Example Alliance Name']
     mingold = 5 * (10**9)  # 5 x (1 billion) = 5 bn
+    if target.gold >= mingold:
+        print(f'Detected {target.name} with {target.gold} gold')
 
     return target.gold >= mingold\
         and int(target.id) not in badids \
@@ -75,7 +77,6 @@ if __name__ == '__main__':
 
     filepaths = {
         'user': ('user.settings', UserSettings),
-        'site': ('site.settings', SiteSettings),
         'buyer': ('buyer.settings', BuyerSettings),
     }
 
@@ -93,10 +94,10 @@ if __name__ == '__main__':
         print("Exiting. Please fill out settings files")
         quit()
 
+    url_gen = ROCDecryptUrlGenerator()
     user_settings = UserSettings(filepath=filepaths['user'][0])
-    site_settings = SiteSettings(filepath=filepaths['site'][0])
     buyer_settings = BuyerSettings(filepath=filepaths['buyer'][0])
-    rochandler = RocWebHandler(site_settings)
+    rochandler = RocWebHandler(url_gen)
 
     if not login(rochandler, user_settings):
         print('Error logging in.')
