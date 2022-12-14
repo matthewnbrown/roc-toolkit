@@ -7,6 +7,10 @@ from rocalert.rocpurchases.rocpurchtools \
 from .models import ArmoryModel, ArmoryPurchaseModel
 
 
+class ArmoryPurchaseError(Exception):
+    pass
+
+
 class ROCArmoryPurchaseGeneratorABC(abc.ABC):
     def generate_purchase(
             bsettings: BuyerSettings, gold: int, armmod: ArmoryModel
@@ -45,9 +49,6 @@ class ROCBuyer():
         gold = self.roc.current_gold()
         return gold >= self.buyersettings.min_gold_to_buy()
 
-    def __make_soldier_order(self, gold) -> dict:
-        pass
-
     def __make_armory_order(self, gold) -> dict:
         weaps = self.buyersettings.get_weapons_to_buy()
         return self.__create_order(weaps, gold)
@@ -55,14 +56,18 @@ class ROCBuyer():
     def __create_order(self, items, gold) -> dict:
         total = sum(items.values())
 
+        netcost = 0
+
         for item, amt in items.items():
             if amt == 0:
                 continue
             count = (gold // total * amt) // ITEM_DETAILS[item].cost
-            gold -= count * ITEM_DETAILS[item].cost
-            total -= amt
+            netcost += ITEM_DETAILS[item].cost * amt
             items[item] = count
 
+        if netcost > gold:
+            print(items)
+            raise ArmoryPurchaseError("Purchase cost of {netcost} is greater than gold ({gold})")
         return items
 
     def create_order_payload(self) -> dict:
