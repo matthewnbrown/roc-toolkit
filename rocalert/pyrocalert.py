@@ -369,6 +369,7 @@ class RocAlert:
         buy_needed = self.__check_buy_needed()
 
         if not buy_needed:
+            self.__log("Armory purchase not needed")
             return True
 
         self.__log("Attempting to purchase...")
@@ -416,6 +417,7 @@ class RocAlert:
 
         if not purchase_success:
             self.__log('Failure purchasing')
+            self.__log('Payload was: f{payload}')
         else:
             self.__log('Purchase was successful')
 

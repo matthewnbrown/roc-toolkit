@@ -67,7 +67,9 @@ class ROCBuyer():
 
         if netcost > gold:
             print(items)
-            raise ArmoryPurchaseError("Purchase cost of {netcost} is greater than gold ({gold})")
+            raise ArmoryPurchaseError(
+                f"Purchase cost of {netcost} is "
+                + f"greater than gold ({gold})")
         return items
 
     def create_order_payload(self) -> dict:
