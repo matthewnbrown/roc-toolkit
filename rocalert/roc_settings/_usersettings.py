@@ -115,6 +115,7 @@ class UserSettings(Settings):
     def auto_solve_api_key(self) -> str:
         return self.get_value('auto_captcha_key')
 
+    @property
     def use_nightmode(self) -> bool: return self.settings['enable_nightmode']
 
     @property
