@@ -119,11 +119,11 @@ class UserSettings(Settings):
     def use_nightmode(self) -> bool: return self.settings['enable_nightmode']
 
     @property
-    def nightmode_waittime_range(self) -> tuple(float, float):
+    def nightmode_waittime_range(self) -> tuple[float, float]:
         return (self.get_setting('nightmode_minwait_mins'),
                 self.get_setting('nightmode_maxwait_mins'))
 
     @property
-    def nightmode_activetime_range(self) -> tuple(time, time):
+    def nightmode_activetime_range(self) -> tuple[time, time]:
         return (self.get_setting('nightmode_begin'),
                 self.get_setting('nightmode_end'))
