@@ -4,6 +4,7 @@ import rocalert.rocpurchases.roc_buyer as roc_buyer
 from rocalert.rocpurchases.rocpurchtools \
     import ALL_ITEM_DETAILS as ITEM_DETAILS
 
+
 class MockRocWebHandler:
     def __init__(self, current_gold=None,) -> None:
         self._currentgold = current_gold
@@ -95,7 +96,6 @@ class RocBuyerTests(unittest.TestCase):
                 payload[f"buy[{ITEM_DETAILS['hook'].code}]"]),
             ('1200', '600')
         )
-
 
 
 if __name__ == "__main__":

@@ -55,7 +55,7 @@ class BuyerSettings(Settings):
 
         self.mandatory = {'buy_weapons'}
 
-        if(filepath is not None):
+        if filepath is not None:
             self.__check_valid_settings()
 
     def load_settings_from_path(self, filepath) -> None:

@@ -1,6 +1,5 @@
 import unittest
 import typing
-import time
 import datetime as dt
 
 import rocalert.services.sleeptimer as sleeptimer
@@ -80,4 +79,3 @@ class SleepTimerTest(unittest.TestCase):
             )
 
         self.assertFalse(timer.in_nightmode())
-
