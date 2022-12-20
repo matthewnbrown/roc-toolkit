@@ -127,3 +127,8 @@ class UserSettings(Settings):
     def nightmode_activetime_range(self) -> tuple[time, time]:
         return (self.get_setting('nightmode_begin'),
                 self.get_setting('nightmode_end'))
+
+    @property
+    def regular_waittimes_seconds(self) -> tuple[int, int]:
+        return (self.get_setting['min_checktime_secs'],
+                self.get_setting['max_checktime_secs'])

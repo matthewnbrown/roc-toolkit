@@ -37,10 +37,11 @@ class SleepTimer(SleepTimerABC):
         if not self._usersettings.use_nightmode:
             return False
         start, end = self._usersettings.nightmode_activetime_range
+        _time = time.time()
         if start <= end:
-            innightmode = start <= time <= end
+            innightmode = start <= _time <= end
         else:
-            innightmode = start <= time or time <= end
+            innightmode = start <= _time or _time <= end
 
         return innightmode
 
@@ -76,9 +77,7 @@ class SleepTimer(SleepTimerABC):
             waittime = (end_date - now).total_seconds + self._randomfunc(5)*60
 
     def _calculate_regular_sleeptime(self) -> float:
-        mintime = self._usersettings['min_checktime_secs']
-        maxtime = self._usersettings['max_checktime_secs']
-
+        mintime, maxtime = self._usersettings.regular_waittimes_seconds
         return self._calculate_random(mintime, maxtime)
 
     def sleep(self):
