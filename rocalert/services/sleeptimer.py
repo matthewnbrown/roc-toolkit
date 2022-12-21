@@ -70,18 +70,18 @@ class SleepTimer(SleepTimerABC):
         now = self._current_time()
 
         if not self.time_is_in_nightmode(now+waittime):
-            today_end = datetime.datetime.combine(now.date, nightmode_end)
+            today_end = datetime.datetime.combine(now.date(), nightmode_end)
 
             if now < today_end:
                 end_date = today_end
             else:
                 end_date = datetime.datetime.combine(
-                    (now + datetime.timedelta(days=1)).date, nightmode_end)
+                    (now + datetime.timedelta(days=1)).date(), nightmode_end)
 
-            waittime = (end_date - now).total_seconds + \
+            waittime_secs = (end_date - now).total_seconds() + \
                 self._randomfunc(0, self._max_postnightmode_naptime_mins)*60
 
-        return waittime.total_seconds()
+        return waittime_secs
 
     def _calculate_regular_sleeptime(self) -> float:
         mintime, maxtime = self._usersettings.regular_waittimes_seconds

@@ -20,7 +20,7 @@ class MockUserSettings:
 
 
 class SleepTimerTest(unittest.TestCase):
-    def test_when_not_overmidnight_detect_nightmode(self):
+    def test_when_not_overmidnight_should_detect_nightmode(self):
         user_settings = MockUserSettings(
             usenightmode=True,
             regular_waitrange=(60, 60),
@@ -35,7 +35,7 @@ class SleepTimerTest(unittest.TestCase):
 
         self.assertTrue(timer.in_nightmode())
 
-    def test_when_overmidnight_detect_nightmode(self):
+    def test_when_overmidnight_should_detect_nightmode(self):
         user_settings = MockUserSettings(
             usenightmode=True,
             regular_waitrange=(60, 60),
@@ -171,3 +171,28 @@ class SleepTimerTest(unittest.TestCase):
 
         self.assertGreaterEqual(wait_time, lowerbound*60)
         self.assertLessEqual(wait_time, highbound*60)
+
+    def test_when_nightmode_should_not_sleep_morethan_given_value_past_nightmode_end(self):  # noqa: 501
+        max_mins_past_nightmode = 15
+        user_settings = MockUserSettings(
+            usenightmode=True,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(6, 0, 0)),
+            nightmode_waitrange=(60, 120))
+
+        curtime = dt.datetime(
+            year=2022, month=12, day=25, hour=5, minute=50, second=0)
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: y,
+            current_time_getter=lambda: curtime,
+            max_postnightmode_sleeptime_mins=max_mins_past_nightmode
+            )
+
+        sleeplength = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(sleeplength, 600)
+        self.assertLessEqual(sleeplength, 25*60)
+
+
