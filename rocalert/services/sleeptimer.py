@@ -1,6 +1,5 @@
 import abc
 import datetime
-import time
 import random
 import typing
 
@@ -12,7 +11,7 @@ class SleepTimerException(Exception):
 
 
 class SleepTimerABC(abc.ABC):
-    def sleep():
+    def calculate_sleeptime():
         raise NotImplementedError("SleepTimerABC is an abstract class")
 
 
@@ -55,7 +54,7 @@ class SleepTimer(SleepTimerABC):
         if mintime > maxtime:
             mintime, maxtime = maxtime, mintime
 
-        mintime + int(self._randomfunc(0, 1) * (maxtime - mintime))
+        return mintime + int(self._randomfunc(0, 1) * (maxtime - mintime))
 
     def _calculate_nightmode_sleeptime(self) -> float:
         _, nightmode_end = self._usersettings.nightmode_activetime_range
@@ -80,10 +79,10 @@ class SleepTimer(SleepTimerABC):
         mintime, maxtime = self._usersettings.regular_waittimes_seconds
         return self._calculate_random(mintime, maxtime)
 
-    def sleep(self):
+    def calculate_sleeptime(self):
         if self.in_nightmode():
             sleeptime = self._calculate_nightmode_sleeptime()
         else:
             sleeptime = self._calculate_regular_sleeptime()
 
-        time.sleep(sleeptime)
+        return sleeptime
