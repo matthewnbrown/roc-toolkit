@@ -79,3 +79,95 @@ class SleepTimerTest(unittest.TestCase):
             )
 
         self.assertFalse(timer.in_nightmode())
+
+    def test_when_nightmode_disabled_and_within_nightmode_hours_not_innightmode(self):  # noqa: 501
+        user_settings = MockUserSettings(
+            usenightmode=False,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(12, 0, 0)),
+            nightmode_waitrange=(60, 120))
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: (y-x)/2,
+            current_time_getter=lambda: dt.datetime
+            (year=2022, month=12, day=25, hour=6, minute=0, second=1)
+            )
+
+        self.assertFalse(timer.in_nightmode())
+
+    def test_when_nightmode_disabled_and_notwithin_nightmode_hours_not_innightmode(self):  # noqa: 501
+        user_settings = MockUserSettings(
+            usenightmode=False,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(12, 0, 0)),
+            nightmode_waitrange=(60, 120))
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: (y-x)/2,
+            current_time_getter=lambda: dt.datetime
+            (year=2022, month=12, day=25, hour=13, minute=0, second=1)
+            )
+
+        self.assertFalse(timer.in_nightmode())
+
+    def test_when_nightmode_lowrange_withinbounds(self):  # noqa: 501
+        lowerbound, highbound = 60, 120
+        user_settings = MockUserSettings(
+            usenightmode=True,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(12, 0, 0)),
+            nightmode_waitrange=(lowerbound, highbound))
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: x,
+            current_time_getter=lambda: dt.datetime
+            (year=2022, month=12, day=25, hour=6, minute=0, second=1)
+            )
+
+        wait_time = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(wait_time, lowerbound*60)
+        self.assertLessEqual(wait_time, highbound*60)
+
+    def test_when_nightmode_highrange_withinbounds(self):  # noqa: 501
+        lowerbound, highbound = 60, 120
+        user_settings = MockUserSettings(
+            usenightmode=True,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(12, 0, 0)),
+            nightmode_waitrange=(lowerbound, highbound))
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: y,
+            current_time_getter=lambda: dt.datetime
+            (year=2022, month=12, day=25, hour=6, minute=0, second=1)
+            )
+
+        wait_time = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(wait_time, lowerbound*60)
+        self.assertLessEqual(wait_time, highbound*60)
+
+    def test_when_nightmode_midrange_withinbounds(self):  # noqa: 501
+        lowerbound, highbound = 60, 120
+        user_settings = MockUserSettings(
+            usenightmode=True,
+            regular_waitrange=(60, 60),
+            nightmode_activerange=(dt.time(0, 0, 0), dt.time(12, 0, 0)),
+            nightmode_waitrange=(lowerbound, highbound))
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: (y-x)/2,
+            current_time_getter=lambda: dt.datetime
+            (year=2022, month=12, day=25, hour=6, minute=0, second=1)
+            )
+
+        wait_time = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(wait_time, lowerbound*60)
+        self.assertLessEqual(wait_time, highbound*60)
