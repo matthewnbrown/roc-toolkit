@@ -195,4 +195,62 @@ class SleepTimerTest(unittest.TestCase):
         self.assertGreaterEqual(sleeplength, 600)
         self.assertLessEqual(sleeplength, 25*60)
 
+    def test_when_regularmode_midrange_withinbounds(self):  # noqa: 501
+        lowend, highend = 300, 600
+        user_settings = MockUserSettings(
+            usenightmode=False,
+            regular_waitrange=(lowend, highend))
 
+        curtime = dt.datetime(
+            year=2022, month=12, day=25, hour=5, minute=50, second=0)
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: (y-x)/2,
+            current_time_getter=lambda: curtime
+            )
+
+        sleeplength = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(sleeplength, lowend)
+        self.assertLessEqual(sleeplength, highend)
+
+    def test_when_regularmode_lowend_withinbounds(self):  # noqa: 501
+        lowend, highend = 300, 600
+        user_settings = MockUserSettings(
+            usenightmode=False,
+            regular_waitrange=(lowend, highend))
+
+        curtime = dt.datetime(
+            year=2022, month=12, day=25, hour=5, minute=50, second=0)
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: x,
+            current_time_getter=lambda: curtime
+            )
+
+        sleeplength = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(sleeplength, lowend)
+        self.assertLessEqual(sleeplength, highend)
+
+    def test_when_regularmode_highend_withinbounds(self):  # noqa: 501
+        lowend, highend = 300, 600
+        user_settings = MockUserSettings(
+            usenightmode=False,
+            regular_waitrange=(lowend, highend))
+
+        curtime = dt.datetime(
+            year=2022, month=12, day=25, hour=5, minute=50, second=0)
+
+        timer = sleeptimer.SleepTimer(
+            user_settings=user_settings,
+            randomlowhigh=lambda x, y: y,
+            current_time_getter=lambda: curtime
+            )
+
+        sleeplength = timer.calculate_sleeptime()
+
+        self.assertGreaterEqual(sleeplength, lowend)
+        self.assertLessEqual(sleeplength, highend)

@@ -65,11 +65,12 @@ class SleepTimer(SleepTimerABC):
         _, nightmode_end = self._usersettings.nightmode_activetime_range
         mintime, maxtime = self._usersettings.nightmode_waittime_range
 
-        waittime_secs = 60*self._calculate_random(mintime, maxtime)
-        waittime = datetime.timedelta(seconds=waittime_secs)
+        waittime_mins = self._calculate_random(mintime, maxtime)
+        waittime = datetime.timedelta(minutes=waittime_mins)
         now = self._current_time()
 
-        if not self.time_is_in_nightmode(now+waittime):
+        sleep_overflows_waketime = not self.time_is_in_nightmode(now+waittime)
+        if sleep_overflows_waketime:
             today_end = datetime.datetime.combine(now.date(), nightmode_end)
 
             if now < today_end:
@@ -78,14 +79,27 @@ class SleepTimer(SleepTimerABC):
                 end_date = datetime.datetime.combine(
                     (now + datetime.timedelta(days=1)).date(), nightmode_end)
 
-            waittime_secs = (end_date - now).total_seconds() + \
-                self._randomfunc(0, self._max_postnightmode_naptime_mins)*60
+            waittime_mins = (end_date - now).total_seconds()//60 + \
+                self._randomfunc(0, self._max_postnightmode_naptime_mins)
 
-        return waittime_secs
+        if (mintime > waittime_mins and not sleep_overflows_waketime
+                or maxtime < waittime_mins):
+            msg = ("Nightmode sleep time fell out of range: "
+                   + f"{mintime} <= {waittime_mins} <= {maxtime}")
+            raise SleepTimerException(msg)
+
+        return waittime_mins * 60
 
     def _calculate_regular_sleeptime(self) -> float:
         mintime, maxtime = self._usersettings.regular_waittimes_seconds
-        return self._calculate_random(mintime, maxtime)
+        sleeptime = self._calculate_random(mintime, maxtime)
+
+        if sleeptime > maxtime or sleeptime < mintime:
+            msg = ("Regular sleep time fell out of range: "
+                   + f"{mintime} <= {sleeptime} <= {maxtime}")
+            raise SleepTimerException(msg)
+
+        return sleeptime
 
     def calculate_sleeptime(self):
         if self.in_nightmode():
