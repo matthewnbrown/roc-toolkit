@@ -62,7 +62,7 @@ class ROCBuyer():
             if amt == 0:
                 continue
             count = (gold // total * amt) // ITEM_DETAILS[item].cost
-            netcost += ITEM_DETAILS[item].cost * amt
+            netcost += ITEM_DETAILS[item].cost * count
             items[item] = count
 
         if netcost > gold:

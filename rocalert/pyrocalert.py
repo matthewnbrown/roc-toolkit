@@ -417,7 +417,7 @@ class RocAlert:
 
         if not purchase_success:
             self.__log('Failure purchasing')
-            self.__log('Payload was: f{payload}')
+            self.__log(f'Payload was: {payload}')
         else:
             self.__log('Purchase was successful')
 

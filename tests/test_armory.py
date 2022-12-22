@@ -97,6 +97,18 @@ class RocBuyerTests(unittest.TestCase):
             ('1200', '600')
         )
 
+    def test_low_gold_buying_blades_should_buy_nothing(self):
+        roc = MockRocWebHandler(current_gold=91929)
+        buyersettings = MockBuyerSettings(
+            min_gold_to_buy=90000000,
+            blade=1
+        )
+
+        buyer = roc_buyer.ROCBuyer(roc, buyersettings)
+        payload = buyer.create_order_payload()
+
+        self.assertEqual(payload[f"buy[{ITEM_DETAILS['blade'].code}]"], '0')
+
 
 if __name__ == "__main__":
     unittest.main()
