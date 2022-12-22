@@ -15,6 +15,12 @@ class BattlefieldTarget:
         self.tfftype = tfftype
         self.gold = gold
 
+    def __str__(self) -> str:
+        return "Rank {:<4} {:^26} | {:^6} | {:^20} | {:<29}".format(
+            self.rank, self.name, self.alliance,
+            f'{"{:,}".format(self.tff)} {self.tfftype}',
+            "{:,}".format(self.gold) + " Gold")
+
 
 class ROCStats:
     STAT_IDS = {'keyfound', 'lastactive', 'rank', 'highestrank',

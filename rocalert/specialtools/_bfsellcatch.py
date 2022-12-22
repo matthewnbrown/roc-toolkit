@@ -90,11 +90,16 @@ class BFSellCatch:
 
         while True:
             for pnum in range(lowpage, highpage+1):
-                targets = self._bfps.run_service(self._roc, pnum)
-                print(f'Page {pnum}: {len(targets["result"])} users')
-                for target in targets['result']:
+                targets = self._bfps.run_service(self._roc, pnum)['result']
+                targets.sort(reverse=True, key=lambda x: x.gold)
+
+                print(f'Top Page {pnum}: {targets[0]}')
+
+                for target in targets:
                     if shouldhit(target):
                         self._attack_target(target)
                         self._buy()
+                    else:
+                        break
 
                 time.sleep(pagedelay)
