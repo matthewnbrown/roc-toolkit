@@ -37,6 +37,10 @@ class ROCUrlGenerator(abc.ABC):
     def get_login() -> str:
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def get_keep() -> str:
+        raise NotImplementedError()
+
 
 class ROCDecryptUrlGenerator(ROCUrlGenerator):
     def __init__(self) -> None:
@@ -50,6 +54,7 @@ class ROCDecryptUrlGenerator(ROCUrlGenerator):
             'roc_login': self._rocburl + 'login.php',
             'roc_training': self._rocburl + 'train.php',
             'roc_recruit': self._rocburl + 'recruiter.php',
+            'roc_keep': self._rocburl + 'keep.php'
         }
 
     def get_page_url(self, page: str) -> str:
@@ -74,6 +79,9 @@ class ROCDecryptUrlGenerator(ROCUrlGenerator):
 
     def get_login(self) -> str:
         return self.get_page_url('roc_login')
+
+    def get_keep(self) -> str:
+        return self.get_page_url('roc_keep')
 
 
 class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):

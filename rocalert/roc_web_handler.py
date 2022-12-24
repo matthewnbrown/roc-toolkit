@@ -96,6 +96,7 @@ class RocWebHandler:
                             + 'AppleWebKit/537.36 (KHTML, like Gecko) '
                             + 'Chrome/107.0.0.0 Safari/537.36',
             }
+
         self._urlgenerator = urlgenerator
         self.session = requests.Session()
 
@@ -112,6 +113,7 @@ class RocWebHandler:
         return self.__go_to_page(url)
 
     def __go_to_page(self, url) -> requests.Response:
+
         try:
             self.r = self.session.get(
                 url,
@@ -328,6 +330,9 @@ class RocWebHandler:
     def go_to_training(self) -> None:
         self.__go_to_page(self._urlgenerator.get_training())
 
+    def go_to_keep(self) -> None:
+        self.__go_to_page(self._urlgenerator.get_keep())
+
     def get_response(self) -> requests.Response:
         return self.r
 
@@ -336,9 +341,6 @@ class RocWebHandler:
         return self.__page_captcha_type()
 
     def send_armory_order(self, payload: dict):
-        pass
-
-    def __makesoup(resp) -> BeautifulSoup:
         pass
 
     def get_training_page(self) -> pages.RocTrainingPage:
@@ -350,6 +352,11 @@ class RocWebHandler:
         self.go_to_armory()
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return pages.RocArmoryPage(soup)
+
+    def get_keep_page(self) -> pages.RocKeepPage:
+        self.go_to_keep()
+        soup = BeautifulSoup(self.r.text, _BS_PARSER)
+        return pages.RocKeepPage(soup)
 
     @property
     def url_generator(self) -> ROCUrlGenerator:
