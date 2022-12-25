@@ -358,6 +358,9 @@ class RocWebHandler:
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return pages.RocKeepPage(soup)
 
+    def start_key_repair(self) -> None:
+        pass
+
     @property
     def url_generator(self) -> ROCUrlGenerator:
         return self._urlgenerator

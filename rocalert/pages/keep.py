@@ -1,6 +1,6 @@
 import rocalert.pages.genericpages as genpages
 from bs4 import BeautifulSoup
-import datetime
+import datetime as dt
 
 
 class RocKeepPage(genpages.RocUserPage):
@@ -37,7 +37,7 @@ class RocKeepPage(genpages.RocUserPage):
         return self._repfinishtime is not None
 
     @property
-    def finish_repair_time(self) -> datetime:
+    def finish_repair_time(self) -> dt.datetime:
         return self._repfinishtime
 
     @property
