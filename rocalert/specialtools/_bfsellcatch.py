@@ -36,7 +36,9 @@ class BFSellCatch:
             self._battlefield.extend(newuser)
 
     def _attack_target(self, target: BattlefieldTarget):
-        print(f'Attacking {target.name} with {target.gold:,} gold')
+        alliance = '-' if target.alliance is None else target.alliance
+        print(f'Attacking {target.name} | {alliance}'
+              + ' with {target.gold:,} gold')
         self._attackservice.run_service(self._roc, target, self._capsolver)
 
     def _buy(self):
@@ -48,7 +50,7 @@ class BFSellCatch:
                 itemcount += int(ic)
 
         if itemcount == 0:
-            self.__log('Purchase payload is only 0 items.')
+            print('Purchase payload is only 0 items.')
             return True
 
         print(f'Purchasing {itemcount} items')

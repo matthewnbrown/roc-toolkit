@@ -16,8 +16,9 @@ class BattlefieldTarget:
         self.gold = gold
 
     def __str__(self) -> str:
+        alliance = '' if self.alliance is None else self.alliance
         return "Rank {:<4} {:^26} | {:^6} | {:^20} | {:<29}".format(
-            self.rank, self.name, self.alliance,
+            self.rank, self.name, alliance,
             f'{"{:,}".format(self.tff)} {self.tfftype}',
             "{:,}".format(self.gold) + " Gold")
 
