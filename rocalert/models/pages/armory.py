@@ -1,4 +1,4 @@
-import rocalert.pages.genericpages as gp
+import rocalert.models.pages.genericpages as gp
 import rocalert.models as models
 
 

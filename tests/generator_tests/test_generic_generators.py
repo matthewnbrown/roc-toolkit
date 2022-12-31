@@ -1,8 +1,8 @@
 import unittest
 
 from .pagehelpers import getsoup
-import rocalert.pages.genericpages as gp
-import rocalert.pages.generators as generators
+import rocalert.models.pages.genericpages as gp
+import rocalert.pagegenerators as generators
 
 
 class StatsTableTest(unittest.TestCase):

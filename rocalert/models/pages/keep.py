@@ -1,10 +1,10 @@
 import datetime as dt
 import dataclasses
 
-import rocalert.pages.genericpages as gp
+import rocalert.models.pages.genericpages as gp
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass
 class KeepDetails:
     repairing: bool
     finish_repair_time: dt.datetime
@@ -12,6 +12,6 @@ class KeepDetails:
     broken_key_count: int
 
 
-@dataclasses.dataclass(frozen=True)
+@dataclasses.dataclass
 class KeepPage(gp.RocPage, gp.TurnBoxPage):
     keep: KeepDetails

@@ -2,8 +2,8 @@ import typing
 import datetime as dt
 import dataclasses
 
-from rocalert.pages.training import RocTrainingTableEntry
-from rocalert.pages.genericpages import WeaponDistTableEntry
+from rocalert.models.pages.training import RocTrainingTableEntry
+from rocalert.models.pages.genericpages import WeaponDistTableEntry
 
 
 @dataclasses.dataclass

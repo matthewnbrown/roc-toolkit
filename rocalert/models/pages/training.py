@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-import rocalert.pages.genericpages as gp
+import rocalert.models.pages.genericpages as gp
 
 
 @dataclass

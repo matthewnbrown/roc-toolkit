@@ -10,7 +10,7 @@ from .captcha.captcha_logger import CaptchaLogger
 from .cookiehelper import save_cookies_to_path, \
     load_cookies_from_path, load_cookies_from_browser
 
-import rocalert.pages as pages
+import rocalert.models.pages as pages
 import bs4
 import io
 import PIL.Image

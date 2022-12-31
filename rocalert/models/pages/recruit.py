@@ -1,7 +1,7 @@
 import datetime as dt
 import dataclasses
 
-import rocalert.pages.genericpages as gp
+import rocalert.models.pages.genericpages as gp
 import rocalert.models as rocmodels
 
 

@@ -1,6 +1,6 @@
 import datetime as dt
 
-from rocalert.pages.keep import KeepPage
+from rocalert.models.pages.keep import KeepPage
 from rocalert.roc_web_handler import RocWebHandler
 
 

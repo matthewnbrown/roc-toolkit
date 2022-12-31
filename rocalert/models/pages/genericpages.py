@@ -15,14 +15,14 @@ def int_to_rocnum(num: int):
     return f'{num:,}'
 
 
-@dataclass(frozen=True)
+@dataclass
 class RocPage:
     page_type: rocenums.RocPageType
     creation_date: datetime
     logged_in: bool
 
 
-@dataclass(frozen=True)
+@dataclass
 class TurnBoxPage:
     name: str
     rank: int
@@ -31,19 +31,19 @@ class TurnBoxPage:
     next_turn: datetime
 
 
-@dataclass(frozen=True)
+@dataclass
 class CaptchaPage:
     captcha_hash: str
 
 
-@dataclass(frozen=True)
+@dataclass
 class StatTableEntry:
     bonus: float
     action: int
     rank: int
 
 
-@dataclass(frozen=True)
+@dataclass
 class StatTable:
     strike: StatTableEntry
     defense: StatTableEntry
@@ -53,13 +53,13 @@ class StatTable:
     kill_ratio: float
 
 
-@dataclass(frozen=True)
+@dataclass
 class WeaponDistTableEntry:
     soldiers: int
     weapon_count: Optional[int] = None
 
 
-@dataclass(frozen=True)
+@dataclass
 class WeaponTroopDistTable:
     attack_wt_dist: WeaponDistTableEntry
     defense_wt_dist: WeaponDistTableEntry

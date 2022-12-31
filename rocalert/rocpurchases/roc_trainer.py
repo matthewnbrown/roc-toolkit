@@ -2,7 +2,7 @@ import abc
 
 from ..roc_settings import TrainerSettings
 from rocalert.models import TrainingPurchaseModel
-import rocalert.pages as pages
+import rocalert.models.pages as pages
 
 
 class ROCTrainingPayloadCreatorABC(abc.ABC):

@@ -1,10 +1,10 @@
 from dataclasses import dataclass
 from typing import Tuple
-import rocalert.pages.genericpages as gp
+import rocalert.models.pages.genericpages as gp
 import datetime as dt
 
 
-@dataclass(frozen=True)
+@dataclass
 class RocEvent:
     name: str
     description: str
@@ -12,13 +12,13 @@ class RocEvent:
     is_active: bool
 
 
-@dataclass(frozen=True)
+@dataclass
 class RocActivity:
     date: dt.datetime
     activity_text: str
 
 
-@dataclass(frozen=True)
+@dataclass
 class BaseDetails:
     alliance: Tuple[str, str]
     commander: Tuple[str, str]

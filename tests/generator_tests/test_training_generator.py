@@ -1,8 +1,8 @@
 import unittest
 
 from .pagehelpers import getsoup
-import rocalert.pages.training as roctraining
-import rocalert.pages.generators as generators
+import rocalert.models.pages.training as roctraining
+import rocalert.pagegenerators as generators
 
 
 class TrainingPageTest(unittest.TestCase):

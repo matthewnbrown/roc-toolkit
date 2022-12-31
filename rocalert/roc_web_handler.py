@@ -3,7 +3,8 @@ from http.client import RemoteDisconnected
 from urllib3 import Retry
 import datetime
 
-import rocalert.pages as pages
+import rocalert.models.pages as pages
+from rocalert.pagegenerators import ROCPageGeneratorABC
 from rocalert.services.urlgenerator import ROCUrlGenerator
 from .captcha.pyroccaptchaselector import ROCCaptchaSelector
 
@@ -77,7 +78,7 @@ class RocWebHandler:
             self,
             urlgenerator: ROCUrlGenerator,
             default_headers: dict[str, str] = None,
-            page_generator: pages.generators.ROCPageGeneratorABC = None
+            page_generator: ROCPageGeneratorABC = None
             ) -> None:
 
         if page_generator is None:

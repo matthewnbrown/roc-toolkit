@@ -1,8 +1,8 @@
 import unittest
 
 from .pagehelpers import getsoup
-import rocalert.pages.keep as rockeep
-import rocalert.pages.generators as generators
+import rocalert.models.pages.keep as rockeep
+import rocalert.pagegenerators as generators
 
 
 class KeepPageTest(unittest.TestCase):
