@@ -39,8 +39,8 @@ class BaseDetails:
     turn_based_gold: int
 
 
-@dataclass(frozen=True)
-class BasePage(gp.RocPage, gp.TurnBox):
+@dataclass
+class BasePage(gp.RocPage, gp.TurnBoxPage):
     base: BaseDetails
     stats: gp.StatTable
     weapon_distribution: gp.WeaponTroopDistTable

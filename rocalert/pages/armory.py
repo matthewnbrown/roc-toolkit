@@ -2,7 +2,7 @@ import rocalert.pages.genericpages as gp
 import rocalert.models as models
 
 
-class ArmoryPage(gp.RocPage, gp.TurnBox, gp.CaptchaStatus):
+class ArmoryPage(gp.RocPage, gp.TurnBoxPage, gp.CaptchaPage):
     armory:  models.ArmoryModel
     stats: gp.StatTable
     weapon_distribution: gp.WeaponTroopDistTable

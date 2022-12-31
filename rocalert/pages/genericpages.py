@@ -23,7 +23,7 @@ class RocPage:
 
 
 @dataclass(frozen=True)
-class TurnBox:
+class TurnBoxPage:
     name: str
     rank: int
     gold: int
@@ -32,7 +32,7 @@ class TurnBox:
 
 
 @dataclass(frozen=True)
-class CaptchaStatus:
+class CaptchaPage:
     captcha_hash: str
 
 

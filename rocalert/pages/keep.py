@@ -13,5 +13,5 @@ class KeepDetails:
 
 
 @dataclasses.dataclass(frozen=True)
-class KeepPage(gp.RocPage, gp.TurnBox):
+class KeepPage(gp.RocPage, gp.TurnBoxPage):
     keep: KeepDetails
