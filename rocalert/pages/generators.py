@@ -4,7 +4,7 @@ import dataclasses
 from typing import Tuple
 from bs4 import BeautifulSoup
 
-from rocalert.logging import DateTimeGeneratorABC, DateTimeNowGenerator
+from rocalert.logging import DateTimeGeneratorABC
 import rocalert.models as rocmodels
 import rocalert.enums as rocenums
 import rocalert.pages.genericpages as gp
@@ -18,7 +18,8 @@ import rocalert.pages.training as roctraining
 def dataclass_from_dict(klass, d):
     try:
         fieldtypes = {f.name: f.type for f in dataclasses.fields(klass)}
-        return klass(**{f: dataclass_from_dict(fieldtypes[f], d[f]) for f in d})
+        return klass(**{f: dataclass_from_dict(
+            fieldtypes[f], d[f]) for f in d})
     except: # noqa E722
         return d  # Not a dataclass field
 
@@ -81,14 +82,13 @@ class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
         page.creation_date = self._timegenerator.get_current_time()
         page.logged_in = self._is_loggedin(soup)
 
-
     @staticmethod
     def _detect_pagetype(soup: BeautifulSoup) -> rocenums.RocPageType:
         pass
 
     @staticmethod
     def _generate_base(soup: BeautifulSoup) -> rocbase.BasePage:
-        pass
+        return rocbase.BasePage()
 
     @staticmethod
     def _generate_training(soup: BeautifulSoup) -> roctraining.TrainingPage:
@@ -123,6 +123,12 @@ class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
 class RocPageGenerator:
     @classmethod
     def generate(cls, soup: BeautifulSoup) -> gp.RocPage:
+        pass
+
+
+class TurnBoxGenerator:
+    @classmethod
+    def generate(cls, pagesoup: BeautifulSoup) -> gp.TurnBoxPage:
         pass
 
 
