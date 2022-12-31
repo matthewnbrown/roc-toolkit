@@ -23,12 +23,17 @@ class RocPage:
 
 
 @dataclass
-class TurnBoxPage:
+class ClockBar:
     name: str
     rank: int
     gold: int
     turns: int
     next_turn: datetime
+
+
+@dataclass
+class ClockBarPage:
+    clock_bar: ClockBar
 
 
 @dataclass
@@ -54,6 +59,11 @@ class StatTable:
 
 
 @dataclass
+class StatTablePage:
+    stat_table: StatTable
+
+
+@dataclass
 class WeaponDistTableEntry:
     soldiers: int
     weapon_count: Optional[int] = None
@@ -68,3 +78,8 @@ class WeaponTroopDistTable:
     total_covert_force: WeaponDistTableEntry
     untrained_soldiers: WeaponDistTableEntry
     total_fighting_force: WeaponDistTableEntry
+
+
+@dataclass
+class WeaponTroopDistPage:
+    weapon_dist_table: WeaponTroopDistTable

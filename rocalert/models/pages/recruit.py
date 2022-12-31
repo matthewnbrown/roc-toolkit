@@ -13,5 +13,5 @@ class RecruitDetails:
     requires_captcha: bool = False
 
 
-class RecruitPage(gp.RocPage, gp.TurnBoxPage):
+class RecruitPage(gp.RocPage, gp.ClockBarPage):
     recruit: RecruitDetails
