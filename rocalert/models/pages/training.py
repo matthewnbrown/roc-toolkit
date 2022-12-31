@@ -34,7 +34,10 @@ class TrainingDetails:
 
 
 @dataclass
-class TrainingPage(gp.RocPage, gp.ClockBarPage, gp.CaptchaPage):
-    training: TrainingDetails
-    stats: gp.StatTable
-    weapon_distrubtion: gp.WeaponTroopDistTable
+class TrainingPage(
+        gp.RocPage,
+        gp.ClockBarPage,
+        gp.CaptchaPage,
+        gp.StatTablePage,
+        gp.WeaponTroopDistPage):
+    training: TrainingDetails = None

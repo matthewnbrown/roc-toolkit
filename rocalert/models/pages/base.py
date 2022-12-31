@@ -48,7 +48,9 @@ class BaseDetails:
 
 
 @dataclass
-class BasePage(gp.RocPage, gp.ClockBarPage):
+class BasePage(
+        gp.RocPage,
+        gp.ClockBarPage,
+        gp.StatTablePage,
+        gp.WeaponTroopDistPage):
     base: BaseDetails
-    stats: gp.StatTable
-    weapon_distribution: gp.WeaponTroopDistTable
