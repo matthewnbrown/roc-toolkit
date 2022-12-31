@@ -6,20 +6,20 @@ from rocalert.enums import Weapon
 
 @dataclasses.dataclass
 class ArmoryModel:
-    dagger: ItemCostPair = ItemCostPair()
-    maul: ItemCostPair = ItemCostPair()
-    blade: ItemCostPair = ItemCostPair()
-    excalibur: ItemCostPair = ItemCostPair()
-    sai: ItemCostPair = ItemCostPair()
-    shield: ItemCostPair = ItemCostPair()
-    mithril: ItemCostPair = ItemCostPair()
-    dragonskin: ItemCostPair = ItemCostPair()
-    cloak: ItemCostPair = ItemCostPair()
-    hook: ItemCostPair = ItemCostPair()
-    pickaxe: ItemCostPair = ItemCostPair()
-    horn: ItemCostPair = ItemCostPair()
-    guard_dog: ItemCostPair = ItemCostPair()
-    torch: ItemCostPair = ItemCostPair()
+    dagger: ItemCostPair = None
+    maul: ItemCostPair = None
+    blade: ItemCostPair = None
+    excalibur: ItemCostPair = None
+    sai: ItemCostPair = None
+    shield: ItemCostPair = None
+    mithril: ItemCostPair = None
+    dragonskin: ItemCostPair = None
+    cloak: ItemCostPair = None
+    hook: ItemCostPair = None
+    pickaxe: ItemCostPair = None
+    horn: ItemCostPair = None
+    guard_dog: ItemCostPair = None
+    torch: ItemCostPair = None
 
     @property
     def total_attack_weapons(self) -> int:
@@ -71,4 +71,3 @@ class ArmoryModel:
                 return self.guard_dog
             case Weapon.TORCH:
                 return self.torch
-

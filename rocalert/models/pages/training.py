@@ -11,26 +11,26 @@ class RocTrainingTableEntry:
 
 @dataclass
 class TrainingDetails:
-    attack_soldiers: RocTrainingTableEntry
-    attack_mercenaries: RocTrainingTableEntry
-    defense_soldiers: RocTrainingTableEntry
-    defense_mercenaries: RocTrainingTableEntry
-    untrained_soldiers: RocTrainingTableEntry
-    untrained_mercenaries: RocTrainingTableEntry
-    spies: RocTrainingTableEntry
-    sentries: RocTrainingTableEntry
-    zombies: RocTrainingTableEntry
-    total_soldiers: RocTrainingTableEntry
-    total_mercenaries: RocTrainingTableEntry
-    total_covert_force: RocTrainingTableEntry
-    total_fighting_force: RocTrainingTableEntry
-    avail_attack_mercs: RocTrainingTableEntry
-    avail_defense_mercs: RocTrainingTableEntry
-    avail_untrained_mercs: RocTrainingTableEntry
-    attack_sold_cost: int
-    defense_sold_cost: int
-    spy_sold_cost: int
-    sentry_sold_cost: int
+    attack_soldiers: RocTrainingTableEntry = None
+    attack_mercenaries: RocTrainingTableEntry = None
+    defense_soldiers: RocTrainingTableEntry = None
+    defense_mercenaries: RocTrainingTableEntry = None
+    untrained_soldiers: RocTrainingTableEntry = None
+    untrained_mercenaries: RocTrainingTableEntry = None
+    spies: RocTrainingTableEntry = None
+    sentries: RocTrainingTableEntry = None
+    zombies: RocTrainingTableEntry = None
+    total_soldiers: RocTrainingTableEntry = None
+    total_mercenaries: RocTrainingTableEntry = None
+    total_covert_force: RocTrainingTableEntry = None
+    total_fighting_force: RocTrainingTableEntry = None
+    avail_attack_mercs: RocTrainingTableEntry = None
+    avail_defense_mercs: RocTrainingTableEntry = None
+    avail_untrained_mercs: RocTrainingTableEntry = None
+    attack_sold_cost: int = -1
+    defense_sold_cost: int = -1
+    spy_sold_cost: int = -1
+    sentry_sold_cost: int = -1
 
 
 @dataclass

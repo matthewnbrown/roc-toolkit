@@ -1,8 +1,17 @@
 from bs4 import BeautifulSoup
+import dataclasses
 
-from .generatortools import dataclass_from_dict
 import rocalert.models.pages.genericpages as gp
 import rocalert.models as rocmodels
+
+
+def _dataclass_from_dict(klass, d):
+    try:
+        fieldtypes = {f.name: f.type for f in dataclasses.fields(klass)}
+        return klass(**{f: _dataclass_from_dict(
+            fieldtypes[f], d[f]) for f in d})
+    except: # noqa E722
+        return d  # Not a dataclass field
 
 
 class ArmoryDetailsGenerator:
@@ -12,7 +21,7 @@ class ArmoryDetailsGenerator:
         armory = content.find(id='armory')
         weaponmap = cls._parseweapons_map(armory)
 
-        armorymodel = dataclass_from_dict(rocmodels.ArmoryModel, weaponmap)
+        armorymodel = _dataclass_from_dict(rocmodels.ArmoryModel, weaponmap)
         return armorymodel
 
     @classmethod
@@ -44,5 +53,3 @@ class ArmoryDetailsGenerator:
                 cost=gp.rocnum_to_int(cost))
 
         return weapons
-
-

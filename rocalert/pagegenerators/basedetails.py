@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 from typing import Tuple
 import datetime as dt
 
-from .generatortools import dataclass_from_dict, timestamp_to_datetime
+from .generatortools import timestamp_to_datetime
 import rocalert.models.pages.base as rocbase
 
 
@@ -12,13 +12,13 @@ class BaseDetailsGenerator:
     def generate(cls, soup: BeautifulSoup) -> rocbase.BaseDetails:
         base_container = soup.find(id='base_container')
 
-        basedetails = {}
+        basedetails = rocbase.BaseDetails()
         cls._get_base_details(base_container, basedetails)
         cls._get_events(base_container, basedetails)
         cls._get_recent_activity(base_container, basedetails)
         cls._get_soldier_source_table(base_container, basedetails)
         cls._get_personal_totals_table(base_container, basedetails)
-        return dataclass_from_dict(rocbase.BaseDetails, basedetails)
+        return basedetails
 
     @classmethod
     def _get_base_details(
@@ -31,11 +31,12 @@ class BaseDetailsGenerator:
     def _get_events(
             cls,
             base_container: BeautifulSoup,
-            basedetails: dict) -> list[rocbase.RocEvent]:
+            basedetails: rocbase.BaseDetails) -> None:
         eventlist = base_container.find(id='events')
         listitems = eventlist.findChildren(
             'li', {'class', 'td'}, recursive=False)
-        events = []
+        current_events = []
+        upcoming_events = []
 
         def is_event(eventsoup: BeautifulSoup) -> bool:
             isevent = eventsoup.find('span', {'class': 'countdown'})
@@ -59,25 +60,30 @@ class BaseDetailsGenerator:
             if not is_event(event):
                 continue
 
-            events.append(
-                rocbase.RocEvent(
+            rocevent = rocbase.RocEvent(
                     get_name(event), get_desc(event),
                     get_date(event), is_current(event))
-            )
-        return events
+
+            if is_current(event):
+                current_events.append(rocevent)
+            else:
+                upcoming_events.append(rocevent)
+
+        basedetails.current_events = current_events
+        basedetails.upcoming_events = upcoming_events
 
     @classmethod
     def _get_soldier_source_table(
             cls,
             base_container: BeautifulSoup,
-            basedetails: dict) -> None:
+            basedetails: rocbase.BaseDetails) -> None:
         pass
 
     @classmethod
     def _get_recent_activity(
             cls, base_container: BeautifulSoup,
-            basedetails: dict
-            ) -> list[rocbase.RocActivity]:
+            basedetails: rocbase.BaseDetails
+            ) -> None:
         recent_activity = []
         alog = base_container.find(id='activitylog_panel')
         acts = alog.findChildren('div', {'class': 'info_container'})
@@ -89,18 +95,18 @@ class BaseDetailsGenerator:
             act_text = children[1].text
             recent_activity.append(rocbase.RocActivity(act_date, act_text))
 
-        return recent_activity
+        basedetails.recent_activity = recent_activity
 
     @classmethod
     def _get_personal_totals_table(
             cls, base_container: BeautifulSoup,
-            basedetails: dict
+            basedetails: rocbase.BaseDetails
             ) -> None:
         pass
 
     @classmethod
     def _get_officers(
             cls, base_container: BeautifulSoup,
-            basedetails: dict
+            basedetails: rocbase.BaseDetails
             ) -> list[Tuple[str, str]]:
         pass
