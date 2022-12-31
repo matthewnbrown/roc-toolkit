@@ -1,7 +1,9 @@
 from dataclasses import dataclass
 from typing import Tuple
-import rocalert.models.pages.genericpages as gp
 import datetime as dt
+
+import rocalert.models.pages.genericpages as gp
+import rocalert.enums as rocenums
 
 
 @dataclass
@@ -19,24 +21,30 @@ class RocActivity:
 
 
 @dataclass
+class RocArmy:
+    Size: int
+    Race: rocenums.RocRace
+
+
+@dataclass
 class BaseDetails:
-    alliance: Tuple[str, str]
-    commander: Tuple[str, str]
-    officers: list[Tuple[str, str]]
-    current_events: list[RocEvent]
-    upcoming_events: list[RocEvent]
-    all_events: list[RocEvent]
-    recent_activity: list[RocActivity]
-    server_timestr: str
-    personal_totals_table: int  # TODO: Fix this type
-    soldier_source_table: int  # TODO: Fix this type
-    keys_found: int
-    loot_found: int
-    last_active: dt.datetime
-    best_rank: Tuple[int, dt.datetime]
-    army: str
-    race_bonuses: list[str]
-    turn_based_gold: int
+    keys_found: int = -1
+    loot_found: int = -1
+    last_active: dt.datetime = None
+    highest_rank: Tuple[int, dt.datetime] = None
+    army: RocArmy = None
+    race_bonuses: list[str] = None
+    turn_based_gold: int = -1
+    recent_activity: list[RocActivity] = None
+    current_events: list[RocEvent] = None
+    upcoming_events: list[RocEvent] = None
+    server_timestr: str = None
+    cards: list = None
+    # personal_totals_table: str  # TODO: Fix this type
+    # soldier_source_table: str # TODO: Fix this type
+    alliance: Tuple[str, str] = None
+    commander: Tuple[str, str] = None
+    officers: list[Tuple[str, str]] = None
 
 
 @dataclass
