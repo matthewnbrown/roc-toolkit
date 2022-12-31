@@ -4,10 +4,12 @@ import dataclasses
 from typing import Tuple
 from bs4 import BeautifulSoup
 
+from rocalert.logging import DateTimeGeneratorABC, DateTimeNowGenerator
 import rocalert.models as rocmodels
+import rocalert.enums as rocenums
 import rocalert.pages.genericpages as gp
-import rocalert.pages.keep as rockeep
 import rocalert.pages.armory as rocarmory
+import rocalert.pages.keep as rockeep
 import rocalert.pages.base as rocbase
 import rocalert.pages.recruit as rocrecruit
 import rocalert.pages.training as roctraining
@@ -47,14 +49,62 @@ class ROCPageGeneratorABC(abc.ABC):
 
 
 class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
-    def __init__(self, parser=None) -> None:
+    def __init__(
+            self,
+            parser: str,
+            timegenerator: DateTimeGeneratorABC
+            ) -> None:
         self._parser = parser
+        self._timegenerator = timegenerator
 
     def generate(self, pagehtml: str) -> gp.RocPage:
-        creation_date = dt.datetime.now()
         soup = BeautifulSoup(pagehtml, self._parser)
+        pagetype = self._detect_pagetype(soup)
 
-        logged_in = self._is_loggedin(soup)
+        match pagetype:
+            case rocenums.RocPageType.BASE:
+                page = self._generate_base(soup)
+            case rocenums.RocPageType.TRAINING:
+                page = self._generate_training(soup)
+            case rocenums.RocPageType.ARMORY:
+                page = self._generate_armory(soup)
+            case rocenums.RocPageType.RECRUIT:
+                page = self._generate_recruit(soup)
+            case rocenums.RocPageType.KEEP:
+                page = self._generate_keep(soup)
+            case _:
+                raise PageGenerationException(
+                    f'Unknown page type during parsing: {pagetype}'
+                )
+
+        page.page_type = pagetype
+        page.creation_date = self._timegenerator.get_current_time()
+        page.logged_in = self._is_loggedin(soup)
+
+
+    @staticmethod
+    def _detect_pagetype(soup: BeautifulSoup) -> rocenums.RocPageType:
+        pass
+
+    @staticmethod
+    def _generate_base(soup: BeautifulSoup) -> rocbase.BasePage:
+        pass
+
+    @staticmethod
+    def _generate_training(soup: BeautifulSoup) -> roctraining.TrainingPage:
+        pass
+
+    @staticmethod
+    def _generate_armory(soup: BeautifulSoup) -> rocarmory.ArmoryPage:
+        pass
+
+    @staticmethod
+    def _generate_recruit(soup: BeautifulSoup) -> rocrecruit.RecruitPage:
+        pass
+
+    @staticmethod
+    def _generate_keep(soup: BeautifulSoup) -> rockeep.KeepPage:
+        pass
 
     @staticmethod
     def _is_loggedin(soup: BeautifulSoup) -> bool:
