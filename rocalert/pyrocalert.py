@@ -426,6 +426,7 @@ class RocAlert:
         return res_captcha.ans_correct and purchase_success
 
     def __trainingCheck(self) -> bool:
+        # TODO: FIX THIS
         page = self.roc.get_training_page()
 
         if self.__training_error:
@@ -466,6 +467,7 @@ class RocAlert:
             self.__log('Bad captcha answer')
             return False
 
+        # TODO: FIX THIS
         page = self.roc.get_training_page()
         train_success = not self._trainer.is_training_required(page)
 
@@ -486,6 +488,7 @@ class RocAlert:
         url = self.roc.url_generator.get_home() + '/base.php'
         self.roc.go_to_page(url)
         soup = bs4.BeautifulSoup(self.roc.r.text, 'lxml')
+        # TODO: FIX THIS
         base = pages.RocBasePage(soup)
 
         self.__log('-------------Event Status--------------')

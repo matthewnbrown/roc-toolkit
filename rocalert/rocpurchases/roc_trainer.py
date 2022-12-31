@@ -1,7 +1,7 @@
 import abc
 
 from ..roc_settings import TrainerSettings
-from rocalert.rocpurchases.models import TrainingPurchaseModel
+from rocalert.models import TrainingPurchaseModel
 import rocalert.pages as pages
 
 
@@ -18,7 +18,7 @@ class ROCTrainingPurchaseCreatorABC(abc.ABC):
     def create_purchase(
             cls,
             tsettings: TrainerSettings,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int,
             ) -> TrainingPurchaseModel:
@@ -34,14 +34,14 @@ class ROCTrainerABC(abc.ABC):
     @abc.abstractmethod
     def is_training_required(
             self,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     def gen_purchase_payload(
             self,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             ) -> dict[str, str]:
         raise NotImplementedError
 
@@ -76,7 +76,7 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
     def create_purchase(
             cls,
             tsettings: TrainerSettings,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int = None,
             ) -> TrainingPurchaseModel:
@@ -135,7 +135,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
     def create_purchase(
             cls,
             tsettings: TrainerSettings,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int = None
             ) -> TrainingPurchaseModel:
@@ -186,7 +186,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             gold: int,
             skip_match: set[str],
             roundamt: int,
-            tpage: pages.RocTrainingPage,
+            tpage: pages.TrainingPage,
             unt_soldiers: int
             ) -> int:
 
@@ -273,7 +273,7 @@ class SimpleRocTrainer(ROCTrainerABC):
 
     def is_training_required(
             self,
-            tpage: pages.RocTrainingPage
+            tpage: pages.TrainingPage
             ) -> bool:
 
         if tpage is None or not self._tsettings.training_enabled:
@@ -292,7 +292,7 @@ class SimpleRocTrainer(ROCTrainerABC):
 
     def _calculate_purchase(
             self,
-            tpage: pages.RocTrainingPage
+            tpage: pages.TrainingPage
             ) -> TrainingPurchaseModel:
         pmod = TrainingPurchaseModel()
 
@@ -319,7 +319,7 @@ class SimpleRocTrainer(ROCTrainerABC):
 
     def gen_purchase_payload(
             self,
-            tpage: pages.RocTrainingPage
+            tpage: pages.TrainingPage
             ) -> dict[str, str]:
 
         pmod = self._calculate_purchase(tpage=tpage)

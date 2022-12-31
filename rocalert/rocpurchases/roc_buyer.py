@@ -1,10 +1,10 @@
-
 import abc
+
 from rocalert.roc_settings import BuyerSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocpurchases.rocpurchtools \
     import ALL_ITEM_DETAILS as ITEM_DETAILS
-from .models import ArmoryModel, ArmoryPurchaseModel
+from rocalert.models import ArmoryModel, ArmoryPurchaseModel
 
 
 class ArmoryPurchaseError(Exception):

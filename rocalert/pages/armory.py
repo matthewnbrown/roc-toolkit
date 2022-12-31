@@ -1,93 +1,77 @@
 import rocalert.pages.genericpages as gp
-from bs4 import BeautifulSoup
+import rocalert.models as models
 
 
-class RocArmoryPage(gp.RocImageCaptchaPage):
-    def __init__(self, page: BeautifulSoup) -> None:
-        super().__init__(page)
-        content = page.find(id='content')
-        armory = content.find(id='armory')
-        self._parseweapons(armory)
+class ArmoryPage(gp.RocPage, gp.TurnBox, gp.CaptchaStatus):
+    armory:  models.ArmoryModel
+    stats: gp.StatTable
+    weapon_distribution: gp.WeaponTroopDistTable
 
-    def _parseweapons(self, armory: BeautifulSoup) -> None:
-        self._weapons = {}
 
-        weaponmap = {
-            1: 'dagger',
-            2: 'maul',
-            3: 'blade',
-            4: 'excalibur',
-            5: 'sai',
-            6: 'shield',
-            7: 'mithril',
-            8: 'dragonskin',
-            9: 'cloak',
-            10: 'hook',
-            11: 'pickaxe',
-            12: 'horn',
-            13: 'guard_dog',
-            14: 'torch'
-        }
-        for i in range(1, len(weaponmap)+1):
-            weapon = armory.find(id=f'weapon{i}')
-            count = weapon.find('span', {'class': 'amount'}).text
-            self._weapons[weaponmap[i]] = gp.rocnum_to_int(count)
-
-    def _get_weapon(self, name: str) -> int:
-        return self._weapons(name)
+'''
+@dataclasses.dataclass
+class ArmoryDetails:
+    weapons: dict[str, models.ItemCostPair]
 
     @property
-    def daggers(self) -> int:
-        return self._get_weapon('dagger')
+    def dagger(self) -> models.ItemCostPair:
+        return self.weapons['dagger']
 
     @property
-    def mauls(self) -> int:
-        return self._get_weapon('maul')
+    def maul(self) -> models.ItemCostPair:
+        return self.weapons['maul']
 
     @property
-    def blades(self) -> int:
-        return self._get_weapon('blade')
+    def blade(self) -> models.ItemCostPair:
+        return self.weapons['blade']
 
     @property
-    def excaliburs(self) -> int:
-        return self._get_weapon('excalibur')
+    def excalibur(self) -> models.ItemCostPair:
+        return self.weapons['excalibur']
 
     @property
-    def sais(self) -> int:
-        return self._get_weapon('sai')
+    def sai(self) -> models.ItemCostPair:
+        return self.weapons['sai']
 
     @property
-    def shields(self) -> int:
-        return self._get_weapon('shield')
+    def shield(self) -> models.ItemCostPair:
+        return self.weapons['shield']
 
     @property
-    def mithrils(self) -> int:
-        return self._get_weapon('mithril')
+    def mithril(self) -> models.ItemCostPair:
+        return self.weapons['mithril']
 
     @property
-    def dragonskins(self) -> int:
-        return self._get_weapon('dragonskin')
+    def dragonskin(self) -> models.ItemCostPair:
+        return self.weapons['dragonskin']
 
     @property
-    def horns(self) -> int:
-        return self._get_weapon('horn')
+    def horn(self) -> models.ItemCostPair:
+        return self.weapons['horn']
 
     @property
-    def guard_dogs(self) -> int:
-        return self._get_weapon('guard_dog')
+    def guard_dog(self) -> models.ItemCostPair:
+        return self.weapons['guard_dog']
 
     @property
-    def torches(self) -> int:
-        return self._get_weapon('torch')
+    def torch(self) -> models.ItemCostPair:
+        return self.weapons['torch']
 
     @property
-    def cloaks(self) -> int:
-        return self._get_weapon('cloak')
+    def cloak(self) -> models.ItemCostPair:
+        return self.weapons['cloak']
 
     @property
-    def hooks(self) -> int:
-        return self._get_weapon('hook')
+    def hook(self) -> models.ItemCostPair:
+        return self.weapons['hook']
 
     @property
-    def pickaxes(self) -> int:
-        return self._get_weapon('pickaxe')
+    def pickaxe(self) -> models.ItemCostPair:
+        return self.weapons['pickaxe']
+
+
+class ArmoryPage(gp.RocPage, gp.TurnBox, gp.CaptchaStatus):
+    armory: ArmoryDetails
+    stats: gp.StatTable
+    weapon_distribution: gp.WeaponTroopDistTable
+'''

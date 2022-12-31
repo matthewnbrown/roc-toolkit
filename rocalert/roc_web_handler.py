@@ -1,7 +1,6 @@
 import requests
 from http.client import RemoteDisconnected
 from urllib3 import Retry
-from bs4 import BeautifulSoup
 import datetime
 
 import rocalert.pages as pages
@@ -9,7 +8,8 @@ from rocalert.services.urlgenerator import ROCUrlGenerator
 from .captcha.pyroccaptchaselector import ROCCaptchaSelector
 
 
-_BS_PARSER = 'lxml'
+class RocWebHandlerException(Exception):
+    pass
 
 
 def __generate_useragent():
@@ -77,7 +77,13 @@ class RocWebHandler:
             self,
             urlgenerator: ROCUrlGenerator,
             default_headers: dict[str, str] = None,
+            page_generator: pages.generators.ROCPageGeneratorABC = None
             ) -> None:
+
+        if page_generator is None:
+            msg = 'RocWebHandler requires a page_generator'
+            raise RocWebHandlerException(msg)
+
         if default_headers:
             self.headers = default_headers
         else:
@@ -97,6 +103,7 @@ class RocWebHandler:
                             + 'Chrome/107.0.0.0 Safari/537.36',
             }
 
+        self._page_generator = page_generator
         self._urlgenerator = urlgenerator
         self.session = requests.Session()
 
@@ -343,20 +350,17 @@ class RocWebHandler:
     def send_armory_order(self, payload: dict):
         pass
 
-    def get_training_page(self) -> pages.RocTrainingPage:
+    def get_training_page(self) -> pages.TrainingPage:
         self.go_to_training()
-        soup = BeautifulSoup(self.r.text, _BS_PARSER)
-        return pages.RocTrainingPage(soup)
+        return self._page_generator(self.r.text)
 
-    def get_armory_page(self) -> pages.RocArmoryPage:
+    def get_armory_page(self) -> pages.ArmoryPage:
         self.go_to_armory()
-        soup = BeautifulSoup(self.r.text, _BS_PARSER)
-        return pages.RocArmoryPage(soup)
+        return self._page_generator(self.r.text)
 
-    def get_keep_page(self) -> pages.RocKeepPage:
+    def get_keep_page(self) -> pages.KeepPage:
         self.go_to_keep()
-        soup = BeautifulSoup(self.r.text, _BS_PARSER)
-        return pages.RocKeepPage(soup)
+        return self._page_generator(self.r.text)
 
     def start_key_repair(self) -> None:
         pass

@@ -5,7 +5,7 @@ import tests.mocks as mock
 from rocalert.rocpurchases import ROCTrainingPayloadCreator,\
     ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator, \
     SimpleRocTrainer
-from rocalert.rocpurchases.models import TrainingPurchaseModel
+from rocalert.models import TrainingPurchaseModel
 
 
 class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
