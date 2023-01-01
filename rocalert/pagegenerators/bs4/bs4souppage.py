@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 
-from .page import ROCPageGeneratorABC, PageGenerationException
+from ..page import ROCPageGeneratorABC, PageGenerationException
 from rocalert.logging import DateTimeGeneratorABC
 import rocalert.models as rocmodels  # noqa f401
 import rocalert.enums as rocenums
@@ -20,6 +20,11 @@ _page_type_class_map = {
     rocenums.RocPageType.RECRUIT: rocrecruit.RecruitPage,
     rocenums.RocPageType.KEEP: rockeep.KeepPage,
 }
+
+
+class BeautifulSoupPageTypeDetector:
+    def detect_page_type(pagesoup: BeautifulSoup) -> rocenums.RocPageType:
+        pass
 
 
 class BeautifulSoupPageGenerator(ROCPageGeneratorABC):

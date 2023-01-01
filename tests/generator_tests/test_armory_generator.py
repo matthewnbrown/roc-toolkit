@@ -2,7 +2,7 @@ import unittest
 
 from .pagehelpers import getsoup
 import rocalert.models as rocmodels
-import rocalert.pagegenerators as generators
+import rocalert.pagegenerators.bs4 as generators
 
 
 class ArmoryPageTest(unittest.TestCase):

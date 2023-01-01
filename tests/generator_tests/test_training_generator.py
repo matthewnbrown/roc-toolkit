@@ -2,7 +2,7 @@ import unittest
 
 from .pagehelpers import getsoup
 import rocalert.models.pages.training as roctraining
-import rocalert.pagegenerators as generators
+import rocalert.pagegenerators.bs4 as generators
 
 
 class TrainingPageTest(unittest.TestCase):

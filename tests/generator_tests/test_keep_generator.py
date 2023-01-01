@@ -2,7 +2,7 @@ import unittest
 
 from .pagehelpers import getsoup
 import rocalert.models.pages.keep as rockeep
-import rocalert.pagegenerators as generators
+import rocalert.pagegenerators.bs4 as generators
 
 
 class KeepPageTest(unittest.TestCase):
