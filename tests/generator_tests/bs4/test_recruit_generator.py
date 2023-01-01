@@ -3,19 +3,17 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models.pages.recruit as rocrecruit
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class RecruitDetailGeneratorTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-
     def _get_no_captcha_pagedetails(self) -> rocrecruit.RecruitDetails:
-        path = '/testpages/recruit/recruit_no_captcha.html'
+        path = pagepaths.Recruit.NOCAPTCHA
         soup = getsoup(path)
         return generators.RecruitDetailsGenerator.generate(soup)
 
     def _get_captcha_pagedetails(self) -> rocrecruit.RecruitDetails:
-        path = '/testpages/recruit/recruit_captcha.html'
+        path = pagepaths.Recruit.HAS_CAPTCHA
         soup = getsoup(path)
         return generators.RecruitDetailsGenerator.generate(soup)
 

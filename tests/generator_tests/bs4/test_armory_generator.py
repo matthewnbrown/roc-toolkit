@@ -3,17 +3,12 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models as rocmodels
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class ArmoryPageTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-
-    def _get_page_path(self):
-        return '/testpages/armory/'
-
     def _get_basic_armory(self) -> rocmodels.ArmoryModel:
-        path = self._get_page_path() + 'armorybasic.html'
+        path = pagepaths.Armory.BASIC
         soup = getsoup(path)
         return generators.ArmoryDetailsGenerator.generate(soup)
 

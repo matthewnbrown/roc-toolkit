@@ -3,15 +3,12 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models.pages.keep as rockeep
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class KeepPageTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-        self._pagepath = '/testpages/keep/'
-
     def _get_6k_0b_rep_pagedetails(self) -> rockeep.KeepDetails:
-        path = self._pagepath + '6k0brep.html'
+        path = pagepaths.Keep.SIXKEYSNOBROKEN_REPAIRING
         soup = getsoup(path)
         return generators.KeepStatusGenerator.generate(soup)
 

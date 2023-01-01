@@ -3,25 +3,22 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models.pages.training as roctraining
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class TrainingPageTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-        self._pagepath = '/testpages/training/'
-
     def _get_allmercs_pagedetails(self) -> roctraining.TrainingDetails:
-        path = self._pagepath + 'trainingallmercs.html'
+        path = pagepaths.Training.ALL_MERCS
         soup = getsoup(path)
         return generators.TrainingDetailsGenerator.generate(soup)
 
     def _get_0am_pagedetails(self) -> roctraining.TrainingDetails:
-        path = self._pagepath + 'training0am.html'
+        path = pagepaths.Training.NO_ATTACK_MERCS
         soup = getsoup(path)
         return generators.TrainingDetailsGenerator.generate(soup)
 
     def _get_none_avail_mercsdetails(self) -> roctraining.TrainingDetails:
-        path = self._pagepath + 'training_none_avail.html'
+        path = pagepaths.Training.NO_AVAILABLE_MERCS
         soup = getsoup(path)
         return generators.TrainingDetailsGenerator.generate(soup)
 

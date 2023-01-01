@@ -5,7 +5,7 @@ from bs4 import BeautifulSoup
 
 def _get_dir():
     path = Path(__file__)
-    return str(path.parent.parent.absolute())
+    return str(path.parent.parent.parent.absolute())
 
 
 def _check_tfile_exists(path):
@@ -21,3 +21,5 @@ def getsoup(path):
         text = f.read()
         soup = BeautifulSoup(text, 'lxml')
     return soup
+
+

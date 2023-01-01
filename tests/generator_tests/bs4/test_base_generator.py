@@ -3,35 +3,32 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models.pages.base as rocbase
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class BasePageTest(unittest.TestCase):
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-        self._pagepath = '/testpages/base/'
-
     def _get_dubtrub_page(self) -> rocbase.BaseDetails:
-        path = self._pagepath + 'dubtrub.html'
+        path = pagepaths.Base.DUB_TRUB
         soup = getsoup(path)
         return generators.BaseDetailsGenerator.generate(soup)
 
     def _get_stoleturn_page(self) -> rocbase.BaseDetails:
-        path = self._pagepath + 'stoleturn.html'
+        path = pagepaths.Base.STOLE_TURN
         soup = getsoup(path)
         return generators.BaseDetailsGenerator.generate(soup)
 
     def _get_basewithofficers_page(self) -> rocbase.BaseDetails:
-        path = self._pagepath + 'basewithofficers.html'
+        path = pagepaths.Base.BASE_WITH_OFFICERS
         soup = getsoup(path)
         return generators.BaseDetailsGenerator.generate(soup)
 
     def _get_basefoundbrokenkey_page(self) -> rocbase.BaseDetails:
-        path = self._pagepath + 'basefoundbrokenkey.html'
+        path = pagepaths.Base.FOUND_BROKE_KEY
         soup = getsoup(path)
         return generators.BaseDetailsGenerator.generate(soup)
 
     def _get_noactive_events_page(self) -> rocbase.BaseDetails:
-        path = self._pagepath + 'base_noactive_events.html'
+        path = pagepaths.Base.NO_ACTIVE_EVENTS
         soup = getsoup(path)
         return generators.BaseDetailsGenerator.generate(soup)
 
