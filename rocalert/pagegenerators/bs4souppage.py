@@ -64,12 +64,16 @@ class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
     @staticmethod
     def _get_clockbar(
             pagesoup: BeautifulSoup
-            ) -> pagegenerators.ClockBarGenerator:
-        pass
+            ) -> gp.ClockBar:
+        return pagegenerators.ClockBarGenerator.generate(pagesoup)
 
     @staticmethod
     def _get_captchahash(pagesoup: BeautifulSoup) -> str:
-        pass
+        captchasoup = pagesoup.find(id='captcha_image')
+
+        if captchasoup is None:
+            return None
+        return captchasoup.get('src').split('=')[1]
 
     @staticmethod
     def _detect_pagetype(soup: BeautifulSoup) -> rocenums.RocPageType:
