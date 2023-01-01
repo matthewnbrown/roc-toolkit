@@ -10,6 +10,16 @@ import rocalert.models.pages.keep as rockeep
 import rocalert.models.pages.base as rocbase
 import rocalert.models.pages.recruit as rocrecruit
 import rocalert.models.pages.training as roctraining
+import rocalert.pagegenerators as pagegenerators
+
+
+_page_type_class_map = {
+    rocenums.RocPageType.BASE: rocbase.BasePage,
+    rocenums.RocPageType.TRAINING: roctraining.TrainingPage,
+    rocenums.RocPageType.ARMORY: rocarmory.ArmoryPage,
+    rocenums.RocPageType.RECRUIT: rocrecruit.RecruitPage,
+    rocenums.RocPageType.KEEP: rockeep.KeepPage,
+}
 
 
 class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
@@ -41,9 +51,25 @@ class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
                     f'Unknown page type during parsing: {pagetype}'
                 )
 
+        pageclass = _page_type_class_map[pagetype]
+        if issubclass(pageclass, gp.ClockBarPage):
+            page.clock_bar = self._get_clockbar(soup)
+        if issubclass(pageclass, gp.CaptchaPage):
+            page.captcha_hash = self._get_captchahash(soup)
+
         page.page_type = pagetype
         page.creation_date = self._timegenerator.get_current_time()
         page.logged_in = self._is_loggedin(soup)
+
+    @staticmethod
+    def _get_clockbar(
+            pagesoup: BeautifulSoup
+            ) -> pagegenerators.ClockBarGenerator:
+        pass
+
+    @staticmethod
+    def _get_captchahash(pagesoup: BeautifulSoup) -> str:
+        pass
 
     @staticmethod
     def _detect_pagetype(soup: BeautifulSoup) -> rocenums.RocPageType:
@@ -55,19 +81,19 @@ class BeautifulSoupPageGenerator(ROCPageGeneratorABC):
 
     @staticmethod
     def _generate_training(soup: BeautifulSoup) -> roctraining.TrainingPage:
-        pass
+        return roctraining.TrainingPage()
 
     @staticmethod
     def _generate_armory(soup: BeautifulSoup) -> rocarmory.ArmoryPage:
-        pass
+        return rocarmory.ArmoryPage()
 
     @staticmethod
     def _generate_recruit(soup: BeautifulSoup) -> rocrecruit.RecruitPage:
-        pass
+        return rocrecruit.RecruitPage()
 
     @staticmethod
     def _generate_keep(soup: BeautifulSoup) -> rockeep.KeepPage:
-        pass
+        return rockeep.KeepPage()
 
     @staticmethod
     def _is_loggedin(soup: BeautifulSoup) -> bool:
