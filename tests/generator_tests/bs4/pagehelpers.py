@@ -21,5 +21,3 @@ def getsoup(path):
         text = f.read()
         soup = BeautifulSoup(text, 'lxml')
     return soup
-
-

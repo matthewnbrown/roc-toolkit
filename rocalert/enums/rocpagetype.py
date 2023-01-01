@@ -30,3 +30,4 @@ class RocPageType(enum.Enum):
     SEND_CREDITS = 26  # Not Implemented
     SEND_MESSAGE = 27  # Not Implemented
     SEND_DOGE = 28  # Not Implemented
+    LOGIN_REQUEST_ERROR = 29

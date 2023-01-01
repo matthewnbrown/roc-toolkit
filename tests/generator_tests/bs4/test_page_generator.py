@@ -3,6 +3,7 @@ import unittest
 from .pagehelpers import getsoup
 import rocalert.models.pages.genericpages as gp
 import rocalert.pagegenerators.bs4 as generators
+import rocalert.enums as rocenums
 import tests.generator_tests.pagepaths as pagepaths
 
 
@@ -27,7 +28,45 @@ class PageLoggedInTest(unittest.TestCase):
 
 
 class PageTypeDetectorTest(unittest.TestCase):
-    pass
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self.detector = generators.bs4souppage.BeautifulSoupPageTypeDetector
+
+    def test_recruit_detection(self):
+        page = getsoup(pagepaths.Recruit.HAS_CAPTCHA)
+        pagetype = self.detector.detect_page_type(page)
+
+        self.assertEqual(
+            pagetype,
+            rocenums.RocPageType.RECRUIT
+        )
+
+    def test_base_detection(self):
+        pass
+
+    def test_armory_detection(self):
+        pass
+
+    def test_training_detection(self):
+        pass
+
+    def test_login_errorpage_detection(self):
+        pass
+
+    def test_not_loggedin_homepage_detection(self):
+        pass
+
+    def test_homepage_loggedin_detecction(self):
+        pass
+
+    def test_battlefield_detection(self):
+        pass
+
+    def test_keep_detection(self):
+        pass
+
+    def test_building_skills_upgrade_detection(self):
+        pass
 
 
 class RocCooldownPageTest(unittest.TestCase):
