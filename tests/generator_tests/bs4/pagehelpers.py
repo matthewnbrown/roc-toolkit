@@ -13,11 +13,15 @@ def _check_tfile_exists(path):
         raise Exception(f'File does not exist at {path}')
 
 
-def getsoup(path):
+def get_text_from_file(path):
     filepath = _get_dir() + path
     _check_tfile_exists(filepath)
-
     with open(filepath) as f:
         text = f.read()
-        soup = BeautifulSoup(text, 'lxml')
+    return text
+
+
+def getsoup(path):
+    text = get_text_from_file(path)
+    soup = BeautifulSoup(text, 'lxml')
     return soup

@@ -32,9 +32,12 @@ class PageTypeDetectorTest(unittest.TestCase):
         super().__init__(methodName)
         self.detector = generators.bs4souppage.BeautifulSoupPageTypeDetector
 
+    def get_type_from_path(self, path):
+        page = getsoup(path)
+        return self.detector.detect_page_type(page)
+
     def test_recruit_detection(self):
-        page = getsoup(pagepaths.Recruit.HAS_CAPTCHA)
-        pagetype = self.detector.detect_page_type(page)
+        pagetype = self.get_type_from_path(pagepaths.Recruit.HAS_CAPTCHA)
 
         self.assertEqual(
             pagetype,
@@ -42,13 +45,28 @@ class PageTypeDetectorTest(unittest.TestCase):
         )
 
     def test_base_detection(self):
-        pass
+        pagetype = self.get_type_from_path(pagepaths.Base.DUB_TRUB)
+
+        self.assertEqual(
+            pagetype,
+            rocenums.RocPageType.BASE
+        )
 
     def test_armory_detection(self):
-        pass
+        pagetype = self.get_type_from_path(pagepaths.Armory.BASIC)
+
+        self.assertEqual(
+            pagetype,
+            rocenums.RocPageType.ARMORY
+        )
 
     def test_training_detection(self):
-        pass
+        pagetype = self.get_type_from_path(pagepaths.Training.ALL_MERCS)
+
+        self.assertEqual(
+            pagetype,
+            rocenums.RocPageType.TRAINING
+        )
 
     def test_login_errorpage_detection(self):
         pass
@@ -63,7 +81,13 @@ class PageTypeDetectorTest(unittest.TestCase):
         pass
 
     def test_keep_detection(self):
-        pass
+        pagetype = self.get_type_from_path(
+            pagepaths.Keep.SIXKEYSNOBROKEN_REPAIRING)
+
+        self.assertEqual(
+            pagetype,
+            rocenums.RocPageType.KEEP
+        )
 
     def test_building_skills_upgrade_detection(self):
         pass
@@ -80,4 +104,3 @@ class RocImageCaptchaPageTest(unittest.TestCase):
         super().__init__(methodName)
 
     # TODO add tests
-
