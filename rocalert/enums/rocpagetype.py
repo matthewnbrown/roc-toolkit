@@ -17,10 +17,10 @@ class RocPageType(enum.Enum):
     TARGET_STATS = 13  # Not Implemented
     TARGET_ATTACK = 14  # Not Implemented
     TARGET_PROBE = 15  # Not Implemented
-    TARGET_SPY = 16  # Not Implemented
-    TARGET_SENTRY = 17  # Not Implemented
+    TARGET_RECON = 16  # Not Implemented
+    TARGET_SABOTAGE = 17  # Not Implemented
     TARGET_SPITE = 18  # Not Implemented
-    INTEL_FILE = 19  # Overall recent intel  # Not Implemented
+    INTEL_FILES = 19  # Overall recent intel  # Not Implemented
     INTEL_DETAIL = 20  # Specific spy report  # Not Implemented
     ALL_SAB_LOG = 21  # Not Implemented
     ERROR = 22
