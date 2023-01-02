@@ -6,6 +6,7 @@ from rocalert.rocpurchases import ROCTrainingPayloadCreator,\
     ROCTrainingWeaponMatchPurchaseCreator, ROCTrainingDumpPurchaseCreator, \
     SimpleRocTrainer
 from rocalert.models import TrainingPurchaseModel
+import rocalert.models.pages as rocpages
 
 
 class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
@@ -13,7 +14,8 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         super().__init__(methodName)
 
     def test_training_disabled(self):
-        mtp = mock.TrainingPage(
+
+        mtp = mock.TrainingPageCreator.create(
             gold=10**8,
             untrained=1000,
             attweps=1000
@@ -22,7 +24,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(False, True, 'defense')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -33,14 +35,14 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_soldiers_avail(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**6,
-            )
+        )
 
         tset = mock.TrainingSettings(True, True, 'attack', 100)
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -50,14 +52,14 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_gold_dump(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             untrained=1000
         )
 
         tset = mock.TrainingSettings(True, False, 'defense')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -67,7 +69,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_defense_soldier_dump(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**6,
             untrained=1000,
             attacksoldcost=1000,
@@ -79,7 +81,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, False, 'defense')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -90,7 +92,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_attack_soldier_dump(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**6,
             untrained=1000,
             attacksoldcost=1000,
@@ -102,7 +104,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, False, 'attack')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -113,7 +115,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_spy_soldier_dump(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -125,7 +127,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, False, 'spies')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -136,7 +138,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_sentry_soldier_dump(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -148,7 +150,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, False, 'sentries')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -159,7 +161,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_gold_shortage(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=70500,
             untrained=1000,
             defensesoldcost=1000
@@ -168,7 +170,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, False, 'defense')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -178,7 +180,7 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_cost_calculation(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=100,
             defensesoldcost=1500
@@ -188,12 +190,12 @@ class ROCTrainingDumpPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=False, sold_dumptype='defense')
 
         tpmod = ROCTrainingDumpPurchaseCreator.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
             tpmod.cost,
-            mtp.untrained_soldiers.count * mtp.defense_sold_cost,
+            mtp.training.untrained_soldiers.count * mtp.training.defense_sold_cost,
             'The cost of a purchase should be properly calculated'
         )
 
@@ -204,7 +206,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         self.purchasecreater = ROCTrainingWeaponMatchPurchaseCreator
 
     def test_training_disabled(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**8,
             untrained=1000,
             attweps=1000
@@ -213,7 +215,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(False, True, 'defense')
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -224,7 +226,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_soldiers_avail(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**6,
             attweps=10000
         )
@@ -232,7 +234,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, True, 'attack', 100)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -242,7 +244,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_no_untrained_to_match(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**6,
             attacksoldcost=1000,
             defensesoldcost=1000,
@@ -254,7 +256,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         tset = mock.TrainingSettings(True, True)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -265,7 +267,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_matching_excess_weapons(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldiers=50,
@@ -277,7 +279,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -287,7 +289,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_matching_gold_shortage(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=50000,
             untrained=1000,
             attacksoldcost=1000,
@@ -298,7 +300,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -308,7 +310,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_matching_spies_gold_shortage(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=50000,
             untrained=1000,
             spycost=2000,
@@ -319,7 +321,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -329,7 +331,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_match_excess_soldiers(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -341,7 +343,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -351,7 +353,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_all_soldier_match(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -368,18 +370,18 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True, sold_roundamt=1)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
             (tpmod.attack_soldiers, tpmod.defense_soldiers,
              tpmod.spies, tpmod.sentries),
-            (250, 250, 250, 250),
+            (250, 250, 250, 200),
             'Soldier matching should match all soldier types'
         )
 
     def test_soldier_rounding(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -390,7 +392,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True, sold_roundamt=50)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -400,7 +402,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_soldier_rounding_one(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1000,
@@ -411,7 +413,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True, sold_roundamt=1)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertTupleEqual(
@@ -421,7 +423,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_gold_shortage(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=125678,
             untrained=1000,
             attacksoldcost=1000,
@@ -432,7 +434,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True, sold_roundamt=1)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
@@ -443,7 +445,7 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
         )
 
     def test_cost_calculation(self):
-        mtp = mock.TrainingPage(
+        mtp = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=4,
             attacksoldcost=1000,
@@ -460,15 +462,15 @@ class ROCTrainingWeaponMatchPurchaseCreatorTest(unittest.TestCase):
             True, sold_weapmatch=True, sold_roundamt=1)
 
         tpmod = self.purchasecreater.create_purchase(
-            tset, mtp, mtp.gold
+            tset, mtp, mtp.clock_bar.gold
         )
 
         self.assertEqual(
             tpmod.cost,
-            mtp.attack_sold_cost
-            + mtp.defense_sold_cost
-            + mtp.spy_sold_cost
-            + mtp.sentry_sold_cost,
+            mtp.training.attack_sold_cost
+            + mtp.training.defense_sold_cost
+            + mtp.training.spy_sold_cost
+            + mtp.training.sentry_sold_cost,
             'The cost of a purchase should be properly calculated'
         )
 
@@ -550,7 +552,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             False, True, 'attack', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -568,7 +570,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, False, 'attack', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -586,7 +588,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, True, 'none', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -604,7 +606,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             False, True, 'attack', 1000)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -623,7 +625,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, False, 'attack', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -649,7 +651,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, True, 'none', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -675,7 +677,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, True, 'defense', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1000,
             attacksoldcost=1,
@@ -708,7 +710,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
         tset = mock.TrainingSettings(
             True, True, 'defense', 1000, 0)
         trainer = self.trainertype(tset)
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=1500,
             attacksoldcost=1,
@@ -744,7 +746,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
 
         trainer = self.trainertype(tset)
 
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=10000,
             attweps=1000,
@@ -762,7 +764,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
 
         trainer = self.trainertype(tset)
 
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=10000,
             attweps=1000,
@@ -780,7 +782,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
 
         trainer = self.trainertype(tset)
 
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=10000,
             attweps=1000,
@@ -798,7 +800,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
 
         trainer = self.trainertype(tset)
 
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=60000,
             untrained=10000,
             attweps=1000,
@@ -815,7 +817,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
 
         trainer = self.trainertype(tset)
 
-        tpage = mock.TrainingPage(
+        tpage = mock.TrainingPageCreator.create(
             gold=10**7,
             untrained=500,
             attweps=1000,

@@ -52,20 +52,20 @@ class KeepKeyRepairer(KeepKeyRepairerABC):
     def update_keep_status(self) -> None:
         keeppage = self._roc.get_keep_page()
 
-        self._broken_keys = keeppage.broken_key_count
-        if keeppage.repairing:
-            self._repair_finished_time = keeppage.finish_repair_time
+        self._broken_keys = keeppage.keep.broken_key_count
+        if keeppage.keep.repairing:
+            self._repair_finished_time = keeppage.keep.finish_repair_time
         else:
             self._repair_finished_time = dt.datetime.now()
 
     def repair_key(self) -> None:
         keeppage = self._roc.get_keep_page()
 
-        if keeppage.repairing:
+        if keeppage.keep.repairing:
             msg = 'Cannot repair key is one is already being repaired!'
             raise KeyRepairError(msg)
-        if keeppage.broken_key_count <= 0:
-            msg = f'Cannot repair key! Keycount is {keeppage.broken_key_count}'
+        if keeppage.keep.broken_key_count <= 0:
+            msg = f'Cannot repair key! Keycount is {keeppage.keep.broken_key_count}'
             raise KeyRepairError(msg)
 
         self._roc.start_key_repair()

@@ -3,6 +3,12 @@ import dataclasses
 import rocalert.models.pages.genericpages as gp
 import rocalert.models as models
 
+
+@dataclasses.dataclass
+class ArmoryDetails(models.ArmoryModel):
+    pass
+
+
 @dataclasses.dataclass
 class ArmoryPage(
         gp.RocPage,
@@ -10,7 +16,7 @@ class ArmoryPage(
         gp.CaptchaPage,
         gp.WeaponTroopDistPage,
         gp.StatTablePage):
-    armory:  models.ArmoryModel = None
+    armory:  ArmoryDetails = None
 
 
 '''

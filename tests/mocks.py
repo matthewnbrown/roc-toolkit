@@ -2,9 +2,9 @@ import typing
 import datetime as dt
 import dataclasses
 
-from rocalert.models.pages.training import RocTrainingTableEntry
+from rocalert.models.pages.training import RocTrainingTableEntry as RTTE
 from rocalert.models.pages.genericpages import WeaponDistTableEntry
-
+import rocalert.models.pages as rocpages
 
 @dataclasses.dataclass
 class WeaponTroopDistTable:
@@ -30,82 +30,58 @@ class WeaponTroopDistTable:
         return self.sent_dist
 
 
-@dataclasses.dataclass
-class TrainingPage:
-    gold: int = 0
-    attacksoldiers: int = 0
-    defensesoldiers: int = 0
-    spiesamt: int = 0
-    sentriesamt: int = 0
-    untrained: int = 0
-    attacksoldcost: int = 0
-    defensesoldcost: int = 0
-    spycost: int = 0
-    sentrycost: int = 0
-    attweps: int = 0
-    defweps: int = 0
-    spyweps: int = 0
-    sentryweps: int = 0
-    attmercs: int = 0
-    defmercs: int = 0
-    untrainedmercs: int = 0
-
-    def __post_init__(self):
-        self._weapondisttable = WeaponTroopDistTable(
-            att_dist=WeaponDistTableEntry(self.attacksoldiers,
-                                          self.attweps),
-            def_dist=WeaponDistTableEntry(self.defensesoldiers, self.defweps),
-            spy_dist=WeaponDistTableEntry(self.spyweps, self.spyweps),
-            sent_dist=WeaponDistTableEntry(self.sentriesamt, self.sentrycost)
+class TrainingPageCreator:
+    @staticmethod
+    def create(
+            gold: int = 0,
+            attacksoldiers: int = 0,
+            defensesoldiers: int = 0,
+            spiesamt: int = 0,
+            sentriesamt: int = 0,
+            untrained: int = 0,
+            attacksoldcost: int = 0,
+            defensesoldcost: int = 0,
+            spycost: int = 0,
+            sentrycost: int = 0,
+            attweps: int = 0,
+            defweps: int = 0,
+            spyweps: int = 0,
+            sentryweps: int = 0,
+            attmercs: int = 0,
+            defmercs: int = 0,
+            untrainedmercs: int = 0
+            ) -> rocpages.TrainingPage:
+        
+        details = rocpages.TrainingDetails(
+            attack_soldiers=RTTE(attacksoldiers, attacksoldiers*20),
+            defense_soldiers=RTTE(defensesoldiers, defensesoldiers*25),
+            spies=RTTE(spiesamt, spiesamt*10),
+            sentries=RTTE(sentriesamt, sentriesamt*10),
+            untrained_soldiers=RTTE(untrained, untrained*20),
+            attack_sold_cost=attacksoldcost,
+            defense_sold_cost=defensesoldcost,
+            spy_sold_cost=spycost,
+            sentry_sold_cost=sentrycost,
+            total_soldiers=RTTE(attacksoldiers+defensesoldiers+untrained,
+                                attacksoldiers*20+defensesoldiers*25+untrained*20),
+            total_mercenaries=RTTE(attmercs+defmercs+untrainedmercs,
+                                   (attacksoldiers+defensesoldiers+untrained)*-5),
+            total_covert_force=RTTE(spiesamt+sentriesamt,(spiesamt+sentriesamt)*10),
+            )
+        clockbar = rocpages.ClockBar(name='username', rank=-1,gold=gold,turns=-1,
+                                     next_turn=None)
+        wt_table = WeaponTroopDistTable(
+            att_dist=WeaponDistTableEntry(attacksoldiers,
+                                          attweps),
+            def_dist=WeaponDistTableEntry(defensesoldiers, defweps),
+            spy_dist=WeaponDistTableEntry(spyweps, spyweps),
+            sent_dist=WeaponDistTableEntry(sentriesamt, sentryweps)
         )
-
-    @property
-    def weapon_distribution_table(self) -> WeaponTroopDistTable:
-        return self._weapondisttable
-
-    @property
-    def attack_soldiers(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.attacksoldiers, 0)
-
-    @property
-    def defense_soldiers(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.defensesoldiers, 0)
-
-    @property
-    def defense_mercenaries(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.defmercs, 0)
-
-    @property
-    def untrained_soldiers(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.untrained, 0)
-
-    @property
-    def untrained_mercenaries(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.untrainedmercs, 0)
-
-    @property
-    def spies(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.spiesamt, 0)
-
-    @property
-    def sentries(self) -> RocTrainingTableEntry:
-        return RocTrainingTableEntry(self.sentriesamt, 0)
-
-    @property
-    def attack_sold_cost(self) -> int:
-        return self.attacksoldcost
-
-    @property
-    def defense_sold_cost(self) -> int:
-        return self.defensesoldcost
-
-    @property
-    def spy_sold_cost(self) -> int:
-        return self.spycost
-
-    @property
-    def sentry_sold_cost(self) -> int:
-        return self.sentrycost
+        
+        return rocpages.TrainingPage(
+            training=details,
+            clock_bar=clockbar,
+            weapon_dist_table=wt_table)
 
 
 class TrainingSettings():
@@ -150,7 +126,7 @@ class UserSettings:
             regular_waitrange: typing.Tuple[int, int] = None,
             nightmode_activerange: typing.Tuple[dt.time, dt.time] = None,
             nightmode_waitrange: typing.Tuple[float, float] = None
-            ) -> None:
+    ) -> None:
         self.use_nightmode = usenightmode
         self.nightmode_activetime_range = nightmode_activerange
         self.nightmode_waittime_range = nightmode_waitrange
@@ -177,7 +153,7 @@ class BuyerSettings:
             cloak=0, hook=0, pickaxe=0, sai=0,
             shield=0, mithril=0, dragonskin=0,
             horn=0, guard_dog=0, torch=0
-            ) -> None:
+    ) -> None:
         self._minbuygold = min_gold_to_buy
         self._buyingenabled = buying_enabled
         self._weaponbuydict = {

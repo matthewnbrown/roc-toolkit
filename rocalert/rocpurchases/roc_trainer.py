@@ -21,7 +21,7 @@ class ROCTrainingPurchaseCreatorABC(abc.ABC):
             tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int,
-            ) -> TrainingPurchaseModel:
+    ) -> TrainingPurchaseModel:
         raise NotImplementedError
 
 
@@ -35,14 +35,14 @@ class ROCTrainerABC(abc.ABC):
     def is_training_required(
             self,
             tpage: pages.TrainingPage,
-            ) -> bool:
+    ) -> bool:
         raise NotImplementedError
 
     @abc.abstractmethod
     def gen_purchase_payload(
             self,
             tpage: pages.TrainingPage,
-            ) -> dict[str, str]:
+    ) -> dict[str, str]:
         raise NotImplementedError
 
 
@@ -79,7 +79,7 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int = None,
-            ) -> TrainingPurchaseModel:
+    ) -> TrainingPurchaseModel:
         if not tsettings.training_enabled or gold <= 0:
             return TrainingPurchaseModel()
 
@@ -88,7 +88,7 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         if untrained_soldiers is not None:
             unt_soldiers = untrained_soldiers
         else:
-            unt_soldiers = tpage.untrained_soldiers.count
+            unt_soldiers = tpage.training.untrained_soldiers.count
 
         purchase_counts = {
             'attack': 0,
@@ -98,13 +98,13 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         }
         cost = 0
         if solddumptype == 'attack':
-            cost = tpage.attack_sold_cost
+            cost = tpage.training.attack_sold_cost
         elif solddumptype == 'defense':
-            cost = tpage.defense_sold_cost
+            cost = tpage.training.defense_sold_cost
         elif solddumptype == 'spies':
-            cost = tpage.spy_sold_cost
+            cost = tpage.training.spy_sold_cost
         elif solddumptype == 'sentries':
-            cost = tpage.sentry_sold_cost
+            cost = tpage.training.sentry_sold_cost
 
         if cost <= 0:
             return TrainingPurchaseModel()
@@ -121,10 +121,10 @@ class ROCTrainingDumpPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         )
 
         tpm.cost = (
-            tpm.attack_soldiers * tpage.attack_sold_cost
-            + tpm.defense_soldiers * tpage.defense_sold_cost
-            + tpm.spies * tpage.spy_sold_cost
-            + tpm.sentries * tpage.sentry_sold_cost
+            tpm.attack_soldiers * tpage.training.attack_sold_cost
+            + tpm.defense_soldiers * tpage.training.defense_sold_cost
+            + tpm.spies * tpage.training.spy_sold_cost
+            + tpm.sentries * tpage.training.sentry_sold_cost
         )
 
         return tpm
@@ -138,7 +138,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             tpage: pages.TrainingPage,
             gold: int,
             untrained_soldiers: int = None
-            ) -> TrainingPurchaseModel:
+    ) -> TrainingPurchaseModel:
 
         if not tsettings.training_enabled or gold <= 0:
             return TrainingPurchaseModel()
@@ -148,7 +148,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         if untrained_soldiers is not None:
             unt_soldiers = untrained_soldiers
         else:
-            unt_soldiers = tpage.untrained_soldiers.count
+            unt_soldiers = tpage.training.untrained_soldiers.count
 
         purchase_counts = {
             'attack': 0,
@@ -171,10 +171,10 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         )
 
         tpm.cost = (
-            tpm.attack_soldiers * tpage.attack_sold_cost
-            + tpm.defense_soldiers * tpage.defense_sold_cost
-            + tpm.spies * tpage.spy_sold_cost
-            + tpm.sentries * tpage.sentry_sold_cost
+            tpm.attack_soldiers * tpage.training.attack_sold_cost
+            + tpm.defense_soldiers * tpage.training.defense_sold_cost
+            + tpm.spies * tpage.training.spy_sold_cost
+            + tpm.sentries * tpage.training.sentry_sold_cost
         )
 
         return tpm
@@ -188,18 +188,18 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             roundamt: int,
             tpage: pages.TrainingPage,
             unt_soldiers: int
-            ) -> int:
+    ) -> int:
 
-        attweps = tpage.weapon_distribution_table.attack_wt_dist.weapon_count
-        defweps = tpage.weapon_distribution_table.defense_wt_dist.weapon_count
-        spyweps = tpage.weapon_distribution_table.spy_wt_dist.weapon_count
-        sentweps = tpage.weapon_distribution_table.sentry_wt_dist.weapon_count
+        attweps = tpage.weapon_dist_table.attack_wt_dist.weapon_count
+        defweps = tpage.weapon_dist_table.defense_wt_dist.weapon_count
+        spyweps = tpage.weapon_dist_table.spy_wt_dist.weapon_count
+        sentweps = tpage.weapon_dist_table.sentry_wt_dist.weapon_count
 
         if 'attack' not in skip_match:
             amt, netcost = cls._calc_soldier_match(
                 gold, attweps, roundamt,
-                tpage.attack_soldiers.count,
-                tpage.attack_sold_cost,
+                tpage.training.attack_soldiers.count,
+                tpage.training.attack_sold_cost,
                 unt_soldiers)
             cur_purch['attack'] += amt
             unt_soldiers -= amt
@@ -208,8 +208,8 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         if 'defense' not in skip_match:
             amt, netcost = cls._calc_soldier_match(
                 gold, defweps, roundamt,
-                tpage.defense_soldiers.count,
-                tpage.defense_sold_cost,
+                tpage.training.defense_soldiers.count,
+                tpage.training.defense_sold_cost,
                 unt_soldiers)
             cur_purch['defense'] += amt
             unt_soldiers -= amt
@@ -218,8 +218,8 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         if 'spy' not in skip_match:
             amt, netcost = cls._calc_soldier_match(
                 gold, spyweps, roundamt,
-                tpage.spies.count,
-                tpage.spy_sold_cost,
+                tpage.training.spies.count,
+                tpage.training.spy_sold_cost,
                 unt_soldiers)
             cur_purch['spies'] += amt
             unt_soldiers -= amt
@@ -228,8 +228,8 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
         if 'sentries' not in skip_match:
             amt, netcost = cls._calc_soldier_match(
                 gold, sentweps, roundamt,
-                tpage.sentries.count,
-                tpage.sentry_sold_cost,
+                tpage.training.sentries.count,
+                tpage.training.sentry_sold_cost,
                 unt_soldiers)
             cur_purch['sentries'] += amt
             unt_soldiers -= amt
@@ -243,7 +243,7 @@ class ROCTrainingWeaponMatchPurchaseCreator(ROCTrainingPurchaseCreatorABC):
             gold: int, weapons: int, roundamt: int,
             soldiers: int, soldiercost: int,
             untrainedsold: int
-            ) -> tuple[int, int]:
+    ) -> tuple[int, int]:
 
         if soldiercost <= 0:
             return (0, 0)
@@ -267,22 +267,22 @@ class SimpleRocTrainer(ROCTrainerABC):
     def __init__(
             self,
             tsettings: TrainerSettings,
-            ) -> None:
+    ) -> None:
         self._tsettings = tsettings
         self._converter = None
 
     def is_training_required(
             self,
             tpage: pages.TrainingPage
-            ) -> bool:
+    ) -> bool:
 
         if tpage is None or not self._tsettings.training_enabled:
             return False
 
-        if tpage.gold <= 0 or tpage.untrained_soldiers.count == 0:
+        if tpage.clock_bar.gold <= 0 or tpage.training.untrained_soldiers.count == 0:
             return False
 
-        if self._tsettings.min_training_size > tpage.untrained_soldiers.count:
+        if self._tsettings.min_training_size > tpage.training.untrained_soldiers.count:
             return False
 
         purchase = self._calculate_purchase(tpage)
@@ -293,14 +293,14 @@ class SimpleRocTrainer(ROCTrainerABC):
     def _calculate_purchase(
             self,
             tpage: pages.TrainingPage
-            ) -> TrainingPurchaseModel:
+    ) -> TrainingPurchaseModel:
         pmod = TrainingPurchaseModel()
 
-        if tpage is None or tpage.gold == 0 \
-                or tpage.untrained_soldiers.count == 0:
+        if tpage is None or tpage.clock_bar.gold == 0 \
+                or tpage.training.untrained_soldiers.count == 0:
             return pmod
 
-        gold = tpage.gold
+        gold = tpage.clock_bar.gold
         if self._tsettings.match_soldiers_to_weapons:
             pmod = ROCTrainingWeaponMatchPurchaseCreator.create_purchase(
                 self._tsettings,
@@ -308,7 +308,7 @@ class SimpleRocTrainer(ROCTrainerABC):
             )
 
         gold -= pmod.cost
-        untrained = tpage.untrained_soldiers.count - pmod.total_soldiers
+        untrained = tpage.training.untrained_soldiers.count - pmod.total_soldiers
         if self._tsettings.soldier_dump_type != 'none':
             pmod += ROCTrainingDumpPurchaseCreator.create_purchase(
                 self._tsettings,
@@ -320,7 +320,7 @@ class SimpleRocTrainer(ROCTrainerABC):
     def gen_purchase_payload(
             self,
             tpage: pages.TrainingPage
-            ) -> dict[str, str]:
+    ) -> dict[str, str]:
 
         pmod = self._calculate_purchase(tpage=tpage)
         return ROCTrainingPayloadCreator.create_training_payload(pmod)
