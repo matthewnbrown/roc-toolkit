@@ -101,7 +101,5 @@ class BFSellCatch:
                     if shouldhit(target):
                         self._attack_target(target)
                         self._buy()
-                    else:
-                        break
 
                 time.sleep(pagedelay)
