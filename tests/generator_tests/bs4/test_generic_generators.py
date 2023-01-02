@@ -1,8 +1,12 @@
 import unittest
+import unittest.mock as mock
+import datetime as dt
 
 from .pagehelpers import getsoup
+from rocalert.logging.timestampgenerator import DateTimeGeneratorABC
 import rocalert.models.pages.genericpages as gp
 import rocalert.pagegenerators.bs4 as generators
+import tests.generator_tests.pagepaths as pagepaths
 
 
 class StatsTableTest(unittest.TestCase):
@@ -99,9 +103,6 @@ class StatsTableTest(unittest.TestCase):
 
 class WeaponTroopDistTableTest(unittest.TestCase):
     # TODO Add seperate tests for with untrained table
-    def __init__(self, methodName: str = ...) -> None:
-        super().__init__(methodName)
-
     def _get_page_path(self):
         return '/testpages/simplepages/weapontrooptable/'
 
@@ -203,4 +204,89 @@ class WeaponTroopDistTableTest(unittest.TestCase):
             (entry.soldiers, entry.weapon_count),
             (1120, None),
             'Invalid untrained soldier count (untrained)'
+        )
+
+
+class ClockBarGeneratorTest(unittest.TestCase):
+    def _get_mock_dtgenerator(self, customdate: dt.datetime = None):
+        if customdate is None:
+            customdate = dt.datetime.now()
+
+        mocktimegen = mock.Mock(DateTimeGeneratorABC)
+        mocktimegen.get_current_time = mock.Mock(
+            return_value=customdate)
+
+        return mocktimegen
+
+    def test_when_parsing_should_calcuted_nextturn_in_future(self):
+        pagesoup = getsoup(pagepaths.Base.BASE_WITH_OFFICERS)
+        curtime = dt.datetime(2022, 12, 25, 12, 0, 0)
+        mocktimegen = self._get_mock_dtgenerator(curtime)
+
+        result = generators.ClockBarGenerator.generate(
+            pagesoup=pagesoup,
+            timegenerator=mocktimegen
+        )
+
+        nextturn_time = curtime + dt.timedelta(minutes=12, seconds=58)
+        self.assertEqual(
+            result.next_turn,
+            nextturn_time
+        )
+
+    def test_when_parsing_should_read_username(self):
+        pagesoup = getsoup(pagepaths.Armory.BASIC)
+        mocktimegen = self._get_mock_dtgenerator()
+
+        result = generators.ClockBarGenerator.generate(
+            pagesoup=pagesoup,
+            timegenerator=mocktimegen
+        )
+
+        self.assertIsNotNone(result.name)
+        self.assertEqual(
+            result.name,
+            "usersname"
+        )
+
+    def test_when_parsing_should_read_gold_correctly(self):
+        pagesoup = getsoup(pagepaths.Keep.SIXKEYSNOBROKEN_REPAIRING)
+        mocktimegen = self._get_mock_dtgenerator()
+
+        result = generators.ClockBarGenerator.generate(
+            pagesoup=pagesoup,
+            timegenerator=mocktimegen
+        )
+
+        self.assertEqual(
+            result.gold,
+            69350
+        )
+
+    def test_when_parsing_should_read_rank_correctly(self):
+        pagesoup = getsoup(pagepaths.Keep.SIXKEYSNOBROKEN_REPAIRING)
+        mocktimegen = self._get_mock_dtgenerator()
+
+        result = generators.ClockBarGenerator.generate(
+            pagesoup=pagesoup,
+            timegenerator=mocktimegen
+        )
+
+        self.assertEqual(
+            result.rank,
+            49
+        )
+
+    def test_when_parsing_should_read_turns_correctly(self):
+        pagesoup = getsoup(pagepaths.Keep.SIXKEYSNOBROKEN_REPAIRING)
+        mocktimegen = self._get_mock_dtgenerator()
+
+        result = generators.ClockBarGenerator.generate(
+            pagesoup=pagesoup,
+            timegenerator=mocktimegen
+        )
+
+        self.assertEqual(
+            result.turns,
+            5097
         )
