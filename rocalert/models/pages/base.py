@@ -53,4 +53,4 @@ class BasePage(
         gp.ClockBarPage,
         gp.StatTablePage,
         gp.WeaponTroopDistPage):
-    base: BaseDetails
+    base: BaseDetails = None

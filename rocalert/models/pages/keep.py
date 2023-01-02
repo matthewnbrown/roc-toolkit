@@ -14,4 +14,4 @@ class KeepDetails:
 
 @dataclasses.dataclass
 class KeepPage(gp.RocPage, gp.ClockBarPage):
-    keep: KeepDetails
+    keep: KeepDetails = None

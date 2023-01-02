@@ -17,9 +17,9 @@ def int_to_rocnum(num: int):
 
 @dataclass
 class RocPage:
-    page_type: rocenums.RocPageType
-    creation_date: datetime
-    logged_in: bool
+    page_type: rocenums.RocPageType = rocenums.RocPageType.UNKNOWN
+    creation_date: datetime = None
+    logged_in: bool = False
 
 
 @dataclass
@@ -33,12 +33,12 @@ class ClockBar:
 
 @dataclass
 class ClockBarPage:
-    clock_bar: ClockBar
+    clock_bar: ClockBar = None
 
 
 @dataclass
 class CaptchaPage:
-    captcha_hash: str
+    captcha_hash: str = None
 
 
 @dataclass
@@ -60,7 +60,7 @@ class StatTable:
 
 @dataclass
 class StatTablePage:
-    stat_table: StatTable
+    stat_table: StatTable = None
 
 
 @dataclass
@@ -82,4 +82,4 @@ class WeaponTroopDistTable:
 
 @dataclass
 class WeaponTroopDistPage:
-    weapon_dist_table: WeaponTroopDistTable
+    weapon_dist_table: WeaponTroopDistTable = None

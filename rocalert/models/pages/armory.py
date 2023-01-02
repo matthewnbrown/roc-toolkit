@@ -1,14 +1,16 @@
+import dataclasses
+
 import rocalert.models.pages.genericpages as gp
 import rocalert.models as models
 
-
+@dataclasses.dataclass
 class ArmoryPage(
         gp.RocPage,
         gp.ClockBarPage,
         gp.CaptchaPage,
         gp.WeaponTroopDistPage,
         gp.StatTablePage):
-    armory:  models.ArmoryModel
+    armory:  models.ArmoryModel = None
 
 
 '''

@@ -13,5 +13,6 @@ class RecruitDetails:
     requires_captcha: bool = False
 
 
+@dataclasses.dataclass
 class RecruitPage(gp.RocPage, gp.ClockBarPage):
-    recruit: RecruitDetails
+    recruit: RecruitDetails = None
