@@ -1,1 +1,1 @@
-from .page import PageGenerationException, ROCPageGeneratorABC  # noqa F401
+from .page import PageGenerationException, ROCPageGeneratorABC  # noqa: F401

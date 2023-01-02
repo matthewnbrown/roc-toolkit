@@ -1,1 +1,2 @@
-from .timestampgenerator import DateTimeGeneratorABC, DateTimeNowGenerator  # noqa F401
+from .timestampgenerator import DateTimeGeneratorABC,\
+    DateTimeNowGenerator  # noqa: F401
