@@ -51,7 +51,7 @@ def _get_timegenerator() -> DateTimeGeneratorABC:
     return DateTimeNowGenerator()
 
 
-def configure_services() -> dict[str, object]:
+def configure_services(overrides: dict[str, object] = None) -> dict[str, object]:
 
     if not _settings_are_valid():
         msg = 'Error configuring services. Settings are invalid.'
@@ -102,7 +102,12 @@ def configure_services() -> dict[str, object]:
         services['parser'],
         services['timegenerator']
     )
-
+    
+    overrides = {} if overrides is None else overrides
+    
+    for service, servicer in overrides.items():
+        services[service] = servicer
+    
     return services
 
 
