@@ -1,6 +1,6 @@
 # roc-toolkit
 
-Start with run.py
+Start with run.py, or install with `pip install .` and run using roc-toolkit-cli
 
 If this is your first run, or you're missing settings files, they will be created for you
 
