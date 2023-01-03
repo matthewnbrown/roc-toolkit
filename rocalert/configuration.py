@@ -83,9 +83,17 @@ def configure_services(overrides: dict[str, object] = None) -> dict[str, object]
     else:
         services['capsolver'] = captchaservices.ManualCaptchaSolverService()
 
+    services['parser'] = _get_parser()
+    services['timegenerator'] = _get_timegenerator()
+    services['page_generator'] = BeautifulSoupPageGenerator(
+        services['parser'],
+        services['timegenerator']
+    )
+    
     services['rochandler'] = RocWebHandler(
         urlgenerator=services['urlgenerator'],
-        default_headers=services['default_headers'])
+        default_headers=services['default_headers'],
+        page_generator=services['page_generator'])
 
     services['buyer'] = ROCBuyer(
         services['rochandler'],
@@ -94,13 +102,6 @@ def configure_services(overrides: dict[str, object] = None) -> dict[str, object]
 
     services['trainer'] = SimpleRocTrainer(
         TrainerSettings(filepath=_trainer_settings_fp)
-    )
-
-    services['parser'] = _get_parser()
-    services['timegenerator'] = _get_timegenerator()
-    services['page_generator'] = BeautifulSoupPageGenerator(
-        services['parser'],
-        services['timegenerator']
     )
     
     overrides = {} if overrides is None else overrides
