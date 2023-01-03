@@ -2,16 +2,17 @@ import html
 import random
 import time
 import threading
-from rocalert.roc_settings.settingstools import SettingsFileMaker, \
-    SiteSettings, UserSettings
+from rocalert.roc_settings import  UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
 from os.path import exists
 
-from rocalert.services.manualcaptchaservice import ManualCaptchaService
+from rocalert.services.captchaservices import ManualCaptchaSolverService
+from rocalert.services.urlgenerator import ROCUrlGenerator
+from rocalert.configuration import configure_services
 
-targetids = [29428]
+targetids = [24172]
 mingold = 100000000000
 delay_min_ms = 200
 delay_max_ms = 300
@@ -92,8 +93,8 @@ def attack(roc: RocWebHandler, id: str) -> bool:
     url = roc.url_generator.get_home() + f'attack.php?id={id}'
     captcha = roc.get_url_img_captcha(url)
 
-    mcs = ManualCaptchaService()
-    r = mcs.run_service(None, None, {'captcha': captcha})
+    mcs = ManualCaptchaSolverService()
+    r = mcs.solve_captcha(captcha=captcha)
 
     if 'captcha' not in r or r['captcha'] is None:
         raise Exception('No captcha received from service')
@@ -123,23 +124,14 @@ def get_randdelay(minms, maxms) -> float:
 
 
 def run():
-    user_settings_fp = 'user.settings'
-    site_settings_fp = 'site.settings'
-    buyer_settings_fp = 'buyer.settings'
+    services = configure_services()
 
-    if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp, buyer_settings_fp):
-        print("Exiting. Please fill out settings files")
-        quit()
-
-    user_settings = UserSettings(filepath=user_settings_fp)
-    sitesettings = SiteSettings(filepath=site_settings_fp)
-    rochandler = RocWebHandler(sitesettings)
-
+    rochandler: RocWebHandler = services['rochandler']
+    url_generator: ROCUrlGenerator = services['urlgenerator']
     for i in range(len(targetids)):
         targetids[i] = str(targetids[i])
 
-    login(rochandler, user_settings)
+    login(rochandler, services['user_settings'])
     time.sleep(1.5)
     print("Starting..")
     while True:
@@ -153,7 +145,7 @@ def run():
                         target=playbeep, args=(1000,), kwargs={})
                     thr.start()
 
-                print(sitesettings.get_setting('roc_home')
+                print(url_generator.get_home()
                       + f'/attack.php?id={id}')
                 attack(rochandler, id)
             time.sleep(get_randdelay(delay_min_ms, delay_max_ms))
