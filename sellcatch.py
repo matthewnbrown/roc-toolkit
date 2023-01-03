@@ -13,7 +13,7 @@ from rocalert.services.urlgenerator import ROCUrlGenerator
 from rocalert.configuration import configure_services
 
 targetids = [24172]
-mingold = 100000000000
+mingold = 3 * 10**9  # 3 bn
 delay_min_ms = 200
 delay_max_ms = 300
 beep = True
@@ -44,7 +44,7 @@ def getgold(roc: RocWebHandler, id: str):
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
     if us.get_setting('load_cookies_from_browser'):
         cookies = load_cookies_from_browser(
-            us.get_setting('browser'),
+            us.get_setting('browser').value,
             roc.url_generator.get_home()
             )
         roc.add_cookies(cookies)
@@ -94,11 +94,8 @@ def attack(roc: RocWebHandler, id: str) -> bool:
     captcha = roc.get_url_img_captcha(url)
 
     mcs = ManualCaptchaSolverService()
-    r = mcs.solve_captcha(captcha=captcha)
-
-    if 'captcha' not in r or r['captcha'] is None:
-        raise Exception('No captcha received from service')
-    captcha = r['captcha']
+    captcha = mcs.solve_captcha(captcha=captcha)
+    
     print(f'Received answer: \'{captcha.ans}\'')
 
     payload = {
@@ -106,7 +103,7 @@ def attack(roc: RocWebHandler, id: str) -> bool:
         'mission_type': 'attack',
         'attacks': 12
     }
-    return roc.submit_captcha_url(r['captcha'], url, payload)
+    return roc.submit_captcha_url(captcha, url, payload)
 
 
 def playbeep(freq: int = 700):
