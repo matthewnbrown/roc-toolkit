@@ -1,3 +1,5 @@
+import os
+
 from rocalert.services.rocwebservices import \
     BattlefieldPageService, AttackService
 from rocalert.roc_settings import BuyerSettings,\
@@ -10,7 +12,7 @@ from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser, save_cookies_to_path
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
-import os
+from rocalert.configuration import configure_services
 
 
 def _should_att(target: BattlefieldTarget):
@@ -59,7 +61,7 @@ def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
         cookies = load_cookies_from_browser(
             us.get_setting('browser').value,
             url_generator.get_home()
-            )
+        )
         roc.add_cookies(cookies)
         return True
     return False
@@ -75,38 +77,18 @@ def __load_cookies_file(roc: RocWebHandler, cookie_filename: str) -> bool:
 
 if __name__ == '__main__':
 
-    filepaths = {
-        'user': ('user.settings', UserSettings),
-        'buyer': ('buyer.settings', BuyerSettings),
-    }
+    services = configure_services()
 
-    settings_file_error = False
+    rochandler: RocWebHandler = services['rochandler']
 
-    for settype, infotuple in filepaths.items():
-        path, settingtype = infotuple
-        if SettingsSetupHelper.needs_setup(path):
-            settings_file_error = True
-            SettingsSetupHelper.create_default_file(
-                path, settingtype.DEFAULT_SETTINGS)
-            print(f"Created settings file {path}.")
-
-    if settings_file_error:
-        print("Exiting. Please fill out settings files")
-        quit()
-
-    url_gen = ROCDecryptUrlGenerator()
-    user_settings = UserSettings(filepath=filepaths['user'][0])
-    buyer_settings = BuyerSettings(filepath=filepaths['buyer'][0])
-    rochandler = RocWebHandler(url_gen)
-
-    if not login(rochandler, user_settings):
+    if not login(rochandler, services['user_settings']):
         print('Error logging in.')
         quit()
 
     ps = BattlefieldPageService()
     atts = AttackService()
 
-    buyer = ROCBuyer(rochandler, buyer_settings)
+    buyer = services['buyer']
     capsolver = ManualCaptchaSolverService()
     sellcatch = BFSellCatch(ps, atts, buyer, rochandler, capsolver)
     sellcatch.run(_should_att, 0.35, 1, 2)
