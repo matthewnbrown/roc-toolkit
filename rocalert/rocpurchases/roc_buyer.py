@@ -42,9 +42,12 @@ class ROCBuyer():
         self.roc = roc_handler
         self.buyersettings = buyersettings
 
-    def check_purchase_required(self) -> bool:
+    def check_purchase_required(self, in_nightmode: bool = False) -> bool:
         if not self.buyersettings.buying_enabled():
             return False
+
+        if in_nightmode:
+            return True
 
         gold = self.roc.current_gold()
         return gold >= self.buyersettings.min_gold_to_buy()

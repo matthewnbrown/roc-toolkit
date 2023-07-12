@@ -32,6 +32,31 @@ class RocBuyerTests(unittest.TestCase):
 
         self.assertFalse(purchase_required)
 
+    def test_when_nightmode_and_buying_enabled_should_buy(self):
+        roc = mock.RocWebHandler(current_gold=1000)
+        buyersettings = mock.BuyerSettings(
+            min_gold_to_buy=1000870,
+            dagger=1)
+        buyer = roc_buyer.ROCBuyer(roc, buyersettings)
+
+        in_nightmode = True
+        purchase_required = buyer.check_purchase_required(in_nightmode)
+
+        self.assertTrue(purchase_required)
+
+    def test_when_nightmode_and_buying_disabled_should_buy(self):
+        roc = mock.RocWebHandler(current_gold=1000)
+        buyersettings = mock.BuyerSettings(
+            buying_enabled=False,
+            min_gold_to_buy=1000870,
+            dagger=1)
+        buyer = roc_buyer.ROCBuyer(roc, buyersettings)
+
+        in_nightmode = True
+        purchase_required = buyer.check_purchase_required(in_nightmode)
+
+        self.assertFalse(purchase_required)
+
     def test_even_two_item_split_purchase_order(self):
         roc = mock.RocWebHandler(current_gold=3*10**8)
         buyersettings = mock.BuyerSettings(
