@@ -1,0 +1,10 @@
+sympy
+pillow
+numpy
+requests
+2captcha-python
+beautifulsoup4
+opencv-python
+bs4
+lxml
+browser-cookie3 >= 0.16.1
