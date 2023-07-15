@@ -12,6 +12,7 @@ from rocalert.roc_settings import BuyerSettings,\
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
+from rocalert.services.useragentgenerator import UserAgentGenerator, Browser, OperatingSystem
 
 _user_settings_fp = 'user.settings'
 _trainer_settings_fp = 'trainer.settings'
@@ -106,6 +107,14 @@ def _configure_services(user_settings: UserSettings) -> dict[str, object]:
 
 
 def _get_default_headers():
+    default_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' \
+        + 'AppleWebKit/537.36 (KHTML, like Gecko) ' \
+        + 'Chrome/114.0.0.0 Safari/537.36'
+    agentgenerator = UserAgentGenerator(default=default_agent)
+    useragent = agentgenerator.get_useragent(
+        browser=Browser.Chrome, operatingsystem=OperatingSystem.Windows)
+
+    print(f'Using user-agent: "{useragent}"')
     return {
         'Accept': 'text/html,application/xhtml+xml,application/xml'
                   + ';q=0.9,image/avif,image/webp,*/*;q=0.8',
@@ -117,10 +126,7 @@ def _get_default_headers():
         'Sec-Fetch-User': '?1',
         'TE': 'trailers',
         'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) '
-                      + 'AppleWebKit/537.36 (KHTML, like Gecko) '
-                      + 'Chrome/114.0.0.0 Safari/537.36',
-    }
+        'User-Agent': useragent}
 
 
 def _error_nap(errorcount, timebetweenerrors) -> None:
