@@ -6,6 +6,7 @@ class Browser(Enum):
     Chrome = auto()
     Firefox = auto()
     Safari = auto()
+    Edge = auto()
     Any = auto()
 
 
@@ -13,6 +14,7 @@ _browsermap = {
     Browser.Chrome: "Chrome",
     Browser.Firefox: "Firefox",
     Browser.Safari: "Safari",
+    Browser.Edge: "Edg/",
     Browser.Any: ""
 }
 
