@@ -8,7 +8,7 @@ from rocalert.services.remote_lookup import RemoteCaptcha
 import rocalert.services.captchaservices as captchaservices
 from rocalert.rocpurchases import ROCBuyer, SimpleRocTrainer
 from rocalert.roc_settings import BuyerSettings,\
-        SettingsSetupHelper, UserSettings, TrainerSettings
+    SettingsSetupHelper, UserSettings, TrainerSettings
 from rocalert.captcha.captcha_logger import CaptchaLogger
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
@@ -35,7 +35,7 @@ def _run():
         generalLog=services['gen_captcha_logger'],
         remoteCaptcha=services['remote_captcha'],
         capsolver=services['capsolver']
-        )
+    )
 
     a.start()
 
@@ -96,7 +96,7 @@ def _configure_services(user_settings: UserSettings) -> dict[str, object]:
     services['buyer'] = ROCBuyer(
         services['rochandler'],
         BuyerSettings(filepath=_buyer_settings_fp),
-        )
+    )
 
     services['trainer'] = SimpleRocTrainer(
         TrainerSettings(filepath=_trainer_settings_fp)
