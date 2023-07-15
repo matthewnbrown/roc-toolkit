@@ -73,7 +73,7 @@ class UserAgentGenerator:
         return filtered_agents[0]
 
     @staticmethod
-    def _get_latest_agents() -> list[str] | None:
+    def _get_latest_agents() -> list[str]:
         try:
             latest_agents = get_latest_user_agents()
             if latest_agents is None or type(latest_agents) != list:
