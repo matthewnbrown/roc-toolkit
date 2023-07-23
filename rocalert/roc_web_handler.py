@@ -25,11 +25,14 @@ class Captcha:
     EXPIRATION_AGE = datetime.timedelta(minutes=4, seconds=30)
 
     def __init__(
-            self, hash: str, img: bytes = None, ans: str = '-1',
-            correct: bool = False, captype: str = None,
+            self,
+            hash: str,
+            img: bytes = None,
+            ans: str = '-1',
+            correct: bool = False,
+            captype: str = None,
             creation_date: datetime.datetime = None
-            ) -> None:
-
+    ) -> None:
         self._hash = hash
         self._img = img
         self._ans = ans
@@ -77,7 +80,7 @@ class RocWebHandler:
             self,
             urlgenerator: ROCUrlGenerator,
             default_headers: dict[str, str] = None,
-            ) -> None:
+    ) -> None:
         if default_headers:
             self.headers = default_headers
         else:
@@ -234,7 +237,7 @@ class RocWebHandler:
     def submit_equation(
             self, captcha: Captcha,
             page: str = 'roc_recruit'
-            ) -> bool:
+    ) -> bool:
         payload = {
             'flagInput': str(captcha.ans),
             'flagSubmit': 'Submit'
@@ -255,7 +258,7 @@ class RocWebHandler:
             url: str,
             payload: dict = None,
             manual_page: str = None
-            ) -> bool:
+    ) -> bool:
 
         if payload is None:
             payload = {}
@@ -282,7 +285,7 @@ class RocWebHandler:
             ans: str,
             page: str,
             payload: dict = None
-            ) -> bool:
+    ) -> bool:
 
         cs = ROCCaptchaSelector()
         x, y = cs.get_xy_static(ans, page)
