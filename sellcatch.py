@@ -2,17 +2,19 @@ import html
 import random
 import time
 import threading
-from rocalert.roc_settings.settingstools import SettingsFileMaker, \
+from rocalert.roc_settings import SettingsSetupHelper, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
 from os.path import exists
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
+from rocalert.services.captchaservices import ManualCaptchaSolverService
 
-from rocalert.services.manualcaptchaservice import ManualCaptchaService
+from rocalert.services.useragentgenerator import Browser, OperatingSystem, UserAgentGenerator
 
 targetids = [29428]
-mingold = 100000000000
+mingold = 10_000_000_000  # 10b
 delay_min_ms = 200
 delay_max_ms = 300
 beep = True
@@ -41,11 +43,11 @@ def getgold(roc: RocWebHandler, id: str):
 
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
-    if us.get_setting('load_cookies_from_browser'):
+    if us.get_setting('load_cookies_from_browser').value:
         cookies = load_cookies_from_browser(
-            us.get_setting('browser'),
+            us.get_setting('browser').value,
             roc.url_generator.get_home()
-            )
+        )
         roc.add_cookies(cookies)
         return True
     return False
@@ -67,12 +69,12 @@ def login(roc: RocWebHandler, us: UserSettings):
     __log('Logging in.')
     if __load_browser_cookies(roc, us) and roc.is_logged_in():
         __log('Successfully pulled cookie from {}'.format(
-            us.get_setting('browser')))
+            us.get_setting('browser').value))
         return True
 
     res = roc.login(
-        us.get_setting('email'),
-        us.get_setting('password')
+        us.get_setting('email').value,
+        us.get_setting('password').value
     )
 
     if res:
@@ -92,20 +94,19 @@ def attack(roc: RocWebHandler, id: str) -> bool:
     url = roc.url_generator.get_home() + f'attack.php?id={id}'
     captcha = roc.get_url_img_captcha(url)
 
-    mcs = ManualCaptchaService()
-    r = mcs.run_service(None, None, {'captcha': captcha})
+    mcs = ManualCaptchaSolverService()
+    captcha = mcs.solve_captcha(captcha)
 
-    if 'captcha' not in r or r['captcha'] is None:
-        raise Exception('No captcha received from service')
-    captcha = r['captcha']
     print(f'Received answer: \'{captcha.ans}\'')
+    if captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+        raise Exception('Bad captcha received from solver')
 
     payload = {
         'defender_id': id,
         'mission_type': 'attack',
         'attacks': 12
     }
-    return roc.submit_captcha_url(r['captcha'], url, payload)
+    return roc.submit_captcha_url(captcha, url, payload)
 
 
 def playbeep(freq: int = 700):
@@ -122,19 +123,53 @@ def get_randdelay(minms, maxms) -> float:
     return waittime/1000
 
 
+def _get_default_headers():
+    default_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' \
+        + 'AppleWebKit/537.36 (KHTML, like Gecko) ' \
+        + 'Chrome/114.0.0.0 Safari/537.36'
+    agentgenerator = UserAgentGenerator(default=default_agent)
+    useragent = agentgenerator.get_useragent(
+        browser=Browser.Chrome, operatingsystem=OperatingSystem.Windows)
+    print(f'Using user-agent: "{useragent}"')
+    return {
+        'Accept': 'text/html,application/xhtml+xml,application/xml'
+                  + ';q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.5',
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin',
+        'Sec-Fetch-User': '?1',
+        'TE': 'trailers',
+        'Upgrade-Insecure-Requests': '1',
+        'User-Agent': useragent}
+
+
 def run():
     user_settings_fp = 'user.settings'
-    site_settings_fp = 'site.settings'
-    buyer_settings_fp = 'buyer.settings'
 
-    if SettingsFileMaker.needs_user_setup(
-            user_settings_fp, site_settings_fp, buyer_settings_fp):
+    filepaths = {
+        'user': ('user.settings', UserSettings),
+    }
+
+    settings_file_error = False
+
+    for settype, infotuple in filepaths.items():
+        path, settingtype = infotuple
+        if SettingsSetupHelper.needs_setup(path):
+            settings_file_error = True
+            SettingsSetupHelper.create_default_file(
+                path, settingtype.DEFAULT_SETTINGS)
+            print(f"Created settings file {path}.")
+
+    if settings_file_error:
         print("Exiting. Please fill out settings files")
         quit()
 
     user_settings = UserSettings(filepath=user_settings_fp)
-    sitesettings = SiteSettings(filepath=site_settings_fp)
-    rochandler = RocWebHandler(sitesettings)
+    url_generator = ROCDecryptUrlGenerator()
+    rochandler = RocWebHandler(
+        urlgenerator=url_generator, default_headers=_get_default_headers())
 
     for i in range(len(targetids)):
         targetids[i] = str(targetids[i])
@@ -153,8 +188,6 @@ def run():
                         target=playbeep, args=(1000,), kwargs={})
                     thr.start()
 
-                print(sitesettings.get_setting('roc_home')
-                      + f'/attack.php?id={id}')
                 attack(rochandler, id)
             time.sleep(get_randdelay(delay_min_ms, delay_max_ms))
         print('-----------------------')
