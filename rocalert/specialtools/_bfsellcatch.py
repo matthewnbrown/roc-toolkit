@@ -1,10 +1,11 @@
+from datetime import datetime
 from typing import Callable
+from rocalert.captcha.captchaprovider import CaptchaProvider
 from rocalert.services.rocwebservices import BFPageServiceABC, AttackServiceABC
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.roc_web_handler import RocWebHandler, Captcha
 from rocalert.rocpurchases import ROCBuyer
-from rocalert.services.captchaservices import CaptchaSolverServiceABC, \
-    CaptchaSolveException
+from rocalert.services.captchaservices import CaptchaSolveException
 import time
 
 
@@ -15,12 +16,12 @@ class BFSellCatch:
             attack_serv: AttackServiceABC,
             buyer: ROCBuyer,
             roc: RocWebHandler,
-            captchasolver: CaptchaSolverServiceABC) -> None:
+            captcha_provider: CaptchaProvider) -> None:
         self._bfps = bf_pageservce
         self._attackservice = attack_serv
         self._buyer = buyer
         self._roc = roc
-        self._capsolver = captchasolver
+        self._captcha_provider = captcha_provider
 
     def _get_all_users(self) -> None:
         pagenum = 1
@@ -35,11 +36,23 @@ class BFSellCatch:
             newuser = self._filterusers(user_resp['result'])
             self._battlefield.extend(newuser)
 
-    def _attack_target(self, target: BattlefieldTarget):
+    def _attack_target(self, target: BattlefieldTarget) -> bool:
         alliance = '-' if target.alliance is None else target.alliance
         print(f'Attacking {target.name} | {alliance}'
-              + ' with {target.gold:,} gold')
-        self._attackservice.run_service(self._roc, target, self._capsolver)
+              + f' with {target.formatted_gold()} gold')
+
+        start = datetime.now()
+        captcha = self._captcha_provider.get_solved_captcha()
+        captcha_get_time = datetime.now() - start
+
+        if captcha_get_time.total_seconds() > 1.5:
+            print("took to long to get captcha.. resetting")
+            return False
+
+        self._attackservice.run_service(
+            self._roc, target, captcha)
+
+        return True
 
     def _buy(self):
         payload = self._buyer.create_order_payload()
@@ -56,20 +69,13 @@ class BFSellCatch:
         print(f'Purchasing {itemcount} items')
 
         page = 'roc_armory'
-        captcha = self._roc.get_img_captcha(page)
-
-        if captcha is None:
-            print('Weird error go check for yourself')
-            return None
-        if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
-            print('Uhoh text captcha')
-            captcha.ans_correct = False
 
         correct = False
         try:
-            captcha = self._capsolver.solve_captcha(captcha)
+            captcha = self._captcha_provider.get_solved_captcha()
+
             correct = self._roc.submit_captcha(
-                    captcha, captcha.ans, page, payload)
+                captcha, captcha.ans, page, payload)
         except CaptchaSolveException as e:
             print(f'Error solving captcha: {e}')
 
@@ -88,7 +94,7 @@ class BFSellCatch:
             pagedelay: float = 0.01,
             lowpage: int = 1,
             highpage: int = 2
-            ) -> None:
+    ) -> None:
 
         while True:
             for pnum in range(lowpage, highpage+1):
@@ -99,7 +105,8 @@ class BFSellCatch:
 
                 for target in targets:
                     if shouldhit(target):
-                        self._attack_target(target)
-                        self._buy()
+                        hittarget = self._attack_target(target)
+                        if hittarget:
+                            self._buy()
 
                 time.sleep(pagedelay)

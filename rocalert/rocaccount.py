@@ -20,7 +20,13 @@ class BattlefieldTarget:
         return "Rank {:<4} {:^26} | {:^6} | {:^20} | {:<29}".format(
             self.rank, self.name, alliance,
             f'{"{:,}".format(self.tff)} {self.tfftype}',
-            "{:,}".format(self.gold) + " Gold")
+            self.formatted_gold() + " Gold")
+
+    def formatted_gold(self) -> str:
+        if self.gold == -1:
+            return "???"
+        else:
+            return "{:,}".format(self.gold)
 
 
 class ROCStats:

@@ -1,10 +1,11 @@
+from rocalert.captcha.captchaprovider import CaptchaProvider
 from rocalert.services.rocwebservices import \
     BattlefieldPageService, AttackService
 from rocalert.roc_settings import BuyerSettings,\
     UserSettings, SettingsSetupHelper
 from rocalert.services.captchaservices import ManualCaptchaSolverService
 from rocalert.specialtools import BFSellCatch
-from rocalert.roc_web_handler import RocWebHandler
+from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocpurchases import ROCBuyer
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.cookiehelper import load_cookies_from_path, \
@@ -59,7 +60,7 @@ def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
         cookies = load_cookies_from_browser(
             us.get_setting('browser').value,
             url_generator.get_home()
-            )
+        )
         roc.add_cookies(cookies)
         return True
     return False
@@ -107,6 +108,24 @@ if __name__ == '__main__':
     atts = AttackService()
 
     buyer = ROCBuyer(rochandler, buyer_settings)
-    capsolver = ManualCaptchaSolverService()
-    sellcatch = BFSellCatch(ps, atts, buyer, rochandler, capsolver)
+
+    def captcha_providerfn():
+        url = rochandler.url_generator.get_armory()
+        captcha = None
+        mcs = ManualCaptchaSolverService()
+        while captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9] and not captcha.is_expired:
+            captcha = rochandler.get_url_img_captcha(url)
+
+            if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
+                print('Text captcha!!!')
+                quit()
+
+            captcha = mcs.solve_captcha(captcha)
+            print(f"got answer {captcha.ans}")
+        return captcha
+
+    captcha_provider = CaptchaProvider(captcha_providerfn, cachesize=2)
+    captcha_provider.start()
+
+    sellcatch = BFSellCatch(ps, atts, buyer, rochandler, captcha_provider)
     sellcatch.run(_should_att, 0.35, 1, 2)

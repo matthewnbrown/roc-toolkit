@@ -3,10 +3,10 @@ import html
 import random
 import time
 import threading
-from rocalert.captcha.captchacachemanger import CaptchaCacheManager
+from rocalert.captcha.captchaprovider import CaptchaProvider
 from rocalert.roc_settings import SettingsSetupHelper, \
     SiteSettings, UserSettings
-from rocalert.roc_web_handler import RocWebHandler
+from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.cookiehelper import load_cookies_from_path, \
     load_cookies_from_browser
 from os.path import exists
@@ -92,12 +92,12 @@ def goldformat(gold: int) -> str:
     return "{:,}".format(gold)
 
 
-def attack(roc: RocWebHandler, id: str, captchacache: CaptchaCacheManager) -> bool:
+def attack(roc: RocWebHandler, id: str, captchacache: CaptchaProvider) -> bool:
     start = datetime.now()
-    captcha = captchacache.get_latest()
+    captcha = captchacache.get_solved_captcha()
     captcha_get_time = datetime.now() - start
 
-    if captcha_get_time.total_seconds() > 2:
+    if captcha_get_time.total_seconds() > 1.5:
         print("took to long to get captcha.. resetting")
         return False
 
@@ -187,13 +187,18 @@ def run():
 
         while captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9] and not captcha.is_expired:
             captcha = rochandler.get_url_img_captcha(url)
+
+            if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
+                print('Text captcha!!!')
+                quit()
+
             mcs = ManualCaptchaSolverService()
             captcha = mcs.solve_captcha(captcha)
             print(f"got answer {captcha.ans}")
 
         return captcha
 
-    captchacache = CaptchaCacheManager(captcha_provider, cachesize=3)
+    captchacache = CaptchaProvider(captcha_provider, cachesize=3)
     captchacache.start()
 
     while True:

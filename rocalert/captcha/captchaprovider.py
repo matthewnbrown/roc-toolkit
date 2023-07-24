@@ -5,7 +5,7 @@ from threading import Lock
 from typing import Callable
 
 
-class CaptchaCacheManager:
+class CaptchaProvider:
     def __init__(self, captchaprovider: Callable[[], Captcha], cachesize: int = 5) -> None:
         self._cachesize = cachesize
         self._cachelock = Lock()
@@ -19,7 +19,7 @@ class CaptchaCacheManager:
             continue
         self._cachelock.release()
 
-    def get_latest(self) -> Captcha:
+    def get_solved_captcha(self) -> Captcha:
         captcha = None
         while captcha is None:
             self._cachelock.acquire()

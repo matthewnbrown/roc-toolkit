@@ -126,21 +126,15 @@ class AttackService(AttackServiceABC):
     def run_service(
             roc: RocWebHandler,
             target: BattlefieldTarget,
-            captchasolver: CaptchaSolverServiceABC):
+            solvedcaptcha: Captcha):
         url = roc.url_generator.get_home() + f'attack.php?id={target.id}'
-        captcha = roc.get_url_img_captcha(url)
-
-        try:
-            captcha = captchasolver.solve_captcha(captcha)
-        except CaptchaSolveException as e:
-            return f'Error: {e}'
 
         payload = {
             'defender_id': target.id,
             'mission_type': 'attack',
             'attacks': 12
         }
-        return roc.submit_captcha_url(captcha, url, payload)
+        return roc.submit_captcha_url(solvedcaptcha, url, payload)
 
 
 class SpyResult:
@@ -156,7 +150,7 @@ class SpyResult:
             result: int,
             resp: Response = None,
             error: str = None
-            ) -> None:
+    ) -> None:
         self.result = result
         self.response = resp
         self.error = error
@@ -167,7 +161,7 @@ class SpyService():
             self,
             roc: RocWebHandler,
             targets: list[Tuple[BattlefieldTarget, Captcha]] = []
-            ) -> None:
+    ) -> None:
         self._roc = roc
         self._targets = deque(targets)
 
@@ -191,7 +185,7 @@ class SpyService():
     def _spy_user(
             self,
             targetcap: Tuple[BattlefieldTarget, Captcha]
-            ) -> SpyResult:
+    ) -> SpyResult:
         target, captcha = targetcap
 
         if captcha.hash is None:
