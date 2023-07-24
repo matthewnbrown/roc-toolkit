@@ -4,8 +4,6 @@ from rocalert.roc_web_handler import Captcha
 from threading import Lock
 from typing import Callable
 
-from rocalert.services.captchaservices import ManualCaptchaSolverService
-
 
 class CaptchaCacheManager:
     def __init__(self, captchaprovider: Callable[[], Captcha], cachesize: int = 5) -> None:
@@ -22,9 +20,11 @@ class CaptchaCacheManager:
         self._cachelock.release()
 
     def get_latest(self) -> Captcha:
-        self._cachelock.acquire()
-        captcha = self._cache.pop()
-        self._cachelock.release()
+        captcha = None
+        while captcha is None:
+            self._cachelock.acquire()
+            captcha = self._cache.pop()
+            self._cachelock.release()
         return captcha
 
     def __len__(self) -> int:
@@ -44,7 +44,7 @@ class CaptchaCacheManager:
 
     def start(self) -> None:
         async def on_captcharemoved():
-            self._on_captcha_removed
+            self._on_captcha_removed()
 
         self._captcharemovedlistener = on_captcharemoved
         self._cache.listen(

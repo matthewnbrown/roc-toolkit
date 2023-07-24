@@ -1,7 +1,9 @@
+from datetime import datetime
 import html
 import random
 import time
 import threading
+from rocalert.captcha.captchacachemanger import CaptchaCacheManager
 from rocalert.roc_settings import SettingsSetupHelper, \
     SiteSettings, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
@@ -90,29 +92,30 @@ def goldformat(gold: int) -> str:
     return "{:,}".format(gold)
 
 
-def attack(roc: RocWebHandler, id: str) -> bool:
+def attack(roc: RocWebHandler, id: str, captchacache: CaptchaCacheManager) -> bool:
+    start = datetime.now()
+    captcha = captchacache.get_latest()
+    captcha_get_time = datetime.now() - start
+
+    if captcha_get_time.total_seconds() > 2:
+        print("took to long to get captcha.. resetting")
+        return False
+
     url = roc.url_generator.get_home() + f'attack.php?id={id}'
-    captcha = roc.get_url_img_captcha(url)
-
-    mcs = ManualCaptchaSolverService()
-    captcha = mcs.solve_captcha(captcha)
-
-    print(f'Received answer: \'{captcha.ans}\'')
-    if captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
-        raise Exception('Bad captcha received from solver')
 
     payload = {
         'defender_id': id,
         'mission_type': 'attack',
         'attacks': 12
     }
+
     return roc.submit_captcha_url(captcha, url, payload)
 
 
 def playbeep(freq: int = 700):
     try:
         import winsound
-        winsound.Beep(freq, 3000)
+        winsound.Beep(freq, 2000)
     except ImportError:
         print('ERROR SETTING UP BEEPING!')
 
@@ -175,8 +178,24 @@ def run():
         targetids[i] = str(targetids[i])
 
     login(rochandler, user_settings)
-    time.sleep(1.5)
+    time.sleep(1)
     print("Starting..")
+
+    def captcha_provider():
+        url = rochandler.url_generator.get_armory()
+        captcha = None
+
+        while captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9] and not captcha.is_expired:
+            captcha = rochandler.get_url_img_captcha(url)
+            mcs = ManualCaptchaSolverService()
+            captcha = mcs.solve_captcha(captcha)
+            print(f"got answer {captcha.ans}")
+
+        return captcha
+
+    captchacache = CaptchaCacheManager(captcha_provider, cachesize=3)
+    captchacache.start()
+
     while True:
         for id in targetids:
             gold = getgold(rochandler, id)
@@ -188,13 +207,18 @@ def run():
                         target=playbeep, args=(1000,), kwargs={})
                     thr.start()
 
-                attack(rochandler, id)
+                hit = attack(rochandler, id, captchacache)
+                if hit:
+                    print("target hit... quitting!")
+                    quit()
+                else:
+                    print("target hit failed")
             time.sleep(get_randdelay(delay_min_ms, delay_max_ms))
         print('-----------------------')
 
 
 if beep:
-    thr = threading.Thread(target=playbeep, args=(1000,), kwargs={})
+    thr = threading.Thread(target=playbeep, args=(750,), kwargs={})
     thr.start()
 
 run()

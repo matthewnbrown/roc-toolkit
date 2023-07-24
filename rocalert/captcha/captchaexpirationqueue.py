@@ -117,7 +117,7 @@ class CaptchaExpirationQueue:
 
     def _refresh_timer(self) -> None:
         self._cancel_timer()
-        self._timer = Timer(5, self._clear_expired_captchas)
+        self._timer = Timer(5, self._clear_expired_captchas).start()
 
     def _cancel_timer(self) -> None:
         if self._timer is not None:
@@ -138,6 +138,6 @@ class CaptchaExpirationQueue:
             Thread(target=_eventloop.run_forever, daemon=True).start()
 
         for listener in self._eventlisteners[event]:
-            _eventloop.call_soon_threadsafe(asyncio.create_task, listener)
+            _eventloop.call_soon_threadsafe(asyncio.create_task, listener())
 
         self._eventlistenerlock.release()
