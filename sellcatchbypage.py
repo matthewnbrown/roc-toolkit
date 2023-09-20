@@ -83,7 +83,7 @@ if __name__ == "__main__":
 
     settings_file_error = False
 
-    for settype, infotuple in filepaths.items():
+    for _, infotuple in filepaths.items():
         path, settingtype = infotuple
         if SettingsSetupHelper.needs_setup(path):
             settings_file_error = True
