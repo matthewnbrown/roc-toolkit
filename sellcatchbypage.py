@@ -45,7 +45,7 @@ def login(roc: RocWebHandler, us: UserSettings, cookie_filename="cookies"):
         save_cookies_to_path(roc.get_cookies(), cookie_filename)
         return True
 
-    roc.login(us.get_setting("email"), us.get_setting("password"))
+    roc.login(us.get_setting("email").value, us.get_setting("password").value)
 
     if roc.is_logged_in():
         print("Login success.")
