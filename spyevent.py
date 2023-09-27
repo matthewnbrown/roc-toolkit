@@ -44,7 +44,7 @@ def user_filter(user: BattlefieldTarget) -> bool:
 
 
 def __load_browser_cookies(roc: RocWebHandler, us: UserSettings) -> bool:
-    if us.get_setting('load_cookies_from_browser'):
+    if us.get_setting('load_cookies_from_browser').value:
         url_generator = ROCDecryptUrlGenerator()
         cookies = load_cookies_from_browser(
             us.get_setting('browser').value,
@@ -83,8 +83,8 @@ def login(roc: RocWebHandler, us: UserSettings):
 
     __log('Logging in..')
     roc.login(
-        us.get_setting('email'),
-        us.get_setting('password')
+        us.get_setting('email').value,
+        us.get_setting('password').value
     )
     time.sleep(0.25)
     if roc.is_logged_in():
