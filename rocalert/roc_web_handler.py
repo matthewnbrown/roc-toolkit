@@ -74,6 +74,10 @@ class Captcha:
         return self._type
 
     @property
+    def creation_date(self) -> datetime.datetime:
+        return self._creationdate
+
+    @property
     def age(self) -> datetime.timedelta:
         return datetime.datetime.now() - self._creationdate
 

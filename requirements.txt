@@ -5,7 +5,7 @@ requests
 2captcha-python
 beautifulsoup4
 opencv-python
-bs4
+beautifulsoup4
 lxml
 browser-cookie3 >= 0.16.1
 latest-user-agents

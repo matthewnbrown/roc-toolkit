@@ -1,4 +1,3 @@
-
 import asyncio
 from rocalert.roc_web_handler import Captcha
 
@@ -23,16 +22,19 @@ class CaptchaExpirationQueue:
         self._captchas: list[Captcha] = []
         self._timer: Timer = None
 
-        self._eventlisteners: dict[CaptchaExpirationQueueEvent,
-                                   list[Awaitable]] = defaultdict(list)
+        self._eventlisteners: dict[
+            CaptchaExpirationQueueEvent, list[Awaitable]
+        ] = defaultdict(list)
 
     def add(self, captcha: Captcha) -> bool:
-        """attempt to add an element to the queue
+        """Attempt to add an element to the queue..
 
         Args:
+        ----
             captcha (Captcha): captcha to be added
 
         Returns:
+        -------
             bool: true if added, false otherwise
         """
         if captcha is None or captcha.is_expired:
@@ -47,34 +49,39 @@ class CaptchaExpirationQueue:
         return True
 
     def pop(self) -> Captcha:
-        """pop oldest captcha off queue
+        """Pop oldest captcha off queue.
 
-        Returns:
+        Returns
+        -------
             Captcha: oldest captcha, none if there are no captchas
         """
         self._captchalock.acquire()
         oldest_captcha = None
 
         if any(x for x in self._captchas if not x.is_expired):
-            oldest_age = max(x.age for x in self._captchas if not x.is_expired)
+            oldest_creation = min(
+                x.creation_date for x in self._captchas if not x.is_expired
+            )
             oldest_captcha = next(
-                (x for x in self._captchas if x.age == oldest_age), None)
+                (x for x in self._captchas if x.creation_date == oldest_creation), None
+            )
             if oldest_captcha is not None:
                 self._captchas.remove(oldest_captcha)
-                self._trigger_events(
-                    CaptchaExpirationQueueEvent.CaptchasRemoved)
+                self._trigger_events(CaptchaExpirationQueueEvent.CaptchasRemoved)
         self._captchalock.release()
 
         return oldest_captcha
 
     def remove(self, captcha: Captcha = None, captchahash: str = None) -> bool:
-        """attempt to remove element from list
+        """Attempt to remove element from list.
 
         Args:
+        ----
             captcha (Captcha, optional): captcha to remove. Defaults to None.
             captchahash (str, optional): hash of captcha to remove. Defaults to None.
 
         Returns:
+        -------
             bool: true if removed, false otherwise
         """
         self._captchalock.acquire()
@@ -82,8 +89,7 @@ class CaptchaExpirationQueue:
         if captcha is not None:
             self._captchas.remove(captcha)
         else:
-            self._captchas = [
-                x for x in self._captchas if x.hash != captchahash]
+            self._captchas = [x for x in self._captchas if x.hash != captchahash]
         newlen = len(self._captchas)
 
         if newlen < beforelen:
