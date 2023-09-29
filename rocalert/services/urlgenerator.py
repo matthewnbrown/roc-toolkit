@@ -41,47 +41,54 @@ class ROCUrlGenerator(abc.ABC):
     def get_keep() -> str:
         raise NotImplementedError()
 
+    @abc.abstractmethod
+    def get_attack(self, id: str) -> str:
+        raise NotImplementedError()
+
 
 class ROCDecryptUrlGenerator(ROCUrlGenerator):
     def __init__(self) -> None:
-        rocurlb64 = 'aHR0cHM6Ly9ydWluc29mY2hhb3MuY29tLw=='
+        rocurlb64 = "aHR0cHM6Ly9ydWluc29mY2hhb3MuY29tLw=="
         rocurlbytes = base64.b64decode(rocurlb64)
-        self._rocburl = rocurlbytes.decode('ascii')
+        self._rocburl = rocurlbytes.decode("ascii")
 
         self._urls = {
-            'roc_home': self._rocburl,
-            'roc_armory': self._rocburl + 'armory.php',
-            'roc_login': self._rocburl + 'login.php',
-            'roc_training': self._rocburl + 'train.php',
-            'roc_recruit': self._rocburl + 'recruiter.php',
-            'roc_keep': self._rocburl + 'keep.php'
+            "roc_home": self._rocburl,
+            "roc_armory": self._rocburl + "armory.php",
+            "roc_login": self._rocburl + "login.php",
+            "roc_training": self._rocburl + "train.php",
+            "roc_recruit": self._rocburl + "recruiter.php",
+            "roc_keep": self._rocburl + "keep.php",
         }
 
     def get_page_url(self, page: str) -> str:
         if page not in self._urls:
-            raise URLNotFoundError(f'{page} url not known')
+            raise URLNotFoundError(f"{page} url not known")
         return self._urls[page]
 
     def get_home(self) -> str:
-        return self.get_page_url('roc_home')
+        return self.get_page_url("roc_home")
 
     def get_armory(self) -> str:
-        return self.get_page_url('roc_armory')
+        return self.get_page_url("roc_armory")
 
     def get_training(self) -> str:
-        return self.get_page_url('roc_training')
+        return self.get_page_url("roc_training")
 
     def get_base(self) -> str:
-        return self.get_page_url('roc_home') + 'base.php'
+        return self.get_page_url("roc_home") + "base.php"
 
     def get_recruit(self) -> str:
-        return self.get_page_url('roc_recruit')
+        return self.get_page_url("roc_recruit")
 
     def get_login(self) -> str:
-        return self.get_page_url('roc_login')
+        return self.get_page_url("roc_login")
 
     def get_keep(self) -> str:
-        return self.get_page_url('roc_keep')
+        return self.get_page_url("roc_keep")
+
+    def get_attack(self, id: str) -> str:
+        return self.get_home() + f"attack.php?id={id}"
 
 
 class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
@@ -91,7 +98,7 @@ class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
     def get_page_url(self, page: str) -> str:
         settings = self._sitesettings.get_settings()
         if page not in settings:
-            raise URLNotFoundError(f'{page} url not known')
+            raise URLNotFoundError(f"{page} url not known")
 
         return settings[page]
 
@@ -105,10 +112,16 @@ class ROCSiteSettingsUrlGenerator(ROCUrlGenerator):
         return self._sitesettings.get_training()
 
     def get_base(self) -> str:
-        return self._sitesettings.get_home() + '/base.php'
+        return self._sitesettings.get_home() + "/base.php"
 
     def get_recruit(self) -> str:
         return self._sitesettings.get_recruit()
 
     def get_login(self) -> str:
         return self._sitesettings.get_login_url()
+
+    def get_keep(self) -> str:
+        return self._sitesettings.get_home() + "/keep.php"
+
+    def get_attack(self, id: str) -> str:
+        return self.get_home() + f"attack.php?id={id}"
