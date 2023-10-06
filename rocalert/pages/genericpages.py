@@ -1,22 +1,27 @@
 from dataclasses import dataclass
-from typing import Optional, Tuple
-from bs4 import BeautifulSoup
 from datetime import datetime
+from typing import Optional, Tuple
+
+from bs4 import BeautifulSoup
 
 
 def rocnum_to_int(num_as_str: str):
-    value = num_as_str.strip().split(' ')[0].strip()
-    value = value.replace(',', '')
+    value = num_as_str.strip().split(" ")[0].strip()
+    value = value.replace(",", "")
     return int(value)
 
 
+def roctimestampstamp_to_datetime(date_as_str: str):
+    return datetime.fromtimestamp(int(date_as_str))
+
+
 def int_to_rocnum(num: int):
-    return f'{num:,}'
+    return f"{num:,}"
 
 
 class RocPage:
     def __init__(self, page: BeautifulSoup) -> None:
-        logform = page.find(id='login_form')
+        logform = page.find(id="login_form")
         self._loggedin = logform is None
 
     def _timestamp_to_datetime(self, timestamp: int) -> datetime:
@@ -30,11 +35,11 @@ class RocPage:
 class RocUserPage(RocPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
-        self._name = page.find(id='topnav_right').text.strip()
-        clockbar = page.find(id='clock_bar')
-        self._rank = int(clockbar.find(id='s_rank').text)
-        self._gold = rocnum_to_int(clockbar.find(id='s_gold').text)
-        self._turns = rocnum_to_int(clockbar.find(id='s_turns').text)
+        self._name = page.find(id="topnav_right").text.strip()
+        clockbar = page.find(id="clock_bar")
+        self._rank = int(clockbar.find(id="s_rank").text)
+        self._gold = rocnum_to_int(clockbar.find(id="s_gold").text)
+        self._turns = rocnum_to_int(clockbar.find(id="s_turns").text)
 
     @property
     def name(self) -> str:
@@ -61,12 +66,12 @@ class RocImageCaptchaPage(RocUserPage):
     def __init__(self, page: BeautifulSoup) -> None:
         super().__init__(page)
 
-        captchasoup = page.find(id='captcha_image')
+        captchasoup = page.find(id="captcha_image")
 
         if captchasoup is None:
             self._captcha_hash = None
         else:
-            self._captcha_hash = captchasoup.get('src').split('=')[1]
+            self._captcha_hash = captchasoup.get("src").split("=")[1]
 
     @property
     def captcha_hash(self) -> str:
@@ -75,7 +80,7 @@ class RocImageCaptchaPage(RocUserPage):
 
 class StatTable:
     def __init__(self, table: BeautifulSoup) -> None:
-        rows = table.find_all('tr')
+        rows = table.find_all("tr")
 
         self._strike = self._parseaction(rows[1])
         self._defense = self._parseaction(rows[2])
@@ -102,13 +107,10 @@ class StatTable:
         def rank(self) -> int:
             return self._rank
 
-    def _parseaction(
-            self, row: BeautifulSoup
-            ) -> Tuple[float, rocnum_to_int, int]:
-
+    def _parseaction(self, row: BeautifulSoup) -> Tuple[float, rocnum_to_int, int]:
         label = row.contents[1].text
-        if '+' in label:
-            bonus = float(label[label.index('+')+1: label.index('%')])
+        if "+" in label:
+            bonus = float(label[label.index("+") + 1 : label.index("%")])
         else:
             bonus = 0.0
         action = rocnum_to_int(row.contents[3].text)
@@ -149,40 +151,45 @@ class WeaponDistTableEntry:
 
 class WeaponTroopDistTable:
     def __init__(self, table: BeautifulSoup) -> None:
-        tbody = table.find('tbody')
+        tbody = table.find("tbody")
         table = tbody if tbody else table
 
-        rows = table.find_all('tr')
+        rows = table.find_all("tr")
 
         self._att_wtdist = WeaponDistTableEntry(
-            rocnum_to_int(rows[2].contents[5].text.split(' ')[0]),
-            rocnum_to_int(rows[2].contents[3].text))
+            rocnum_to_int(rows[2].contents[5].text.split(" ")[0]),
+            rocnum_to_int(rows[2].contents[3].text),
+        )
 
         self._def_wtdist = WeaponDistTableEntry(
-            rocnum_to_int(rows[3].contents[5].text.split(' ')[0]),
-            rocnum_to_int(rows[3].contents[3].text))
+            rocnum_to_int(rows[3].contents[5].text.split(" ")[0]),
+            rocnum_to_int(rows[3].contents[3].text),
+        )
 
         self._spy_wtdist = WeaponDistTableEntry(
             rocnum_to_int(rows[4].contents[5].text),
-            rocnum_to_int(rows[4].contents[3].text))
+            rocnum_to_int(rows[4].contents[3].text),
+        )
 
         self._sentry_wtdist = WeaponDistTableEntry(
             rocnum_to_int(rows[5].contents[5].text),
-            rocnum_to_int(rows[5].contents[3].text))
+            rocnum_to_int(rows[5].contents[3].text),
+        )
 
-        tffeles = rows[6].find_all('td')
+        tffeles = rows[6].find_all("td")
         self._tff = WeaponDistTableEntry(rocnum_to_int(tffeles[2].text))
-        tcfeles = rows[7].find_all('td')
+        tcfeles = rows[7].find_all("td")
         self._tcf = WeaponDistTableEntry(rocnum_to_int(tcfeles[2].text))
         self._untrained = WeaponDistTableEntry(
-            self._extract_untrained(rows[2].contents[5].text))
+            self._extract_untrained(rows[2].contents[5].text)
+        )
 
     def _extract_untrained(self, attacksoldiers: str) -> int:
-        split = attacksoldiers.split(' ')
+        split = attacksoldiers.split(" ")
         if len(split) != 3:
             return 0
         num = split[1]
-        return rocnum_to_int(num.split('+', maxsplit=1)[1])
+        return rocnum_to_int(num.split("+", maxsplit=1)[1])
 
     @property
     def attack_wt_dist(self) -> WeaponDistTableEntry:

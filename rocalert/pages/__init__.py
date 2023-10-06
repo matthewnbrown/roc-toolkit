@@ -3,6 +3,7 @@ from .attack.attack import RocAttackPage
 from .base import RocBasePage
 from .keep import RocKeepPage
 from .recruit import RocRecruitPage
+from .stats import RocStatsPage
 from .training import RocTrainingPage
 
 if __name__ == "__main__":
@@ -13,3 +14,4 @@ if __name__ == "__main__":
     RocRecruitPage()
     RocTrainingPage()
     RocAttackPage()
+    RocStatsPage()

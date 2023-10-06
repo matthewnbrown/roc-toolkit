@@ -1,17 +1,21 @@
 import asyncio
-from datetime import datetime, timedelta
 import unittest
+from datetime import datetime, timedelta
 
-from mock import patch, AsyncMock, MagicMock
-from time import sleep
+from mock import AsyncMock, MagicMock, patch
+
 import rocalert.captcha.captchaexpirationqueue as ceq
-from rocalert.captcha.captchaexpirationqueue import CaptchaExpirationQueue, Captcha, CaptchaExpirationQueueEvent
+from rocalert.captcha.captchaexpirationqueue import (
+    Captcha,
+    CaptchaExpirationQueue,
+    CaptchaExpirationQueueEvent,
+)
 
 
 # @patch('threading.Lock')
 # @patch('threading.Thread')
-@patch('threading.Timer')
-class EventTests():
+@patch("threading.Timer")
+class EventTests:
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
@@ -29,13 +33,14 @@ class EventTests():
         sut.listen(CaptchaExpirationQueueEvent.CaptchasAdded, awaitable)
         sut.add(captcha)
 
-        callsoon_threadsafe.assert_called_once_with(
-            asyncio.create_task, awaitable)
+        callsoon_threadsafe.assert_called_once_with(asyncio.create_task, awaitable)
 
     def test_adding_expiredcatcha_shouldnot_trigger_add_event(self, timer: MagicMock):
         sut = CaptchaExpirationQueue()
         captcha = Captcha(
-            "abc123", creation_date=datetime.now()-Captcha.EXPIRATION_AGE-timedelta(days=1))
+            "abc123",
+            creation_date=datetime.now() - Captcha.EXPIRATION_AGE - timedelta(days=1),
+        )
 
         callsoon_threadsafe = MagicMock()
 
@@ -48,22 +53,6 @@ class EventTests():
         sut.add(captcha)
 
         callsoon_threadsafe.assert_not_called()
-
-    def test_adding_should_trigger_add_event(self, timer: MagicMock):
-        sut = CaptchaExpirationQueue()
-        captcha = Captcha("abc123", creation_date=datetime.now())
-
-        callsoon_threadsafe = MagicMock()
-
-        ceq._eventloop = asyncio.AbstractEventLoop()
-        ceq._eventloop.call_soon_threadsafe = callsoon_threadsafe
-
-        callbackmock = AsyncMock()
-        awaitable = callbackmock
-        sut.listen(CaptchaExpirationQueueEvent.CaptchasAdded, awaitable)
-        sut.add(captcha)
-
-        callbackmock.assert_called_once()
 
     def test_removing_should_trigger_remove_event(self, timer: MagicMock):
         sut = CaptchaExpirationQueue()
@@ -81,7 +70,9 @@ class EventTests():
         sut.remove(captchahash=captcha.hash)
         callbackmock.assert_called_once()
 
-    def test_removing_nonexistant_captcha_shouldnot_trigger_add_event(self, timer: MagicMock):
+    def test_removing_nonexistant_captcha_shouldnot_trigger_add_event(
+        self, timer: MagicMock
+    ):
         sut = CaptchaExpirationQueue()
         captcha = Captcha("abc123", creation_date=datetime.now())
 
@@ -97,7 +88,9 @@ class EventTests():
         sut.remove(captchahash="dasfdsff")
         callbackmock.assert_not_called()
 
-    def test_removing_allcaptchas_should_trigger_nocaptcha_event(self, timer: MagicMock):
+    def test_removing_allcaptchas_should_trigger_nocaptcha_event(
+        self, timer: MagicMock
+    ):
         sut = CaptchaExpirationQueue()
         captcha = Captcha("abc123", creation_date=datetime.now())
 
@@ -116,8 +109,8 @@ class EventTests():
 
 
 # Disabled.. multithreaded test are wonky
-@patch('threading.Timer')
-class QueueTests():
+@patch("threading.Timer")
+class QueueTests:
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
 
@@ -193,10 +186,16 @@ class QueueTests():
 
     def test_pop_returns_oldest_captcha(self):
         sut = CaptchaExpirationQueue()
-        oldestcaptcha = Captcha("abc123", creation_date=datetime.now(
-        )-(Captcha.EXPIRATION_AGE-timedelta(seconds=5)))
-        captcha2 = Captcha("abc124", creation_date=datetime.now(
-        )-(Captcha.EXPIRATION_AGE-timedelta(seconds=55)))
+        oldestcaptcha = Captcha(
+            "abc123",
+            creation_date=datetime.now()
+            - (Captcha.EXPIRATION_AGE - timedelta(seconds=5)),
+        )
+        captcha2 = Captcha(
+            "abc124",
+            creation_date=datetime.now()
+            - (Captcha.EXPIRATION_AGE - timedelta(seconds=55)),
+        )
         captcha3 = Captcha("abc125", creation_date=datetime.now())
 
         sut.add(captcha2)
@@ -210,8 +209,9 @@ class QueueTests():
     def test_pop_does_not_return_expired_captcha(self):
         sut = CaptchaExpirationQueue()
         Captcha.EXPIRATION_AGE = timedelta(hours=1)
-        expiredcaptcha = Captcha("abc123", creation_date=datetime.now(
-        )-timedelta(minutes=5))
+        expiredcaptcha = Captcha(
+            "abc123", creation_date=datetime.now() - timedelta(minutes=5)
+        )
 
         sut.add(expiredcaptcha)
         Captcha.EXPIRATION_AGE = timedelta(minutes=1)

@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import unittest
 
@@ -706,3 +707,74 @@ class AttackPageTest(unittest.TestCase):
         page = self._get_offline_page()
 
         self.assertEqual(page.max_attack_turns, 3)
+
+
+class StatsPageTest(unittest.TestCase):
+    def __init__(self, methodName: str = ...) -> None:
+        super().__init__(methodName)
+        self._pagepath = "/testpages/stats/"
+
+    def _get_allstathistory_page(self) -> pages.RocStatsPage:
+        path = self._pagepath + "stats_noseegold_allstathistory.html"
+        soup = _getsoup(path)
+        return pages.RocStatsPage(soup)
+
+    def _get_seegold_norecon_page(self) -> pages.RocStatsPage:
+        path = self._pagepath + "stats_seegold_no_recons.html"
+        soup = _getsoup(path)
+        return pages.RocStatsPage(soup)
+
+    def test_known_gold(self):
+        page = self._get_seegold_norecon_page()
+
+        self.assertEqual(page.target_gold.value, 80738837)
+
+    def test_metadata(self):
+        page = self._get_seegold_norecon_page()
+
+        self.assertEqual(page.target_id, "30395")
+        self.assertEqual(page.target_name, "Synergy")
+        self.assertEqual(page.is_online, False)
+
+    def test_no_recons(self):
+        page = self._get_seegold_norecon_page()
+
+        self.assertIsNone(page.target_attack)
+        self.assertIsNone(page.target_defense)
+        self.assertIsNone(page.target_spy)
+        self.assertIsNone(page.target_sentry)
+
+    def test_no_alliance(self):
+        page = self._get_seegold_norecon_page()
+
+        self.assertIsNone(page.target_alliance_id)
+        self.assertIsNone(page.target_alliance_name)
+
+    def test_tff(self):
+        page = self._get_seegold_norecon_page()
+
+        self.assertEqual(page.target_tff, 197416)
+        self.assertEqual(page._target_army_type, "Humans")
+
+    def test_cantseegold(self):
+        page = self._get_allstathistory_page()
+
+        self.assertIsNone(page.target_gold)
+
+    def test_reading_all_aged_stats(self):
+        page = self._get_allstathistory_page()
+
+        self.assertEqual(page.target_attack.value, 106897)
+        self.assertEqual(page.target_defense.value, 106773)
+        self.assertEqual(page.target_spy.value, 5150)
+        self.assertEqual(page.target_sentry.value, 5150)
+        self.assertEqual(page.target_gold.value, 53830524)
+
+    def test_age_of_stats(self):
+        page = self._get_allstathistory_page()
+
+        self.assertEqual(page.target_attack.detectdate.date(), datetime(2023, 9, 25).date())
+        self.assertEqual(page.target_defense.detectdate.date(), datetime(2023, 9, 25).date())
+        self.assertEqual(page.target_spy.detectdate.date(), datetime(2023, 9, 25).date())
+        self.assertEqual(page.target_sentry.detectdate.date(), datetime(2023, 9, 25).date())
+        self.assertEqual(page.target_gold.detectdate.date(), datetime(2023, 9, 25).date())
