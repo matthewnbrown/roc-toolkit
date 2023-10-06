@@ -1,0 +1,2 @@
+class SizeDoesntMatterEvent:
+    pass
