@@ -174,7 +174,7 @@ class RocWebHandler:
         if hash is None:
             return None
 
-        img = self.__get_captcha_image(hash)matthewnbrown/
+        img = self.__get_captcha_image(hash)
         return Captcha(hash, img, captype=cap_type)
 
     def get_img_captcha(self, page: str) -> Captcha:
