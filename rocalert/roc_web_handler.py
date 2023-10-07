@@ -74,6 +74,10 @@ class Captcha:
         return self._type
 
     @property
+    def creation_date(self) -> datetime.datetime:
+        return self._creationdate
+
+    @property
     def age(self) -> datetime.timedelta:
         return datetime.datetime.now() - self._creationdate
 
@@ -170,7 +174,7 @@ class RocWebHandler:
         if hash is None:
             return None
 
-        img = self.__get_captcha_image(hash)
+        img = self.__get_captcha_image(hash)matthewnbrown/
         return Captcha(hash, img, captype=cap_type)
 
     def get_img_captcha(self, page: str) -> Captcha:
@@ -347,6 +351,11 @@ class RocWebHandler:
         self.go_to_keep()
         soup = BeautifulSoup(self.r.text, _BS_PARSER)
         return pages.RocKeepPage(soup)
+
+    def get_attack_page(self, target_id) -> pages.RocAttackPage:
+        self.__go_to_page(self._urlgenerator.get_attack(target_id))
+        soup = BeautifulSoup(self.r.text, _BS_PARSER)
+        return pages.RocAttackPage(soup)
 
     def start_key_repair(self) -> None:
         pass
