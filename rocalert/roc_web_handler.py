@@ -250,7 +250,11 @@ class RocWebHandler:
         return self.__page_captcha_type() == Captcha.CaptchaType.IMAGE
 
     def _check_incorrect_captcha(self) -> bool:
-        return "Wrong number" not in self.r.text or "wrong number" in self.r.text
+        return not (
+            "Wrong number" in self.r.text
+            or "wrong number" in self.r.text
+            or "You hit the wrong number. " in self.r.text
+        )
 
     def submit_captcha_url(
         self, captcha: Captcha, url: str, payload: dict = None, manual_page: str = None
