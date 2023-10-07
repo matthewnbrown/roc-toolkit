@@ -1,8 +1,15 @@
 import abc
+import io
+import json
+import os
+from typing import Optional
+
+import PIL.Image
 from requests import Response
-from rocalert.roc_web_handler import RocWebHandler
-from rocalert.roc_web_handler import Captcha
-from ..captcha.solvers import manual_captcha_solve, TwoCaptchaSolver
+
+from rocalert.roc_web_handler import Captcha, RocWebHandler
+
+from ..captcha.solvers import TrueCaptchaSolver, TwoCaptchaSolver, manual_captcha_solve
 
 
 class CaptchaSolveException(Exception):
@@ -29,13 +36,13 @@ class GetCaptchaService:
         Returns:
             Captcha: _description_
                 Captcha pulled from page.
-                Will be None if no captcha is detected
+                Will be None if no captcha is detected..
         """
 
         if roc is None:
-            raise Exception('ROC parameter must exist')
+            raise Exception("ROC parameter must exist")
         elif response is None:
-            raise Exception('Response parameter must exist')
+            raise Exception("Response parameter must exist")
 
         captcha_type = cls._detectcaptchatype(response)
 
@@ -50,11 +57,11 @@ class GetCaptchaService:
 
     @classmethod
     def _get_img_hash(cls, pagetext: str) -> str:
-        index = pagetext.find('img.php?hash=')
+        index = pagetext.find("img.php?hash=")
         if index == -1:
             return None
-        endIndex = pagetext.find('"', index, index+100)
-        imghash = pagetext.text[index + len('img.php?hash='): endIndex]
+        endIndex = pagetext.find('"', index, index + 100)
+        imghash = pagetext.text[index + len("img.php?hash=") : endIndex]
         return imghash
 
     @classmethod
@@ -65,29 +72,29 @@ class GetCaptchaService:
 
     @classmethod
     def _get_equation_captcha(cls, resp: Response) -> Captcha:
-        index = resp.text.find('<h1>What is')
+        index = resp.text.find("<h1>What is")
         if index == -1:
             return None
-        endIndex = resp.text.find('</h1>', index, index+100)
-        equation = resp.text[index + len('<h1>What is'):  endIndex]
+        endIndex = resp.text.find("</h1>", index, index + 100)
+        equation = resp.text[index + len("<h1>What is") : endIndex]
         equation = equation.strip()[:-1]
         return Captcha(equation, captype=Captcha.CaptchaType.EQUATION)
 
     @classmethod
     def _get_text_captcha(cls, resp: Response, roc: RocWebHandler) -> Captcha:
-        return Captcha('TEXT', captype=Captcha.CaptchaType.TEXT)
+        return Captcha("TEXT", captype=Captcha.CaptchaType.TEXT)
 
     @classmethod
     def _has_text_cap(cls, response: Response) -> bool:
-        return 'cooldown' in response.url
+        return "cooldown" in response.url
 
     @classmethod
     def _has_img_cap(cls, response: Response) -> bool:
-        return '[click the correct number to proceed]' in response.text
+        return "[click the correct number to proceed]" in response.text
 
     @classmethod
     def _has_equation_cap(cls, response: Response) -> bool:
-        return '<h1>What is' in response.text
+        return "<h1>What is" in response.text
 
     @classmethod
     def _detectcaptchatype(cls, response: Response) -> Captcha.CaptchaType:
@@ -98,6 +105,42 @@ class GetCaptchaService:
         if cls._has_equation_cap(response):
             return Captcha.CaptchaType.EQUATION
         return None
+
+
+def get_captcha_settings(captchaservice: str) -> Optional[dict]:
+    if captchaservice in ["2captcha", "twocaptcha"]:
+        filename = "2captcha_settings.json"
+    elif captchaservice in ["truecaptcha", "true captcha"]:
+        filename = "truecaptcha_settings.json"
+    else:
+        return None
+
+    if os.path.isfile(filename):
+        with open(filename, "r") as f:
+            return json.loads(f.read())
+
+    return None
+
+
+def create_captca_settings_file(captchaservice: str) -> None:
+    if captchaservice in ["2captcha", "twocaptcha"]:
+        filename = "2captcha_settings.json"
+        settings = {
+            "apiKey": "somekey",
+        }
+    elif captchaservice in ["truecaptcha", "true captcha"]:
+        filename = "truecaptcha_settings.json"
+
+        settings = {
+            "userId": "someuserid",
+            "apiKey": "somekey",
+            "mode": "auto",
+        }
+
+    with open(filename, "w") as f:
+        f.write(json.dumps(settings, indent=4))
+
+    return filename
 
 
 class CaptchaSolverServiceABC(abc.ABC):
@@ -113,9 +156,9 @@ class CaptchaSolverServiceABC(abc.ABC):
 class ManualCaptchaSolverService(CaptchaSolverServiceABC):
     def solve_captcha(self, captcha: Captcha):
         if captcha is None:
-            raise CaptchaSolveException('Captcha cannot be NoneType')
+            raise CaptchaSolveException("Captcha cannot be NoneType")
         elif captcha.img is None:
-            raise CaptchaSolveException('Captcha cannot be NoneType')
+            raise CaptchaSolveException("Captcha cannot be NoneType")
 
         captcha = manual_captcha_solve(captcha)
 
@@ -123,13 +166,13 @@ class ManualCaptchaSolverService(CaptchaSolverServiceABC):
 
     def report_captcha(self, captcha: Captcha) -> None:
         if captcha.ans_correct:
-            print('Correct answer')
+            print("Correct answer")
         else:
-            print('Wrong answer')
+            print("Wrong answer")
 
 
 class TwocaptchaSolverService(CaptchaSolverServiceABC):
-    def __init__(self, api_key, savepath='captchas/') -> None:
+    def __init__(self, api_key, savepath="captchas/") -> None:
         self._twocap = TwoCaptchaSolver(api_key, savepath=savepath)
 
     def solve_captcha(self, captcha: Captcha) -> Captcha:
@@ -138,7 +181,7 @@ class TwocaptchaSolverService(CaptchaSolverServiceABC):
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
-            raise CaptchaSolveException(f'Error: ${e}')
+            raise CaptchaSolveException(f"Error: ${e}") from e
 
     def report_captcha(self, captcha: Captcha) -> None:
         try:
@@ -146,4 +189,33 @@ class TwocaptchaSolverService(CaptchaSolverServiceABC):
         except KeyboardInterrupt as e:
             raise e
         except Exception as e:
-            raise CaptchaReportException(f'Error: ${e}')
+            raise CaptchaReportException(f"Error: ${e}") from e
+
+
+class TrueCaptchaSolverService(CaptchaSolverServiceABC):
+    def __init__(
+        self, userid: str, api_key: str, savepath="captchas/", mode="default"
+    ) -> None:
+        self._savepath = savepath
+        self._truecap = TrueCaptchaSolver(userid, api_key, mode=mode)
+
+    def solve_captcha(self, captcha: Captcha) -> Captcha:
+        try:
+            img = PIL.Image.open(io.BytesIO(captcha.img))
+            path = f"{self._savepath}/{captcha.hash}.png"
+            img.save(path)
+
+            solver_result = self._truecap.solve(captcha)
+            captcha.ans = solver_result["result"]
+        except KeyboardInterrupt as e:
+            raise e
+        except Exception as e:
+            raise CaptchaSolveException(f"Error: ${e}") from e
+
+    def report_captcha(self, captcha: Captcha) -> None:
+        try:
+            self._truecap.report_answer(captcha)
+        except KeyboardInterrupt as e:
+            raise e
+        except Exception as e:
+            raise CaptchaReportException(f"Error: ${e}") from e

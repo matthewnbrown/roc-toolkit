@@ -1,22 +1,32 @@
-from datetime import datetime, timedelta
 import random
 import time
+from datetime import datetime, timedelta
+
+import rocalert.services.captchaservices as captchaservices
+from rocalert.captcha.captcha_logger import CaptchaLogger
+from rocalert.pyrocalert import RocAlert
+from rocalert.roc_settings import (
+    BuyerSettings,
+    SettingsSetupHelper,
+    TrainerSettings,
+    UserSettings,
+)
+from rocalert.roc_settings._settings import is_negative_string
+from rocalert.roc_web_handler import RocWebHandler
+from rocalert.rocpurchases import ROCBuyer, SimpleRocTrainer
+from rocalert.services.remote_lookup import RemoteCaptcha
+from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
+from rocalert.services.useragentgenerator import (
+    Browser,
+    OperatingSystem,
+    UserAgentGenerator,
+)
 
 from .roc_settings import SettingsError
-from rocalert.pyrocalert import RocAlert
-from rocalert.services.remote_lookup import RemoteCaptcha
-import rocalert.services.captchaservices as captchaservices
-from rocalert.rocpurchases import ROCBuyer, SimpleRocTrainer
-from rocalert.roc_settings import BuyerSettings,\
-    SettingsSetupHelper, UserSettings, TrainerSettings
-from rocalert.captcha.captcha_logger import CaptchaLogger
-from rocalert.roc_web_handler import RocWebHandler
-from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
-from rocalert.services.useragentgenerator import UserAgentGenerator, Browser, OperatingSystem
 
-_user_settings_fp = 'user.settings'
-_trainer_settings_fp = 'trainer.settings'
-_buyer_settings_fp = 'buyer.settings'
+_user_settings_fp = "user.settings"
+_trainer_settings_fp = "trainer.settings"
+_buyer_settings_fp = "buyer.settings"
 
 
 def _run():
@@ -28,14 +38,14 @@ def _run():
     services = _configure_services(user_settings)
 
     a = RocAlert(
-        rochandler=services['rochandler'],
+        rochandler=services["rochandler"],
         usersettings=user_settings,
-        buyer=services['buyer'],
-        trainer=services['trainer'],
-        correctLog=services['correct_captcha_logger'],
-        generalLog=services['gen_captcha_logger'],
-        remoteCaptcha=services['remote_captcha'],
-        capsolver=services['capsolver']
+        buyer=services["buyer"],
+        trainer=services["trainer"],
+        correctLog=services["correct_captcha_logger"],
+        generalLog=services["gen_captcha_logger"],
+        remoteCaptcha=services["remote_captcha"],
+        capsolver=services["capsolver"],
     )
 
     a.start()
@@ -43,9 +53,9 @@ def _run():
 
 def _settings_are_valid() -> bool:
     filepaths = {
-        'trainer': (_trainer_settings_fp, TrainerSettings),
-        'user': (_user_settings_fp, UserSettings),
-        'buyer': (_buyer_settings_fp, BuyerSettings)
+        "trainer": (_trainer_settings_fp, TrainerSettings),
+        "user": (_user_settings_fp, UserSettings),
+        "buyer": (_buyer_settings_fp, BuyerSettings),
     }
 
     settings_file_error = False
@@ -54,8 +64,7 @@ def _settings_are_valid() -> bool:
         path, settingtype = infotuple
         if SettingsSetupHelper.needs_setup(path):
             settings_file_error = True
-            SettingsSetupHelper.create_default_file(
-                path, settingtype.DEFAULT_SETTINGS)
+            SettingsSetupHelper.create_default_file(path, settingtype.DEFAULT_SETTINGS)
             print(f"Created settings file {path}.")
 
     if settings_file_error:
@@ -68,77 +77,107 @@ def _settings_are_valid() -> bool:
 def _configure_services(user_settings: UserSettings) -> dict[str, object]:
     services = {}
 
-    services['gen_captcha_logger'] = CaptchaLogger(
-        'logs/captcha_answers.log', timestamp=True)
+    services["gen_captcha_logger"] = CaptchaLogger(
+        "logs/captcha_answers.log", timestamp=True
+    )
 
-    services['correct_captcha_logger'] = CaptchaLogger(
-        'logs/correct_ans.log', log_correctness=False)
+    services["correct_captcha_logger"] = CaptchaLogger(
+        "logs/correct_ans.log", log_correctness=False
+    )
 
-    services['default_headers'] = _get_default_headers()
+    services["default_headers"] = _get_default_headers()
 
-    services['remote_captcha'] = RemoteCaptcha(
-        user_settings.get_value('remote_captcha_add'),
-        user_settings.get_value('remote_captcha_lookup'))
+    services["remote_captcha"] = RemoteCaptcha(
+        user_settings.get_value("remote_captcha_add"),
+        user_settings.get_value("remote_captcha_lookup"),
+    )
 
-    services['urlgenerator'] = ROCDecryptUrlGenerator()
+    services["urlgenerator"] = ROCDecryptUrlGenerator()
 
-    if user_settings.get_setting('auto_solve_captchas').value:
-        savepath = user_settings.get_setting('captcha_save_path').value
-        apikey = user_settings.get_setting('auto_captcha_key').value
-        services['capsolver'] = captchaservices.TwocaptchaSolverService(
-            api_key=apikey, savepath=savepath)
-    else:
-        services['capsolver'] = captchaservices.ManualCaptchaSolverService()
+    services["capsolver"] = _get_captcha_solving_service(user_settings)
 
-    services['rochandler'] = RocWebHandler(
-        urlgenerator=services['urlgenerator'],
-        default_headers=services['default_headers'])
+    services["rochandler"] = RocWebHandler(
+        urlgenerator=services["urlgenerator"],
+        default_headers=services["default_headers"],
+    )
 
-    services['buyer'] = ROCBuyer(
-        services['rochandler'],
+    services["buyer"] = ROCBuyer(
+        services["rochandler"],
         BuyerSettings(filepath=_buyer_settings_fp),
     )
 
-    services['trainer'] = SimpleRocTrainer(
+    services["trainer"] = SimpleRocTrainer(
         TrainerSettings(filepath=_trainer_settings_fp)
     )
 
     return services
 
 
+def _get_captcha_solving_service(user_settings: UserSettings):
+    service = user_settings.get_setting("auto_solve_captchas").value.lower().strip()
+
+    savepath = user_settings.get_setting("captcha_save_path").value
+
+    if is_negative_string(service):
+        return captchaservices.ManualCaptchaSolverService()
+
+    captcha_settings = captchaservices.get_captcha_settings(service)
+    if captcha_settings is None:
+        filename = captchaservices.create_captca_settings_file(service)
+        print(f"Created settings file {filename}. Please fill it out and restart")
+        quit()
+
+    if service in ["2captcha", "twocaptcha"]:
+        apikey = captcha_settings["apiKey"]
+        return captchaservices.TwocaptchaSolverService(
+            api_key=apikey, savepath=savepath
+        )
+    if service in ["truecaptcha", "true captcha"]:
+        return captchaservices.TrueCaptchaSolverService(
+            userid=captcha_settings["userId"],
+            api_key=captcha_settings["apiKey"],
+            mode=captcha_settings["mode"],
+            savepath=savepath,
+        )
+
+
 def _get_default_headers():
-    default_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' \
-        + 'AppleWebKit/537.36 (KHTML, like Gecko) ' \
-        + 'Chrome/114.0.0.0 Safari/537.36'
+    default_agent = (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        + "AppleWebKit/537.36 (KHTML, like Gecko) "
+        + "Chrome/114.0.0.0 Safari/537.36"
+    )
     agentgenerator = UserAgentGenerator(default=default_agent)
     useragent = agentgenerator.get_useragent(
-        browser=Browser.Chrome, operatingsystem=OperatingSystem.Windows)
+        browser=Browser.Chrome, operatingsystem=OperatingSystem.Windows
+    )
 
     print(f'Using user-agent: "{useragent}"')
     return {
-        'Accept': 'text/html,application/xhtml+xml,application/xml'
-                  + ';q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.5',
-        'Connection': 'keep-alive',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'same-origin',
-        'Sec-Fetch-User': '?1',
-        'TE': 'trailers',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': useragent}
+        "Accept": "text/html,application/xhtml+xml,application/xml"
+        + ";q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-US,en;q=0.5",
+        "Connection": "keep-alive",
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "same-origin",
+        "Sec-Fetch-User": "?1",
+        "TE": "trailers",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": useragent,
+    }
 
 
 def _error_nap(errorcount, timebetweenerrors) -> None:
     muiltiplier = 1
     if timebetweenerrors < timedelta(minutes=5):
-        print('Very recent error, increasing sleep time')
+        print("Very recent error, increasing sleep time")
         muiltiplier = 2
 
-    base = 5*(max(1, errorcount % 4))
+    base = 5 * (max(1, errorcount % 4))
     sleeptime = int(muiltiplier * (base + random.uniform(0, 15)))
-    print(f'Sleeping for {sleeptime} minutes')
-    time.sleep(sleeptime*60)
+    print(f"Sleeping for {sleeptime} minutes")
+    time.sleep(sleeptime * 60)
 
 
 def main():
@@ -150,10 +189,10 @@ def main():
             _run()
             keeprunning = False
         except KeyboardInterrupt as e:
-            print('Detected keyboard interrupt')
+            print("Detected keyboard interrupt")
             raise e
         except SettingsError as e:
-            print(f'Settings error: {e}\nExiting..')
+            print(f"Settings error: {e}\nExiting..")
             return
         except Exception as e:
             # TODO: Collect specific exceptions and handle them
@@ -164,8 +203,8 @@ def main():
             print(e)
             print(f"\nWarning: Detected exception #{errorcount}")
             _error_nap(errorcount, timebetweenerrors)
-            print('\n\nRestarting...')
+            print("\n\nRestarting...")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     exit(main())
