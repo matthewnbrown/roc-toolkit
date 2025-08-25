@@ -5,7 +5,7 @@ from datetime import datetime
 
 
 def rocnum_to_int(num_as_str: str):
-    value = num_as_str.strip().split(' ')[0].strip()
+    value = num_as_str.strip().split()[0].strip()
     value = value.replace(',', '')
     return int(value)
 

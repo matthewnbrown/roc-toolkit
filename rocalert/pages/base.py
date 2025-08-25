@@ -45,6 +45,9 @@ class RocBasePage(genpages.RocUserPage):
         listitems = eventlist.findChildren(
             'li', {'class', 'td'}, recursive=False)
         self._events = []
+        
+        # TODO: FIX EVENTS
+        return
 
         def is_event(eventsoup: BeautifulSoup) -> bool:
             isevent = eventsoup.find('span', {'class': 'countdown'})
