@@ -287,7 +287,7 @@ class RocWebHandler:
         payload["captcha"] = captcha.hash
         payload["coordinates[x]"] = x
         payload["coordinates[y]"] = y
-        payload["manualcaptcha"] = ""
+        # payload["manualcaptcha"] = ""
         payload["num"] = ans
 
         self.r = self.session.post(
