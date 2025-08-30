@@ -5,21 +5,19 @@ name: Python Lint/Test
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: '*'
+    branches: ["*"]
   workflow_dispatch:
-  
-permissions:
-  contents: read
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
     - name: Set up Python 3.10
       uses: actions/setup-python@v4
       with:
@@ -38,3 +36,73 @@ jobs:
     - name: Test with unittest
       run: |
         python3 -m unittest
+
+  tag-release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+    
+    - name: Install conventional-changelog-cli
+      run: npm install -g conventional-changelog-cli
+    
+    - name: Get version from conventional commits
+      id: version
+      run: |
+        # Get the version from conventional commits
+        VERSION=$(npx conventional-recommended-bump -p angular)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Recommended version: $VERSION"
+    
+    - name: Check if version bump is needed
+      id: check_version
+      run: |
+        # Get current version from git tags
+        CURRENT_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
+        echo "current_version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+        
+        # Get the latest commit message
+        COMMIT_MSG=$(git log -1 --pretty=%B)
+        echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
+        
+        # Check if this is a conventional commit that should trigger a version bump
+        if [[ "$COMMIT_MSG" =~ ^(feat|fix|BREAKING CHANGE|major|minor|patch)(\(.+\))?: ]]; then
+          echo "needs_tag=true" >> $GITHUB_OUTPUT
+          echo "This commit should trigger a version bump"
+        else
+          echo "needs_tag=false" >> $GITHUB_OUTPUT
+          echo "This commit doesn't need a version bump"
+        fi
+    
+    - name: Create and push tag
+      if: steps.check_version.outputs.needs_tag == 'true'
+      run: |
+        # Get the new version
+        NEW_VERSION="${{ steps.version.outputs.version }}"
+        
+        # Create the tag
+        git tag -a "v$NEW_VERSION" -m "Release version $NEW_VERSION"
+        
+        # Push the tag
+        git push origin "v$NEW_VERSION"
+        
+        echo "Created and pushed tag v$NEW_VERSION"
+    
+    - name: Skip tagging
+      if: steps.check_version.outputs.needs_tag == 'false'
+      run: |
+        echo "Skipping tag creation - commit doesn't follow conventional commit format"
+        echo "Commit message: ${{ steps.check_version.outputs.commit_msg }}"
