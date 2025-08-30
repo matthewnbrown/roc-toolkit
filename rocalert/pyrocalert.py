@@ -536,7 +536,7 @@ class RocAlert:
             if self.__failure_timeout:
                 if self.user_settings['captcha_failure_timeout'] <= 0:
                     self.__log('Failure timeout disabled. Exiting..')
-                    break
+                    raise Exception('Failure timeout disabled. Exiting..')
                 self.failuretimeout()
 
             if self.handlecooldown():

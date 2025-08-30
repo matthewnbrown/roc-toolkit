@@ -170,7 +170,7 @@ class UserSettings(Settings):
         "exception_timeout_minutes": Setting(
             "Exception timeout delay (minutes)",
             "exception_timeout_minutes",
-            30,
+            120,
             int,
             "Number of minutes to wait before retrying after an unhandled exception",
         ),

@@ -50,7 +50,7 @@ Install lxml:
 #### Exception Handling
 
 **enable_exception_timeout:** True/False (Enable timeout and retry for unhandled exceptions)  
-**exception_timeout_minutes:** 30 (Number of minutes to wait before retrying after an unhandled exception)
+**exception_timeout_minutes:** 120 (Number of minutes to wait before retrying after an unhandled exception)
 
 **captcha_save_path:** captcha_img/ (path to save captcha images to)
 
