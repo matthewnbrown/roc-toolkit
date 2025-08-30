@@ -262,8 +262,8 @@ class RocAlert:
         else:
             self.__load_cookies_file()
 
-    def __check_failure_conditions(self) -> bool:
-        error = False
+    def __check_failure_conditions(self) -> list[str]:
+        failures = []
         max_clf = self.user_settings['max_consecutive_login_failures']
         max_caa = self.user_settings['max_consecutive_answer_errors']
         max_ccf = self.user_settings['max_consecutive_captcha_attempts']
@@ -272,40 +272,45 @@ class RocAlert:
         max_fta = 5
         max_cdclears = 2
         if self.consecutive_login_failures >= max_clf:
-            self.__log("ERROR: Multiple login failures. Exiting.")
-            error = True
+            failure_msg = f"Multiple login failures ({self.consecutive_login_failures}/{max_clf})"
+            self.__log(f"ERROR: {failure_msg}")
+            failures.append(failure_msg)
         if self.consecutive_answer_errors >= max_caa:
-            self.__log("Too many consecutive bad answers received!")
+            failure_msg = f"Too many consecutive bad answers received ({self.consecutive_answer_errors}/{max_caa})!"
+            self.__log(failure_msg)
             if self.user_settings['captcha_failure_timeout'] > 0:
                 self.consecutive_answer_errors = 0
                 self.__failure_timeout = True
             else:
-                error = True
+                failures.append(failure_msg)
         if self.consecutive_captcha_failures >= max_ccf:
-            self.__log("Failed too many captchas!")
+            failure_msg = f"Failed too many captchas ({self.consecutive_captcha_failures}/{max_ccf})!"
+            self.__log(failure_msg)
             if self.user_settings['captcha_failure_timeout'] > 0:
                 self.consecutive_captcha_failures = 0
                 self.__failure_timeout = True
             else:
-                error = True
+                failures.append(failure_msg)
         if self.consecutive_bugged_logins >= max_cbl:
-            self.__log('Error: Too many logins in a very short period!')
-            error = True
+            failure_msg = f"Too many logins in a very short period ({self.consecutive_bugged_logins}/{max_cbl})!"
+            self.__log(f'Error: {failure_msg}')
+            failures.append(failure_msg)
         if self.consecutive_purchase_attempts >= max_fpa:
             self.consecutive_purchase_attempts = 0
-            self.__log('Error: Too many failed purchase attempts! '
-                       + 'No longer attempting to purchase.')
+            failure_msg = f"Too many failed purchase attempts ({self.consecutive_purchase_attempts}/{max_fpa})! No longer attempting to purchase."
+            self.__log(f'Error: {failure_msg}')
             self.__purchase_error = True
         if self.consecutive_training_attempts >= max_fta:
             self.consecutive_training_attempts = 0
-            self.__log('Error: Too many failed purchase attempts! '
-                       + 'No longer attempting to purchase.')
+            failure_msg = f"Too many failed training attempts ({self.consecutive_training_attempts}/{max_fta})! No longer attempting to train."
+            self.__log(f'Error: {failure_msg}')
             self.__training_error = True
         if self.consecutive_cooldowns >= max_cdclears:
             self.consecutive_cooldowns = 0
-            self.__log('Text captcha failed to clear too many times.')
+            failure_msg = f"Text captcha failed to clear too many times ({self.consecutive_cooldowns}/{max_cdclears})."
+            self.__log(failure_msg)
             self.__failure_timeout = True
-        return error
+        return failures
 
     def __check_buy_needed(self) -> bool:
         if self.buyer is None:
@@ -523,9 +528,11 @@ class RocAlert:
         self.consecutive_training_attempts = 0
         self.consecutive_cooldowns = 0
         while True:
-            if self.__check_failure_conditions():
-                self.__log('Failure condition met. Breaking loop.')
-                break
+            failure_conditions = self.__check_failure_conditions()
+            if failure_conditions:
+                failure_message = '\n'.join(failure_conditions)
+                self.__log('Failure conditions met. Breaking loop.')
+                raise Exception(f'Failure conditions met:\n{failure_message}')
             if self.__failure_timeout:
                 if self.user_settings['captcha_failure_timeout'] <= 0:
                     self.__log('Failure timeout disabled. Exiting..')
