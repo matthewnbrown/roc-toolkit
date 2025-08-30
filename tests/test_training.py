@@ -493,7 +493,7 @@ class ROCTrainingPayloadCreatorTest(unittest.TestCase):
 
         self.assertEqual(
             len(payload),
-            14,
+            12,
             'Payload should contain correct number of items'
         )
 
@@ -508,8 +508,6 @@ class ROCTrainingPayloadCreatorTest(unittest.TestCase):
             untrained_mercs=7,
             sell_attack_soldiers=8,
             sell_defense_soldiers=9,
-            sell_spies=10,
-            sell_sentries=11,
             sell_attack_mercs=12,
             sell_defense_mercs=13,
             sell_untrained_mercs=14
@@ -530,8 +528,6 @@ class ROCTrainingPayloadCreatorTest(unittest.TestCase):
                 'buy[untrained_mercs]': '7',
                 'untrain[attack_soldiers]': '8',
                 'untrain[defense_soldiers]': '9',
-                'untrain[spies]': '10',
-                'untrain[sentries]': '11',
                 'untrain[attack_mercs]': '12',
                 'untrain[defense_mercs]': '13',
                 'untrain[untrained_mercs]': '14'
@@ -544,7 +540,7 @@ class SimpleRocTrainerTest(unittest.TestCase):
     def __init__(self, methodName: str = ...) -> None:
         super().__init__(methodName)
         self.trainertype = SimpleRocTrainer
-        self._PAYLOAD_SIZE = 14
+        self._PAYLOAD_SIZE = 12
 
     def test_payload_size_disabled_training(self):
         tset = mock.TrainingSettings(
