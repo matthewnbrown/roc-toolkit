@@ -64,28 +64,28 @@ jobs:
         # Get the latest commit message
         COMMIT_MSG=$(git log -1 --pretty=%B)
         
-        # Determine version bump based on commit type
-        if [[ "$COMMIT_MSG" =~ ^BREAKING CHANGE: ]] || [[ "$COMMIT_MSG" =~ ^major: ]]; then
-          VERSION="major"
-          NEW_MAJOR=$((MAJOR + 1))
-          NEW_MINOR=0
-          NEW_PATCH=0
-        elif [[ "$COMMIT_MSG" =~ ^feat: ]] || [[ "$COMMIT_MSG" =~ ^minor: ]]; then
-          VERSION="minor"
-          NEW_MAJOR=$MAJOR
-          NEW_MINOR=$((MINOR + 1))
-          NEW_PATCH=0
-        elif [[ "$COMMIT_MSG" =~ ^fix: ]] || [[ "$COMMIT_MSG" =~ ^patch: ]]; then
-          VERSION="patch"
-          NEW_MAJOR=$MAJOR
-          NEW_MINOR=$MINOR
-          NEW_PATCH=$((PATCH + 1))
-        else
-          VERSION="patch"
-          NEW_MAJOR=$MAJOR
-          NEW_MINOR=$MINOR
-          NEW_PATCH=$((PATCH + 1))
-        fi
+                 # Determine version bump based on commit type
+         if echo "$COMMIT_MSG" | grep -q "^BREAKING CHANGE:" || echo "$COMMIT_MSG" | grep -q "^major:"; then
+           VERSION="major"
+           NEW_MAJOR=$((MAJOR + 1))
+           NEW_MINOR=0
+           NEW_PATCH=0
+         elif echo "$COMMIT_MSG" | grep -q "^feat:" || echo "$COMMIT_MSG" | grep -q "^minor:"; then
+           VERSION="minor"
+           NEW_MAJOR=$MAJOR
+           NEW_MINOR=$((MINOR + 1))
+           NEW_PATCH=0
+         elif echo "$COMMIT_MSG" | grep -q "^fix:" || echo "$COMMIT_MSG" | grep -q "^patch:"; then
+           VERSION="patch"
+           NEW_MAJOR=$MAJOR
+           NEW_MINOR=$MINOR
+           NEW_PATCH=$((PATCH + 1))
+         else
+           VERSION="patch"
+           NEW_MAJOR=$MAJOR
+           NEW_MINOR=$MINOR
+           NEW_PATCH=$((PATCH + 1))
+         fi
         
         NEW_VERSION="${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}"
         echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
@@ -101,14 +101,14 @@ jobs:
         COMMIT_MSG=$(git log -1 --pretty=%B)
         echo "commit_msg=$COMMIT_MSG" >> $GITHUB_OUTPUT
         
-        # Check if this is a conventional commit that should trigger a version bump
-        if [[ "$COMMIT_MSG" =~ ^(feat|fix|BREAKING CHANGE|major|minor|patch)(\(.+\))?: ]]; then
-          echo "needs_tag=true" >> $GITHUB_OUTPUT
-          echo "This commit should trigger a version bump"
-        else
-          echo "needs_tag=false" >> $GITHUB_OUTPUT
-          echo "This commit doesn't need a version bump"
-        fi
+                 # Check if this is a conventional commit that should trigger a version bump
+         if echo "$COMMIT_MSG" | grep -q "^feat:" || echo "$COMMIT_MSG" | grep -q "^fix:" || echo "$COMMIT_MSG" | grep -q "^BREAKING CHANGE:" || echo "$COMMIT_MSG" | grep -q "^major:" || echo "$COMMIT_MSG" | grep -q "^minor:" || echo "$COMMIT_MSG" | grep -q "^patch:"; then
+           echo "needs_tag=true" >> $GITHUB_OUTPUT
+           echo "This commit should trigger a version bump"
+         else
+           echo "needs_tag=false" >> $GITHUB_OUTPUT
+           echo "This commit doesn't need a version bump"
+         fi
     
     - name: Create and push tag
       if: steps.check_version.outputs.needs_tag == 'true'
