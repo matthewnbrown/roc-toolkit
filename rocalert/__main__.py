@@ -183,7 +183,10 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
     time.sleep(sleeptime * 60)
 
 
-def main():
+def main():  
+    if not _settings_are_valid():
+        return
+    
     keeprunning = True
     
     # Load user settings for exception handling configuration
