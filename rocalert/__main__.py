@@ -21,6 +21,7 @@ from rocalert.services.useragentgenerator import (
     OperatingSystem,
     UserAgentGenerator,
 )
+from rocalert.services.exception_handler import ExceptionHandler
 
 from .roc_settings import SettingsError
 
@@ -84,6 +85,8 @@ def _configure_services(user_settings: UserSettings) -> dict[str, object]:
     services["correct_captcha_logger"] = CaptchaLogger(
         "logs/correct_ans.log", log_correctness=False
     )
+
+    services["exception_handler"] = ExceptionHandler()
 
     services["default_headers"] = _get_default_headers()
 
@@ -181,9 +184,16 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
 
 
 def main():
-    errorcount = 0
-    lasterrortime = datetime.now() - timedelta(minutes=5)
     keeprunning = True
+    
+    # Load user settings for exception handling configuration
+    user_settings = UserSettings(filepath=_user_settings_fp)
+    enable_exception_timeout = user_settings.exception_timeout_enabled
+    exception_timeout_minutes = user_settings.exception_timeout_delay_minutes
+    
+    # Initialize exception handler
+    exception_handler = ExceptionHandler()
+    
     while keeprunning:
         try:
             _run()
@@ -195,15 +205,22 @@ def main():
             print(f"Settings error: {e}\nExiting..")
             return
         except Exception as e:
-            # TODO: Collect specific exceptions and handle them
-            # ConnectionResetError
-            errorcount += 1
-            timebetweenerrors = datetime.now() - lasterrortime
-            lasterrortime = datetime.now()
-            print(e)
-            print(f"\nWarning: Detected exception #{errorcount}")
-            _error_nap(errorcount, timebetweenerrors)
-            print("\n\nRestarting...")
+            # Use the exception handler to manage the exception
+            should_continue = exception_handler.handle_exception(
+                exception=e,
+                enable_timeout=enable_exception_timeout,
+                timeout_minutes=exception_timeout_minutes
+            )
+            
+            if not should_continue:
+                return  # Exit program/
+            
+            # If timeout is disabled, use the old error handling method
+            if not enable_exception_timeout:
+                error_stats = exception_handler.get_error_stats()
+                _error_nap(error_stats['error_count'], error_stats['time_since_last_error'])
+            
+            print("\nRestarting...")
 
 
 if __name__ == "__main__":
