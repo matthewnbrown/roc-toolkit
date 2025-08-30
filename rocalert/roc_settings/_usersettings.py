@@ -160,6 +160,20 @@ class UserSettings(Settings):
             "Amount of time to wait after captcha error limit"
             + " reached. 0 to exit instead of timeout",
         ),
+        "enable_exception_timeout": Setting(
+            "Enable exception timeout",
+            "enable_exception_timeout",
+            True,
+            bool,
+            "Enable timeout and retry for unhandled exceptions",
+        ),
+        "exception_timeout_minutes": Setting(
+            "Exception timeout delay (minutes)",
+            "exception_timeout_minutes",
+            30,
+            int,
+            "Number of minutes to wait before retrying after an unhandled exception",
+        ),
     }
 
     def __init__(self, name: str = None, filepath=None) -> None:
@@ -223,3 +237,11 @@ class UserSettings(Settings):
             self.get_setting["min_checktime_secs"],
             self.get_setting["max_checktime_secs"],
         )
+    
+    @property
+    def exception_timeout_enabled(self) -> bool:
+        return self.get_value("enable_exception_timeout")
+    
+    @property
+    def exception_timeout_delay_minutes(self) -> int:
+        return self.get_value("exception_timeout_minutes")

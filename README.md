@@ -47,6 +47,11 @@ Install lxml:
 **max_consecutive_answer_errors:** 5 (Receiving impossible answers i.e., letters)  
 **captcha_failure_timeout:** 0 (How long to wait in minutes after failures. 0 Exits)
 
+#### Exception Handling
+
+**enable_exception_timeout:** True/False (Enable timeout and retry for unhandled exceptions)  
+**exception_timeout_minutes:** 30 (Number of minutes to wait before retrying after an unhandled exception)
+
 **captcha_save_path:** captcha_img/ (path to save captcha images to)
 
 #### Pull cookie from a browser you already use to login
