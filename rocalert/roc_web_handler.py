@@ -273,7 +273,7 @@ class RocWebHandler:
         # payload["manualcaptcha"] = captcha.ans if not manual_page else ""
         # if manual_page:
         #     payload["num"] = captcha.ans
-
+        payload["num"] = captcha.ans
         self._log_request(url, payload, self.headers)
 
         self.r = self.session.post(url, payload, headers=self.headers)
