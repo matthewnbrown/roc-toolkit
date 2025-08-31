@@ -1,5 +1,6 @@
 import datetime
 from http.client import RemoteDisconnected
+import json
 
 import requests
 from bs4 import BeautifulSoup
@@ -269,9 +270,11 @@ class RocWebHandler:
             x, y = 0, 0
         payload["coordinates[x]"] = x
         payload["coordinates[y]"] = y
-        payload["manualcaptcha"] = captcha.ans if not manual_page else ""
-        if manual_page:
-            payload["num"] = captcha.ans
+        # payload["manualcaptcha"] = captcha.ans if not manual_page else ""
+        # if manual_page:
+        #     payload["num"] = captcha.ans
+
+        self._log_request(url, payload, self.headers)
 
         self.r = self.session.post(url, payload, headers=self.headers)
         return self._check_incorrect_captcha()
@@ -290,8 +293,12 @@ class RocWebHandler:
         # payload["manualcaptcha"] = ""
         payload["num"] = ans
 
+        url = self._urlgenerator.get_page_url(page)
+        
+        self._log_request(url, payload, self.headers)
+
         self.r = self.session.post(
-            self._urlgenerator.get_page_url(page), payload, headers=self.headers
+            url, payload, headers=self.headers
         )
 
         return self._check_incorrect_captcha()
@@ -304,11 +311,20 @@ class RocWebHandler:
         return self.__page_captcha_type()
 
     def current_gold(self) -> int:
-        searchitem = r'<span id="s_gold">'
-        index = self.r.text.index(searchitem)
-        endIndex = self.r.text.find(r"</span>", index, index + 100)
-        goldstr = self.r.text[index + len(searchitem) : endIndex]
-        return int(goldstr.strip().replace(",", ""))
+        try:
+            searchitem = r'<span id="s_gold">'
+            index = self.r.text.index(searchitem)
+            endIndex = self.r.text.find(r"</span>", index, index + 100)
+            goldstr = self.r.text[index + len(searchitem) : endIndex]
+            return int(goldstr.strip().replace(",", ""))
+        except Exception as e:
+            print(f"Error: {e}")
+            # save self.r.text to a file, wite timestamp
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            with open(f"error_{timestamp}.html", "w") as f:
+                print(f"Saving error to file: error_{timestamp}.html")
+                f.write(self.r.text)
+            raise e
 
     def reset_cooldown(self) -> None:
         addition = r"/cooldown.php?delete=strike"
@@ -363,3 +379,11 @@ class RocWebHandler:
     @property
     def url_generator(self) -> ROCUrlGenerator:
         return self._urlgenerator
+
+    def _log_request(self, url: str, payload: dict, headers: dict): 
+        current_day_timestamp = datetime.datetime.now().strftime("%Y-%m-%d")
+        current_timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        with open(f"logs/requests_{current_day_timestamp}.json", "a") as f:
+            f.write(json.dumps({"timestamp": current_timestamp, "url": url, "payload": payload, "headers": headers}, indent=2))
+            f.write("\n")
+            f.write("-" * 50)

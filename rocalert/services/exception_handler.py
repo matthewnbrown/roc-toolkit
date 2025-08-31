@@ -10,7 +10,10 @@ class ExceptionHandler:
     Handles unhandled exceptions with configurable timeout and retry behavior.
     """
     
-    def __init__(self, log_file_path: str = "logs/exceptions.log"):
+    def __init__(self, log_file_path: str = None):
+        if log_file_path is None:
+            current_day_timestamp = datetime.now().strftime("%Y-%m-%d")
+            log_file_path = f"logs/exceptions_{current_day_timestamp}.log"
         self.log_file_path = log_file_path
         self.error_count = 0
         self.last_error_time = datetime.now() - timedelta(minutes=5)
