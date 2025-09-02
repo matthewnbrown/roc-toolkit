@@ -1,5 +1,6 @@
 import abc
 from collections import deque
+import datetime
 from typing import Iterable, List, Tuple
 from bs4 import BeautifulSoup
 from requests import Response
@@ -100,11 +101,19 @@ class BattlefieldPageService(BFPageServiceABC):
         tff = _cleanstr_to_int(tfftext[0])
         tfftype = tfftext[1]
 
-        gold = (
-            -1
-            if "?" in tff_gold[1].text
-            else _cleanstr_to_int(tff_gold[1].text.strip().split()[0])
-        )
+        try: 
+            gold = (
+                -1
+                if "?" in tff_gold[1].text
+                else _cleanstr_to_int(tff_gold[1].text.strip().split()[0])
+            )
+        except Exception as e:
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            print(f"Error getting gold. saving html to error_{timestamp}.html: {e}")
+            
+            with open(f"logs/error_{timestamp}.html", "w") as f:
+                f.write(usercontent.prettify())
+            raise e
 
         return BattlefieldTarget(id, rank, name, alliance, tff, tfftype, gold)
 
