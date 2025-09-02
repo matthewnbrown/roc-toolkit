@@ -103,7 +103,7 @@ class BattlefieldPageService(BFPageServiceABC):
         gold = (
             -1
             if "?" in tff_gold[1].text
-            else _cleanstr_to_int(tff_gold[1].text.strip().split(" ")[0])
+            else _cleanstr_to_int(tff_gold[1].text.strip().split()[0])
         )
 
         return BattlefieldTarget(id, rank, name, alliance, tff, tfftype, gold)
