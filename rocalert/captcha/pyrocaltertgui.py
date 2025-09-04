@@ -25,7 +25,7 @@ class GUI():
 
     def __on_keypress(self, event):
         key = event.keysym
-        if key.isnumeric and int(key) > 0:
+        if key.isnumeric() and int(key) > 0:
             self.__set_selection_close(key)
 
     def __set_selection_close(self, num_str):
