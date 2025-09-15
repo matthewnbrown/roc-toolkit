@@ -6,7 +6,7 @@
   "configurations": [
     {
       "name": "Python: Run.py",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "cwd": "${workspaceFolder}",
       "program": "${workspaceFolder}/run.py",
@@ -17,11 +17,35 @@
       }
     },
     {
+      "name": "Python: sellcatchbypage.py",
+      "type": "debugpy",
+      "request": "launch",
+      "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/sellcatchbypage.py",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
       "name": "Python: Current File",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       //   "cwd": "${workspaceFolder}",
       "program": "${file}",
+      "console": "integratedTerminal",
+      "justMyCode": false,
+      "env": {
+        "PYTHONPATH": "${workspaceFolder}"
+      }
+    },
+    {
+      "name": "Python: Spy Event",
+      "type": "debugpy",
+      "request": "launch",
+      //   "cwd": "${workspaceFolder}",
+      "program": "${workspaceFolder}/spyevent.py",
       "console": "integratedTerminal",
       "justMyCode": false,
       "env": {
