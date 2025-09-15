@@ -25,7 +25,7 @@ Install lxml:
 **email:** email<span>@email.</span>com  
 **password:** password123
 
-**auto_solve_captchas:** False or 2captcha or truecaptcha
+**auto_solve_captchas:** False rocapi or 2captcha or truecaptcha
 
 #### Range of time before checking for captchas
 

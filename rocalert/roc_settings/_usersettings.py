@@ -9,7 +9,7 @@ from ._settings import (
     time_conv,
 )
 
-VALID_CAPTCHA_SERVICES = {"twocaptcha", "2captcha", "true captcha", "truecaptcha"}
+VALID_CAPTCHA_SERVICES = {"twocaptcha", "2captcha", "true captcha", "truecaptcha", "rocapi", "ai"}
 
 
 def is_valid_captcha_service(service: str) -> bool:

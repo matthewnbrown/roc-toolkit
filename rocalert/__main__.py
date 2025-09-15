@@ -142,8 +142,13 @@ def _get_captcha_solving_service(user_settings: UserSettings):
             mode=captcha_settings["mode"],
             savepath=savepath,
         )
-
-
+    if service in ["rocapi", "ai"]:
+        base_url = captcha_settings["base_url"]
+        return captchaservices.RemoteCaptchaSolverService(
+            solve_url=base_url + captcha_settings["solve_url"],
+            report_url=base_url + captcha_settings["report_url"],
+        )
+           
 def _get_default_headers():
     default_agent = (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "

@@ -32,7 +32,7 @@ class RocUserPage(RocPage):
         super().__init__(page)
         self._name = page.find(id='topnav_right').text.strip()
         clockbar = page.find(id='clock_bar')
-        self._rank = int(clockbar.find(id='s_rank').text)
+        self._rank = rocnum_to_int(clockbar.find(id='s_rank').text)
         self._gold = rocnum_to_int(clockbar.find(id='s_gold').text)
         self._turns = rocnum_to_int(clockbar.find(id='s_turns').text)
 
@@ -112,7 +112,7 @@ class StatTable:
         else:
             bonus = 0.0
         action = rocnum_to_int(row.contents[3].text)
-        rank = int(row.contents[5].text[1:])
+        rank = rocnum_to_int(row.contents[5].text[1:])
 
         return StatTable.StatTableEntry(bonus, action, rank)
 

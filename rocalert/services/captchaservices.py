@@ -7,6 +7,7 @@ from typing import Optional
 import PIL.Image
 from requests import Response
 
+from rocalert.captcha.solvers.rocapicaptchasolver import RocApiCaptchaSolver
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 
 from ..captcha.solvers import TrueCaptchaSolver, TwoCaptchaSolver, manual_captcha_solve
@@ -112,6 +113,8 @@ def get_captcha_settings(captchaservice: str) -> Optional[dict]:
         filename = "2captcha_settings.json"
     elif captchaservice in ["truecaptcha", "true captcha"]:
         filename = "truecaptcha_settings.json"
+    elif captchaservice in ["rocapi", "ai"]:
+        filename = "rocapi_settings.json"
     else:
         return None
 
@@ -135,6 +138,13 @@ def create_captca_settings_file(captchaservice: str) -> None:
             "userId": "someuserid",
             "apiKey": "somekey",
             "mode": "auto",
+        }
+    elif captchaservice in ["rocapi", "ai"]:
+        filename = "rocapi_settings.json"
+        settings = {
+            "base_url": "http://localhost:8001",
+            "solve_url": "/api/v1/solve",
+            "report_url": "/api/v1/feedback"
         }
 
     with open(filename, "w") as f:
@@ -219,3 +229,16 @@ class TrueCaptchaSolverService(CaptchaSolverServiceABC):
             raise e
         except Exception as e:
             raise CaptchaReportException(f"Error: ${e}") from e
+
+class RemoteCaptchaSolverService(CaptchaSolverServiceABC):
+    def __init__(self, solve_url: str, report_url: str) -> None:
+        self._rocapisolver = RocApiCaptchaSolver(solve_url, report_url)
+
+    def solve_captcha(self, captcha: Captcha) -> Captcha:
+        res = self._rocapisolver.solve(captcha)
+        captcha.ans = res[0]
+        return captcha
+
+    def report_captcha(self, captcha: Captcha) -> None:
+        self._rocapisolver.report(captcha.hash, captcha.ans_correct)
+
