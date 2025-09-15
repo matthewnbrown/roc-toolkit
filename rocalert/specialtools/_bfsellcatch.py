@@ -101,12 +101,16 @@ class BFSellCatch:
                 targets = self._bfps.run_service(self._roc, pnum)['result']
                 targets.sort(reverse=True, key=lambda x: x.gold)
 
-                print(f'Top Page {pnum}: {targets[0]}')
+                if len(targets) == 0:
+                    print(f'Top Page {pnum}: No Targets')
+                else:
+                    print(f'Top Page {pnum}: {targets[0]}')
 
                 for target in targets:
                     if shouldhit(target):
                         hittarget = self._attack_target(target)
                         if hittarget:
                             self._buy()
+                            break
 
                 time.sleep(pagedelay)
