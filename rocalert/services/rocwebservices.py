@@ -66,8 +66,10 @@ class BattlefieldPageService(BFPageServiceABC):
     @classmethod
     def _checkvalidpage(cls, content: BeautifulSoup, pagenum: int) -> bool:
         pagerangetext = content.contents[1].contents[1].text
+        user_count_text = pagerangetext[pagerangetext.index("(") + 1 : pagerangetext.index(")")]
+        user_count_text = user_count_text.strip().replace(",", "")
         usercount = int(
-            pagerangetext[pagerangetext.index("(") + 1 : pagerangetext.index(")")]
+            user_count_text
         )
         pagecount = usercount // 50 if usercount % 50 == 0 else 1 + usercount // 50
 
