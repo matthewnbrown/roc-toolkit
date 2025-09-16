@@ -137,7 +137,11 @@ class RocAlert:
         endtime = datetime.datetime.now() + datetime.timedelta(0, waitTime)
         self.__log('Taking a nap. Waking up at {}.'.format(
             endtime.strftime('%H:%M:%S')))
-        time.sleep(waitTime)
+        try:
+            time.sleep(waitTime)
+        except KeyboardInterrupt:
+            self.__log("Sleep interrupted by user. Exiting...")
+            raise
 
     def __attempt_login(self) -> bool:
         self.__log('Session timed out. ', end='')
@@ -326,7 +330,11 @@ class RocAlert:
 
         timeout_len = timeout_len*60 + random.uniform(0, 5*60)
         self.__log(f'Sleeping for {timeout_len} seconds')
-        time.sleep(timeout_len)
+        try:
+            time.sleep(timeout_len)
+        except KeyboardInterrupt:
+            self.__log("Failure timeout sleep interrupted by user. Exiting...")
+            raise
         self.__failure_timeout = False
 
     def on_cooldown(self) -> bool:
@@ -540,7 +548,11 @@ class RocAlert:
                 self.failuretimeout()
 
             if self.handlecooldown():
-                time.sleep(self.consecutive_cooldowns * 15)
+                try:
+                    time.sleep(self.consecutive_cooldowns * 15)
+                except KeyboardInterrupt:
+                    self.__log("Cooldown sleep interrupted by user. Exiting...")
+                    raise
                 continue
 
             # if not logged in and login attempt fails, retry after a bit

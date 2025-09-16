@@ -125,7 +125,7 @@ def get_captcha_settings(captchaservice: str) -> Optional[dict]:
     return None
 
 
-def create_captca_settings_file(captchaservice: str) -> None:
+def create_captcha_settings_file(captchaservice: str) -> None:
     if captchaservice in ["2captcha", "twocaptcha"]:
         filename = "2captcha_settings.json"
         settings = {

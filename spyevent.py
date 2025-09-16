@@ -11,6 +11,7 @@ from rocalert.events import SpyEvent
 from rocalert.roc_settings import SettingsSetupHelper, UserSettings
 from rocalert.roc_web_handler import RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
+from rocalert.services import captchaservices
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 
 lower_rank_cutoff = 1
@@ -22,6 +23,7 @@ skip_ranks = {112}
 
 reversed_order = True
 
+captcha_method = "ai" # ai or manual
 
 # This will only spy on selected IDs. Other filters ignored
 onlyspy_ids = {}
@@ -99,12 +101,33 @@ def login(roc: RocWebHandler, us: UserSettings):
         __log("Login failure.")
         return False
 
+def valid_captcha_method(method: str) -> bool:
+    
+    if method == "manual":
+        return (True, None)
+    if method == "ai":
+        captcha_settings = captchaservices.get_captcha_settings(method)
+        if captcha_settings is None:
+            filename = captchaservices.create_captcha_settings_file(method)
+            print(f"Created settings file {filename}. Please fill it out and restart")
+            quit()
+        base_url = captcha_settings["base_url"]
+        return (True, captchaservices.RemoteCaptchaSolverService(
+            solve_url= base_url + captcha_settings["solve_url"],
+            report_url= base_url + captcha_settings["report_url"],
+        ))
+    return (False, "Invalid captcha method")
 
 def runevent_new():
     filepaths = {
         "user": ("user.settings", UserSettings),
     }
 
+    valid, solver = valid_captcha_method(captcha_method)
+    if not valid:
+        print(solver)
+        quit()
+        
     settings_file_error = False
 
     for settype, infotuple in filepaths.items():
@@ -133,6 +156,8 @@ def runevent_new():
         reversed_order,
         captcha_save_path=captchasavepath,
         captchalogger=captchalogger,
+        captcha_method=captcha_method,
+        solver=solver,
     )
     event.start_event()
     save_cookies_to_path(rochandler.get_cookies(), cookie_filename)

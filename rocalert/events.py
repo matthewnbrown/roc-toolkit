@@ -4,6 +4,7 @@ import random
 import time
 import numpy as np
 import PIL.Image
+import requests
 from typing import Callable, Deque, Iterable, List
 from threading import Thread, Lock, Event
 from rocalert.captcha.captcha_logger import CaptchaLogger
@@ -12,6 +13,7 @@ from rocalert.captcha.equation_solver import EquationSolver
 from rocalert.roc_web_handler import Captcha, RocWebHandler
 from rocalert.rocaccount import BattlefieldTarget
 from rocalert.captcha.solvers.multicaptchaguisolver import MulticaptchaGUI
+from rocalert.services.captchaservices import CaptchaSolverServiceABC
 from rocalert.services.rocwebservices import BattlefieldPageService
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 
@@ -44,7 +46,9 @@ class SpyEvent:
             userfilter: Callable,
             reversedorder: bool = True,
             captcha_save_path: str = None,
-            captchalogger: CaptchaLogger = None
+            captchalogger: CaptchaLogger = None,
+            captcha_method: str = "manual",
+            solver: CaptchaSolverServiceABC = None
             ) -> None:
         """_summary_
 
@@ -66,7 +70,9 @@ class SpyEvent:
         self._usercaptchas = defaultdict(set)
         self._spystatus = defaultdict(self.SpyStatus)
         self._battlefield = None
-
+        self._captcha_method = captcha_method
+        self._solver = solver
+        
         self._updatecaptchaslock = Lock()
         self._captchaslock = Lock()
         self._roclock = Lock()
@@ -108,7 +114,7 @@ class SpyEvent:
         return res
 
     def _get_all_users(self) -> None:
-        pagenum = 1
+        pagenum = 24
         self._battlefield = self._battlefield if self._battlefield else deque()
 
         while True:
@@ -166,8 +172,8 @@ class SpyEvent:
             if cap is None or cap.hash is None:
                 consfailures += 1
                 continue
-
-            self._save_captcha(cap)
+            if self._captcha_method == "manual":
+                self._save_captcha(cap)
             if self._check_captcha_is_noimage(cap):
                 print('Rejected no image captcha')
                 continue
@@ -220,19 +226,22 @@ class SpyEvent:
         return 'success'
 
     def _pull_next_captcha(self) -> Captcha:
-        self._captchaslock.acquire()
-        self._newcaptchas.clear()
-        if len(self._captchas) > 0:
-            cap = self._captchas.popleft()
-        else:
-            self._captchaslock.release()
-            self._newcaptchas.wait()
+        if self._captcha_method == "manual":
             self._captchaslock.acquire()
-            cap = self._captchas.popleft()
             self._newcaptchas.clear()
-        self._captchaslock.release()
+            if len(self._captchas) > 0:
+                cap = self._captchas.popleft()
+            else:
+                self._captchaslock.release()
+                self._newcaptchas.wait()
+                self._captchaslock.acquire()
+                cap = self._captchas.popleft()
+                self._newcaptchas.clear()
+        
+            self._captchaslock.release()
 
-        return cap
+            return cap
+        return None
 
     def _get_captcha_buffersize(self) -> int:
         self._captchaslock.acquire()
@@ -248,10 +257,10 @@ class SpyEvent:
         self._newcaptchas.set()
 
     def _captcha_delay(self) -> None:
-        time.sleep(max(0.4 + random.gauss(.4, .1), .35))
+        time.sleep(max(0.1 + random.gauss(.4, .1), .35))
 
     def _nextuser_delay(self) -> None:
-        time.sleep(max(1.5 + random.gauss(.5, .3), 1))
+        time.sleep(max(0.5 + random.gauss(.5, .3), 1))
 
     def _purge_expired_captchas(self) -> None:
         print('Detected expired captchas, purging...')
@@ -265,7 +274,10 @@ class SpyEvent:
         self._captchaslock.release()
 
         print(f'Purged {count} captcha{"" if count == 1 else "s"}')
-
+    
+    def _solve_captcha(self, captcha: Captcha) -> None:
+        return self._solver.solve_captcha(captcha).ans
+    
     def _handle_spying(self) -> None:
         last_user_skipped = False
 
@@ -282,10 +294,14 @@ class SpyEvent:
                     print('Failed too many times, skipping user '
                           + f'#{user.rank}: {user.name}')
 
-                captcha = self._pull_next_captcha()
+                if self._captcha_method == "manual":
+                    captcha = self._pull_next_captcha()
+                else:
+                    captcha = self._getnewcaptchas(1)[0]
+                    self._solve_captcha(captcha)
 
-                if self._guiexit:
-                    return
+                if self._guiexit and self._captcha_method == "manual":
+                     return
                 if captcha.is_expired:
                     self._purge_expired_captchas()
                     continue
@@ -329,19 +345,20 @@ class SpyEvent:
         else:
             print(f"Detected {len(self._battlefield)} users.")
 
-        def onsolvecallback(captcha: Captcha) -> Thread:
-            t = Thread(target=self._oncaptchasolved, args=[captcha])
-            t.start()
-            return t
+        if self._captcha_method == "manual":
+            def onsolvecallback(captcha: Captcha) -> Thread:
+                t = Thread(target=self._oncaptchasolved, args=[captcha])
+                t.start()
+                return t
 
-        def getnewcaptchas(desiredcount) -> Thread:
-            t = Thread(target=self._getsend_captchas, args=[desiredcount])
-            t.start()
-            return t
+            def getnewcaptchas(desiredcount) -> Thread:
+                t = Thread(target=self._getsend_captchas, args=[desiredcount])
+                t.start()
+                return t
 
         def eventthread():
             self._handle_spying()
-            if not self._guiexit:
+            if not self._guiexit and self._captcha_method == "manual":
                 print('Event finished')
                 self._gui.signal_end()
             else:
@@ -350,11 +367,16 @@ class SpyEvent:
         xcount, ycount = 8, 1
         initcaptchas = self._getnewcaptchas(xcount*ycount*2)
 
-        self._gui = MulticaptchaGUI(
-            initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
+        if self._captcha_method == "manual":
+            self._gui = MulticaptchaGUI(
+                initcaptchas, onsolvecallback, getnewcaptchas, xcount, ycount)
 
-        spyhandle = Thread(target=eventthread)
-        spyhandle.start()
-        self._gui.start()
-        self._signalfinish()
-        spyhandle.join()
+            spyhandle = Thread(target=eventthread)
+            spyhandle.start()
+            if self._captcha_method == "manual":
+                self._gui.start()
+            self._signalfinish()
+            spyhandle.join()
+        else:
+            eventthread()
+            self._signalfinish()

@@ -126,7 +126,7 @@ def _get_captcha_solving_service(user_settings: UserSettings):
 
     captcha_settings = captchaservices.get_captcha_settings(service)
     if captcha_settings is None:
-        filename = captchaservices.create_captca_settings_file(service)
+        filename = captchaservices.create_captcha_settings_file(service)
         print(f"Created settings file {filename}. Please fill it out and restart")
         quit()
 
@@ -185,7 +185,11 @@ def _error_nap(errorcount, timebetweenerrors) -> None:
     base = 5 * (max(1, errorcount % 4))
     sleeptime = int(muiltiplier * (base + random.uniform(0, 15)))
     print(f"Sleeping for {sleeptime} minutes")
-    time.sleep(sleeptime * 60)
+    try:
+        time.sleep(sleeptime * 60)
+    except KeyboardInterrupt:
+        print("\nSleep interrupted by user. Exiting...")
+        raise
 
 
 def main():  
