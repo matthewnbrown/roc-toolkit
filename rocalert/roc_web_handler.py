@@ -214,7 +214,11 @@ class RocWebHandler:
 
     def is_logged_in(self) -> bool:
         self.__go_to_page(self._urlgenerator.get_home())
-        return r"email@address.com" not in self.r.text
+        text = self.r.text
+        
+        bad_strings = [r"login.php", r"<form action=\"login.php\" method=\"post\">"]
+        
+        return not any(bad_string in text for bad_string in bad_strings)
 
     def login(self, email: str, password: str) -> bool:
         payload = {"email": email, "password": password}

@@ -10,6 +10,8 @@ class ROCCaptchaSelector():
                        'roc_armory': [973, 1011],
                        'roc_attack': [585, 680],
                        'roc_spy': [585, 695],
+                       'roc_sabotage': [585, 695],
+                       'roc_probe': [585, 695],
                        'roc_training': [973, 453]}
     __keypadGap = [52, 42]
 

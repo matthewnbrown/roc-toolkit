@@ -110,7 +110,7 @@ class BattlefieldPageService(BFPageServiceABC):
                 else _cleanstr_to_int(tff_gold[1].text.strip().split()[0])
             )
         except Exception as e:
-            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            timestamp = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
             print(f"Error getting gold. saving html to error_{timestamp}.html: {e}")
             
             with open(f"logs/error_{timestamp}.html", "w") as f:
@@ -139,7 +139,7 @@ class AttackService(AttackServiceABC):
             "mission_type": "attack",
             "attacks": attack_page.max_attack_turns,
         }
-        return roc.submit_captcha_url(solvedcaptcha, attack_url, payload)
+        return roc.submit_captcha_url(solvedcaptcha, attack_url, payload, RocWebHandler.Pages.ATTACK)
 
 
 class SpyResult:
@@ -197,7 +197,7 @@ class SpyService:
         payload = {"defender_id": target.id, "mission_type": "recon", "reconspies": 1}
 
         valid_captcha = self._roc.submit_captcha_url(
-            captcha, targeturl, payload, "roc_spy"
+            captcha, targeturl, payload, RocWebHandler.Pages.SPY
         )
 
         if not valid_captcha:

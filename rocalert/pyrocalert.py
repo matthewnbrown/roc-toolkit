@@ -229,7 +229,7 @@ class RocAlert:
             ans = None
             
             self.consecutive_answer_errors = 0
-        correct = self.roc.submit_captcha(captcha, ans, page, payload)
+        correct = self.roc.submit_captcha(captcha, ans, page, payload, page)
         if correct:
             self.__log("Correct answer", timestamp=False)
             self.consecutive_captcha_failures = 0
@@ -615,6 +615,7 @@ class RocAlert:
                 self.roc.url_generator.get_home()
                 )
             self.roc.add_cookies(cookies)
+            time.sleep(0.25)
             return True
         return False
 
@@ -624,3 +625,6 @@ class RocAlert:
             cookies = load_cookies_from_path(self.cookie_filename)
             if cookies is not None:
                 self.roc.add_cookies(cookies)
+                time.sleep(0.25)
+                return True
+        return False

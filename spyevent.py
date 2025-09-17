@@ -70,8 +70,9 @@ def __load_cookies_file(roc: RocWebHandler, cookie_filename: str) -> bool:
         cookies = load_cookies_from_path(cookie_filename)
         if cookies is not None:
             roc.add_cookies(cookies)
-    time.sleep(0.25)
-
+        return True
+    
+    return False
 
 def __log(s: str):
     print(s)

@@ -118,7 +118,7 @@ def attack(roc: RocWebHandler, id: str, captchacache: CaptchaProvider) -> bool:
         "mission_type": "attack",
         "attacks": attack_page.max_attack_turns,
     }
-    return roc.submit_captcha_url(captcha, attack_url, payload)
+    return roc.submit_captcha_url(captcha, attack_url, payload, RocWebHandler.Pages.ATTACK)
 
 
 def playbeep(freq: int = 700):

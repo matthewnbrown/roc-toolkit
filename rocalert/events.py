@@ -114,7 +114,7 @@ class SpyEvent:
         return res
 
     def _get_all_users(self) -> None:
-        pagenum = 24
+        pagenum = 1
         self._battlefield = self._battlefield if self._battlefield else deque()
 
         while True:
@@ -205,17 +205,19 @@ class SpyEvent:
         payload = {
             'defender_id': user.id,
             'mission_type': 'recon',
-            'reconspies': 1
+            'reconspies': 1,
+            'submit': 'Recon'
         }
 
         self._roclock.acquire()
         valid_captcha = self._roc.submit_captcha_url(
-            captcha, targeturl, payload)
+            captcha, targeturl, payload, RocWebHandler.Pages.SPY)
 
         text = self._roc.r.text
         self._roclock.release()
 
-        captcha.ans_correct = valid_captcha
+        if self._captcha_method != "none":
+            captcha.ans_correct = valid_captcha
         if not valid_captcha:
             return 'error'
         if self._hit_spy_limit(text):
@@ -296,18 +298,21 @@ class SpyEvent:
 
                 if self._captcha_method == "manual":
                     captcha = self._pull_next_captcha()
+                if self._captcha_method == "none":
+                    captcha = None
                 else:
                     captcha = self._getnewcaptchas(1)[0]
                     self._solve_captcha(captcha)
 
                 if self._guiexit and self._captcha_method == "manual":
                      return
-                if captcha.is_expired:
+                if self._captcha_method != "none" and captcha.is_expired:
                     self._purge_expired_captchas()
                     continue
 
                 spyres = self._spyuser(user, captcha)
-                self._log_captcha(captcha)
+                if self._captcha_method != "none":
+                    self._log_captcha(captcha)
 
                 if spyres == 'error':
                     cons_fails += 1
