@@ -94,6 +94,10 @@ class RocWebHandler:
         ARMORY = "roc_armory"
         HOME = "roc_home"
         LOGIN = "roc_login"
+        SABOTAGE = "roc_sabotage"
+        PROBE = "roc_probe"
+        ATTACK = "roc_attack"
+        SPY = "roc_spy"
 
     def __init__(
         self,
@@ -217,8 +221,7 @@ class RocWebHandler:
         self.r = self.session.post(
             self._urlgenerator.get_login(), payload, headers=self.headers
         )
-        incorrect = r"Incorrect login" in self.r.text
-        return not incorrect and r"email@address.com" not in self.r.text
+        return "<form action=\"login.php\" method=\"post\">" not in self.r.text
 
     def detailed_login(self, email: str, password: str) -> bool:
         payload = {"email": email, "password": password}
@@ -258,40 +261,68 @@ class RocWebHandler:
         )
 
     def submit_captcha_url(
-        self, captcha: Captcha, url: str, payload: dict = None, manual_page: str = None
+        self, captcha: Captcha | None, url: str, payload: dict = None, manual_page: str = None
     ) -> bool:
         if payload is None:
             payload = {}
 
-        payload["captcha"] = captcha.hash
-        if manual_page:
-            x, y = ROCCaptchaSelector().get_xy_static(captcha.ans, manual_page)
-        else:
-            x, y = 0, 0
-        payload["coordinates[x]"] = x
-        payload["coordinates[y]"] = y
+        if captcha is not None:
+            payload["captcha"] = captcha.hash
+            if manual_page:
+                x, y = ROCCaptchaSelector().get_xy_static(captcha.ans, manual_page)
+            else:
+                x, y = 0, 0
+            payload["coordinates[x]"] = x
+            payload["coordinates[y]"] = y
         # payload["manualcaptcha"] = captcha.ans if not manual_page else ""
         # if manual_page:
         #     payload["num"] = captcha.ans
-        payload["num"] = captcha.ans
+            payload["num"] = captcha.ans
+        else:
+            extra_payload = RocWebHandler.get_page_submit(manual_page)
+            payload = {**payload, **extra_payload}
+            
         self._log_request(url, payload, self.headers)
 
         self.r = self.session.post(url, payload, headers=self.headers)
         return self._check_incorrect_captcha()
 
-    def submit_captcha(
-        self, captcha: Captcha, ans: str, page: str, payload: dict = None
-    ) -> bool:
-        cs = ROCCaptchaSelector()
-        x, y = cs.get_xy_static(ans, page)
-        if payload is None:
-            payload = {}
+    def get_page_submit(page: str) -> str:
+        if page == "roc_training":
+            return {"submit": "Train+Soldiers"}
+        elif page == "roc_recruit":
+            return {"submit": "Recruit"}
+        elif page == "roc_armory":
+            return {"submit": "Sell/Buy+Weapons"}
+        elif page == "roc_attack":
+            return {"submit": "Attack"}
+        elif page == "roc_probe":
+            return {"submit": "Probe"}
+        elif page == "roc_spy":
+            return {"submit": "Recon"}
+        elif page == "roc_sabotage":
+            return {"submit": "Sabotage"}
+        else:
+            print(f"Unknown page: {page}")
+            return {}
 
-        payload["captcha"] = captcha.hash
-        payload["coordinates[x]"] = x
-        payload["coordinates[y]"] = y
-        # payload["manualcaptcha"] = ""
-        payload["num"] = ans
+    def submit_captcha(
+        self, captcha: Captcha | None, ans: str, page: str, payload: dict = None, get_page: bool = False
+    ) -> bool:
+        if captcha is not None:
+            cs = ROCCaptchaSelector()
+            x, y = cs.get_xy_static(ans, page)
+            if payload is None:
+                payload = {}
+
+            payload["captcha"] = captcha.hash
+            payload["coordinates[x]"] = x
+            payload["coordinates[y]"] = y
+            # payload["manualcaptcha"] = ""
+            payload["num"] = ans
+        else:
+            extra_payload = RocWebHandler.get_page_submit(page)
+            payload = {**payload, **extra_payload}
 
         url = self._urlgenerator.get_page_url(page)
         
@@ -301,6 +332,9 @@ class RocWebHandler:
             url, payload, headers=self.headers
         )
 
+        if get_page:
+            return self.r.text
+
         return self._check_incorrect_captcha()
 
     def get_imgcap_from_hash(self, hash: str) -> bytes:
@@ -309,6 +343,14 @@ class RocWebHandler:
     def recruit_has_captcha(self) -> str:
         self.__go_to_page(self._urlgenerator.get_recruit())
         return self.__page_captcha_type()
+
+    def get_recruit_page(self, raw_text: bool = False) -> pages.RocRecruitPage | str:
+        self.__go_to_page(self._urlgenerator.get_recruit())
+        if raw_text:
+            return self.r.text
+
+        soup = BeautifulSoup(self.r.text, _BS_PARSER)
+        return pages.RocRecruitPage(soup)
 
     def current_gold(self) -> int:
         try:

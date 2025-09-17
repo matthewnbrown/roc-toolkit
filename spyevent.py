@@ -23,7 +23,7 @@ skip_ranks = {112}
 
 reversed_order = True
 
-captcha_method = "ai" # ai or manual
+captcha_method = "none" # ai or manual or none
 
 # This will only spy on selected IDs. Other filters ignored
 onlyspy_ids = {}
@@ -103,7 +103,7 @@ def login(roc: RocWebHandler, us: UserSettings):
 
 def valid_captcha_method(method: str) -> bool:
     
-    if method == "manual":
+    if method == "manual" or method == "none":
         return (True, None)
     if method == "ai":
         captcha_settings = captchaservices.get_captcha_settings(method)

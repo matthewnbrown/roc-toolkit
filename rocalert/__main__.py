@@ -121,6 +121,9 @@ def _get_captcha_solving_service(user_settings: UserSettings):
 
     savepath = user_settings.get_setting("captcha_save_path").value
 
+    if service in ["none"]:
+        return None
+    
     if is_negative_string(service):
         return captchaservices.ManualCaptchaSolverService()
 
@@ -148,6 +151,7 @@ def _get_captcha_solving_service(user_settings: UserSettings):
             solve_url=base_url + captcha_settings["solve_url"],
             report_url=base_url + captcha_settings["report_url"],
         )
+  
            
 def _get_default_headers():
     default_agent = (

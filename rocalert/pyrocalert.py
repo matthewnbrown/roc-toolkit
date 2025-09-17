@@ -194,39 +194,47 @@ class RocAlert:
         self.__log_general(captcha)
 
     def __handle_img_captcha(self, page: str, payload: dict = None) -> Captcha:
-        captcha = self.roc.get_img_captcha(page)
+        
+        if self._capsolver is not None:
+            captcha = self.roc.get_img_captcha(page)
 
-        if captcha is None:
-            return None
-        if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
+            if captcha is None:
+                return None
+            if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
+                captcha.ans_correct = False
+                return captcha
+
+            self.__get_img_captcha_ans(captcha)
             captcha.ans_correct = False
-            return captcha
+            ans = captcha.ans
+            
+            if len(ans) != 1 or ans not in self.validans:
+                self.__log(("Warning: received response \'{}\' "
+                            + "from captcha solver!").format(ans))
+                if 'bad response: 503' in ans \
+                        or ('exception' in ans.lower() and 'SOLVABLE' not in ans):
+                    waittime = 5 * (1 + self.consecutive_answer_errors**2)
+                    self.__log(
+                        f"Waiting {waittime} seconds before attempting again..."
+                        )
+                    time.sleep(waittime)
+                    captcha = None
+                self.consecutive_answer_errors += 1
+                return captcha
+            else:
+                self.__log('Received answer: \'{}\': '.format(ans), end='')
 
-        self.__get_img_captcha_ans(captcha)
-        captcha.ans_correct = False
-        ans = captcha.ans
-        if len(ans) != 1 or ans not in self.validans:
-            self.__log(("Warning: received response \'{}\' "
-                        + "from captcha solver!").format(ans))
-            if 'bad response: 503' in ans \
-                    or ('exception' in ans.lower() and 'SOLVABLE' not in ans):
-                waittime = 5 * (1 + self.consecutive_answer_errors**2)
-                self.__log(
-                    f"Waiting {waittime} seconds before attempting again..."
-                    )
-                time.sleep(waittime)
-                captcha = None
-            self.consecutive_answer_errors += 1
-            return captcha
         else:
-            self.__log('Received answer: \'{}\': '.format(ans), end='')
-
-        self.consecutive_answer_errors = 0
+            captcha = None
+            ans = None
+            
+            self.consecutive_answer_errors = 0
         correct = self.roc.submit_captcha(captcha, ans, page, payload)
         if correct:
             self.__log("Correct answer", timestamp=False)
             self.consecutive_captcha_failures = 0
-            captcha.ans_correct = True
+            if captcha is not None:
+                captcha.ans_correct = True
         else:
             self.__log("Incorrect answer", timestamp=False)
             self.consecutive_captcha_failures += 1
@@ -254,7 +262,7 @@ class RocAlert:
         self.__log(f'Detected {captchaType} captcha...')
 
         if captchaType == Captcha.CaptchaType.IMAGE:
-            return self.__handle_img_captcha('roc_recruit')
+            return self.__handle_img_captcha(RocWebHandler.Pages.RECRUIT)
         elif captchaType == Captcha.CaptchaType.EQUATION:
             return self.__handle_equation_captcha()
 
@@ -350,29 +358,54 @@ class RocAlert:
         return True
 
     def __recruitCheck(self) -> bool:
-        captchaType = self.roc.recruit_has_captcha()
-        if captchaType == Captcha.CaptchaType.TEXT:
-            self.__log('Detected text captcha in recruit')
-            self.__cooldown = True
-            return False
+        if self._capsolver is not None:
+            captchaType = self.roc.recruit_has_captcha()
+            if captchaType == Captcha.CaptchaType.TEXT:
+                self.__log('Detected text captcha in recruit')
+                self.__cooldown = True
+                return False
 
-        if captchaType is not None:
-            self.__log('Attempting recruit captcha...')
-            captcha = self.__handle_captcha(captchaType)
+            if captchaType is not None:
+                self.__log('Attempting recruit captcha...')
+                captcha = self.__handle_captcha(captchaType)
 
-            if captcha is None or not captcha.ans_correct:
-                self.__log('Bad captcha answer...')
-                self.__captcha_final(captcha)
-                return False
-            if captcha.type == Captcha.CaptchaType.EQUATION:
-                self.__log('Successfully solved equation')
-                return False
-            if self.roc.recruit_has_captcha():
-                self.__log('Recruit attempt failed')
-                return False
-            self.__captcha_final(captcha)  # Log/Report
+                if captcha is None or not captcha.ans_correct:
+                    self.__log('Bad captcha answer...')
+                    self.__captcha_final(captcha)
+                    return False
+                if captcha.type == Captcha.CaptchaType.EQUATION:
+                    self.__log('Successfully solved equation')
+                    return False
+                if self.roc.recruit_has_captcha():
+                    self.__log('Recruit attempt failed')
+                    return False
+                self.__captcha_final(captcha)  # Log/Report
+            else:
+                self.__log("No captcha needed")
         else:
-            self.__log("No captcha needed")
+            roc_text = self.roc.get_recruit_page(raw_text=True)
+            
+            if "Come back in" in roc_text:
+                self.__log("No captcha needed")
+                return True
+            
+            elif "Click the button to restore your CPM to its maximum value!" in roc_text:
+                self.__log("Attempting to recruit")
+                successcheck =self.roc.submit_captcha(None, None, RocWebHandler.Pages.RECRUIT, {}, get_page=True)
+                
+                if "Click the button to restore your CPM to its maximum value!" in successcheck:
+                    self.__log("Recruit attempt failed")
+                    return False
+                elif "Come back in" in successcheck:
+                    self.__log("Recruit attempt successful")
+                    return True
+                else:
+                    self.__log("Unknown recruit status...")
+                    return False
+            else:
+                self.__log("Unknown recruit status...")
+                return False
+        
         return True
 
     def _is_purchase_successful(self) -> bool:
@@ -400,7 +433,7 @@ class RocAlert:
 
         self.__log(f'Purchasing {itemcount} items')
 
-        res_captcha = self.__handle_img_captcha('roc_armory', payload)
+        res_captcha = self.__handle_img_captcha(RocWebHandler.Pages.ARMORY, payload)
 
         curtime = datetime.datetime.now()
         if self.__last_purchase_time:
@@ -414,15 +447,15 @@ class RocAlert:
 
         self.__last_purchase_time = curtime
 
-        if res_captcha is None:
+        if self._capsolver is not None and res_captcha is None:
             return False
 
-        if res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
+        if self._capsolver is not None and res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
             self.__cooldown = True
             self.__log('Detected text captcha in armory')
             return False
 
-        if not res_captcha.ans_correct:
+        if self._capsolver is not None and not res_captcha.ans_correct:
             self.__captcha_final(res_captcha)
             self.__log('Bad captcha answer')
             return False
@@ -436,7 +469,7 @@ class RocAlert:
 
         self.__captcha_final(res_captcha)
 
-        return res_captcha.ans_correct and purchase_success
+        return purchase_success and (res_captcha.ans_correct if res_captcha is not None else True)
 
     def __trainingCheck(self) -> bool:
         page = self.roc.get_training_page()
@@ -452,7 +485,8 @@ class RocAlert:
         self.__log('Attempting to train our soldiers.')
         payload = self._trainer.gen_purchase_payload(tpage=page)
 
-        res_captcha = self.__handle_img_captcha('roc_training', payload)
+
+        res_captcha = self.__handle_img_captcha(RocWebHandler.Pages.TRAINER, payload)
 
         curtime = datetime.datetime.now()
         if self.__last_train_time:
@@ -466,15 +500,15 @@ class RocAlert:
 
         self.__last_train_time = curtime
 
-        if res_captcha is None:
+        if self._capsolver is not None and res_captcha is None:
             return False
 
-        if res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
+        if self._capsolver is not None and res_captcha.type and res_captcha.type == Captcha.CaptchaType.TEXT:
             self.__cooldown = True
             self.__log('Detected text captcha in armory')
             return False
 
-        if not res_captcha.ans_correct:
+        if self._capsolver is not None and not res_captcha.ans_correct:
             self.__captcha_final(res_captcha)
             self.__log('Bad captcha answer')
             return False
@@ -489,7 +523,7 @@ class RocAlert:
 
         self.__captcha_final(res_captcha)
 
-        return res_captcha.ans_correct and train_success
+        return train_success and (res_captcha.ans_correct if res_captcha is not None else True)
 
     def _get_events(self) -> None:
         a = random.randint(1, 2)
