@@ -116,8 +116,8 @@ class SpyEvent:
     def _get_all_users(self) -> None:
         pagenum = 1
         self._battlefield = self._battlefield if self._battlefield else deque()
-
         while True:
+            print(f'Loading BF Page {pagenum}')
             user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
             pagenum += 1
             if user_resp['response'] == 'error':

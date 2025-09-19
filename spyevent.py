@@ -19,7 +19,7 @@ upper_rank_cutoff = None
 
 # Comma separated ids. Put your own ID in here
 skip_ids = {7530}
-skip_ranks = {112}
+skip_ranks = {112, 666}
 
 reversed_order = True
 
