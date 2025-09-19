@@ -7,6 +7,7 @@ import PIL.Image
 import requests
 from typing import Callable, Deque, Iterable, List
 from threading import Thread, Lock, Event
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from rocalert.captcha.captcha_logger import CaptchaLogger
 
 from rocalert.captcha.equation_solver import EquationSolver
@@ -288,52 +289,69 @@ class SpyEvent:
             if not last_user_skipped:
                 self._nextuser_delay()
             last_user_skipped = False
-            cons_fails = 0
 
-            count = 0
-            while count < 10:
-                if cons_fails > 3:
-                    print('Failed too many times, skipping user '
-                          + f'#{user.rank}: {user.name}')
-
-                if self._captcha_method == "manual":
-                    captcha = self._pull_next_captcha()
-                if self._captcha_method == "none":
-                    captcha = None
-                else:
-                    captcha = self._getnewcaptchas(1)[0]
-                    self._solve_captcha(captcha)
-
-                if self._guiexit and self._captcha_method == "manual":
-                     return
-                if self._captcha_method != "none" and captcha.is_expired:
-                    self._purge_expired_captchas()
-                    continue
-
-                spyres = self._spyuser(user, captcha)
-                if self._captcha_method != "none":
-                    self._log_captcha(captcha)
-
-                if spyres == 'error':
-                    cons_fails += 1
-                else:
-                    cons_fails = 0
-
-                if spyres == 'success':
-                    count += 1
-                elif spyres == 'admin':
-                    print(f'Detected untouchable admin account {user.name}.')
-                    last_user_skipped = True
+            print(f'Starting 10 concurrent spy requests for user #{user.rank}: {user.name}')
+            
+            # Prepare 10 spy requests concurrently
+            with ThreadPoolExecutor(max_workers=10) as executor:
+                # Submit 10 spy requests
+                future_to_request = {}
+                for i in range(10):
+                    if self._guiexit and self._captcha_method == "manual":
+                        break
+                    
+                    # Get captcha for this request
+                    if self._captcha_method == "manual":
+                        captcha = self._pull_next_captcha()
+                    elif self._captcha_method == "none":
+                        captcha = None
+                    else:
+                        captcha = self._getnewcaptchas(1)[0]
+                        self._solve_captcha(captcha)
+                    
+                    # Skip if captcha is expired
+                    if self._captcha_method != "none" and captcha and captcha.is_expired:
+                        self._purge_expired_captchas()
+                        continue
+                    
+                    # Submit the spy request
+                    future = executor.submit(self._spyuser, user, captcha)
+                    future_to_request[future] = (captcha, i)
+                
+                # Wait for all requests to complete and process results
+                success_count = 0
+                error_count = 0
+                for future in as_completed(future_to_request):
+                    captcha, request_num = future_to_request[future]
+                    try:
+                        spyres = future.result()
+                        
+                        if self._captcha_method != "none" and captcha:
+                            self._log_captcha(captcha)
+                        
+                        if spyres == 'success':
+                            success_count += 1
+                        elif spyres == 'error':
+                            error_count += 1
+                        elif spyres == 'admin':
+                            print(f'Detected untouchable admin account {user.name}.')
+                            last_user_skipped = True
+                            break
+                        elif spyres == 'maxed':
+                            print(f'Reached spy limit for user {user.name}.')
+                            last_user_skipped = True
+                            break
+                            
+                    except Exception as e:
+                        print(f'Error in spy request {request_num}: {e}')
+                        error_count += 1
+                
+                print(f'Completed spying user #{user.rank}: {user.name}. '
+                      + f'Success: {success_count}, Errors: {error_count}')
+                
+                # Break if we hit admin or maxed limit
+                if last_user_skipped:
                     break
-                elif spyres == 'maxed':
-                    last_user_skipped = True
-                    break
-
-                self._captcha_delay()
-
-            buffersize = self._get_captcha_buffersize()
-            print(f'Finished spying user #{user.rank}: {user.name}. '
-                  + f'Buffer size: {buffersize}')
 
         print('Battlefield has been cleared')
 
