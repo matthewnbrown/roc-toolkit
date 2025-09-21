@@ -110,10 +110,11 @@ def attack(roc: RocWebHandler, id: str, captchacache: CaptchaProvider) -> bool:
 
     if use_captcha:
         print(f"Received answer: '{captcha.ans}'")
+        if (captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]):
+            raise Exception("Bad captcha received from solver")
     else:
         print("No captcha used")
-    if (captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]):
-        raise Exception("Bad captcha received from solver")
+    
 
     post_captcha_gold = getgold(roc, id)
 
