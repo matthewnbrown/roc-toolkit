@@ -225,8 +225,11 @@ def run():
 
         return captcha
 
-    captchacache = CaptchaProvider(captcha_provider, cachesize=3)
-    captchacache.start()
+    if use_captcha:
+        captchacache = CaptchaProvider(captcha_provider, cachesize=3)
+        captchacache.start()
+    else:
+        captchacache = None
 
     while True:
         for id in targetids:
