@@ -18,6 +18,7 @@ from rocalert.services.useragentgenerator import (
 )
 
 targetids = [29428]
+use_captcha = False
 mingold = 10_000_000_000  # 10b
 delay_min_ms = 200
 delay_max_ms = 300
@@ -93,18 +94,22 @@ def goldformat(gold: int) -> str:
 
 def attack(roc: RocWebHandler, id: str, captchacache: CaptchaProvider) -> bool:
     start = datetime.now()
-    captcha = captchacache.get_solved_captcha()
-    captcha_get_time = datetime.now() - start
+    
+    if use_captcha:
+        captcha = captchacache.get_solved_captcha()
+        captcha_get_time = datetime.now() - start
 
-    if captcha_get_time.total_seconds() > 1.5:
-        print("took to long to get captcha.. resetting")
-        return False
+        if captcha_get_time.total_seconds() > 1.5:
+            print("took to long to get captcha.. resetting")
+            return False
+    else:
+        captcha = None
 
     attack_url = roc.url_generator.get_attack(id)
     attack_page = roc.get_attack_page(id)
 
     print(f"Received answer: '{captcha.ans}'")
-    if captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]:
+    if use_captcha and (captcha is None or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]):
         raise Exception("Bad captcha received from solver")
 
     post_captcha_gold = getgold(roc, id)
