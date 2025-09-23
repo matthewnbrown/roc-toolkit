@@ -76,6 +76,9 @@ class BFSellCatch:
         try:
             captcha = self._captcha_provider.get_solved_captcha()
 
+            if isinstance(captcha, Captcha) and captcha.hash == 'nocaptcha':
+                captcha = None
+
             correct = self._roc.submit_captcha(
                 captcha, captcha.ans, page, payload)
         except CaptchaSolveException as e:
