@@ -15,12 +15,15 @@ from rocalert.services.rocwebservices import AttackService, BattlefieldPageServi
 from rocalert.services.urlgenerator import ROCDecryptUrlGenerator
 from rocalert.specialtools import BFSellCatch
 
+use_captchas = False
+minpage = 30
+maxpage = 60
 
 def _should_att(target: BattlefieldTarget):
-    badranks = [112]
+    badranks = [112, 666]
     badids = [7530]
     bad_alliance = ["Example Alliance Name"]
-    mingold = 5 * (10**9)  # 5 x (1 billion) = 5 bn
+    mingold = 2.5 * (10**9)  # 2.5 x (1 billion) = 2.5 bn
     if target.gold >= mingold:
         print(f"Detected {target.name} with {target.gold} gold")
 
@@ -108,27 +111,32 @@ if __name__ == "__main__":
 
     buyer = ROCBuyer(rochandler, buyer_settings)
 
-    def captcha_providerfn():
-        url = rochandler.url_generator.get_armory()
-        captcha = None
-        mcs = ManualCaptchaSolverService()
-        while (
-            captcha is None
-            or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]
-            and not captcha.is_expired
-        ):
-            captcha = rochandler.get_url_img_captcha(url)
 
-            if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
-                print("Text captcha!!!")
-                quit()
+    if use_captchas:
+        def captcha_providerfn():
+            url = rochandler.url_generator.get_armory()
+            captcha = None
+            mcs = ManualCaptchaSolverService()
+            while (
+                captcha is None
+                or int(captcha.ans) not in [1, 2, 3, 4, 5, 6, 7, 8, 9]
+                and not captcha.is_expired
+            ):
+                captcha = rochandler.get_url_img_captcha(url)
 
-            captcha = mcs.solve_captcha(captcha)
-            print(f"got answer {captcha.ans}")
-        return captcha
+                if captcha.type and captcha.type == Captcha.CaptchaType.TEXT:
+                    print("Text captcha!!!")
+                    quit()
+
+                captcha = mcs.solve_captcha(captcha)
+                print(f"got answer {captcha.ans}")
+            return captcha
+    else:
+        def captcha_providerfn():
+            return Captcha('nocaptcha')
 
     captcha_provider = CaptchaProvider(captcha_providerfn, cachesize=2)
     captcha_provider.start()
 
     sellcatch = BFSellCatch(ps, atts, buyer, rochandler, captcha_provider)
-    sellcatch.run(_should_att, 0.35, 1, 2)
+    sellcatch.run(_should_att, 0.35, minpage, maxpage)

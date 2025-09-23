@@ -49,6 +49,8 @@ class BFSellCatch:
             print("took to long to get captcha.. resetting")
             return False
 
+        if captcha.hash == 'nocaptcha':
+            captcha = None
         self._attackservice.run_service(
             self._roc, target, captcha)
 
