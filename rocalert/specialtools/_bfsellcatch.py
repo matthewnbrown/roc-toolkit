@@ -78,16 +78,20 @@ class BFSellCatch:
 
             if isinstance(captcha, Captcha) and captcha.hash == 'nocaptcha':
                 captcha = None
+                ans = None
+            else:
+                ans = captcha.ans
 
             correct = self._roc.submit_captcha(
-                captcha, captcha.ans, page, payload)
+                captcha, ans, page, payload)
         except CaptchaSolveException as e:
             print(f'Error solving captcha: {e}')
 
         if correct:
             print("Correct answer")
             self.consecutive_captcha_failures = 0
-            captcha.ans_correct = True
+            if captcha:
+                captcha.ans_correct = True
         else:
             print("Incorrect answer?????")
             self.consecutive_captcha_failures += 1
