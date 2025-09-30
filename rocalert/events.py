@@ -115,17 +115,37 @@ class SpyEvent:
         return res
 
     def _get_all_users(self) -> None:
-        pagenum = 1
         self._battlefield = self._battlefield if self._battlefield else deque()
-        while True:
-            print(f'Loading BF Page {pagenum}')
-            user_resp = BattlefieldPageService.run_service(self._roc, pagenum)
-            pagenum += 1
-            if user_resp['response'] == 'error':
-                break
-
-            newuser = self._filterusers(user_resp['result'])
-            self._battlefield.extend(newuser)
+        
+        # Get the total number of pages
+        lower_page, upper_page = BattlefieldPageService.get_page_range(self._roc)
+        print(f'Loading BF Pages {lower_page} to {upper_page}')
+        
+        # Fetch all pages concurrently
+        all_users = []
+        with ThreadPoolExecutor(max_workers=50) as executor:
+            # Submit all page requests
+            future_to_page = {
+                executor.submit(BattlefieldPageService.run_service, self._roc, pagenum): pagenum
+                for pagenum in range(lower_page, upper_page + 1)
+            }
+            
+            # Process results as they complete
+            for future in as_completed(future_to_page):
+                pagenum = future_to_page[future]
+                try:
+                    user_resp = future.result()
+                    if user_resp['response'] == 'success':
+                        print(f'Loaded BF Page {pagenum}')
+                        all_users.extend(user_resp['result'])
+                    else:
+                        print(f'Error loading BF Page {pagenum}: {user_resp.get("error", "Unknown error")}')
+                except Exception as e:
+                    print(f'Exception loading BF Page {pagenum}: {e}')
+        
+        # Filter and add all users
+        newuser = self._filterusers(all_users)
+        self._battlefield.extend(newuser)
 
         if self._reversedorder:
             self._battlefield.reverse()
