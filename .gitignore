@@ -5,7 +5,7 @@ logs
 2captcha_settings.json
 truecaptcha_settings.json
 rocapi_settings.json
-
+sessions/
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
